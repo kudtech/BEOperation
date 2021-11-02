@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+{%load staticfiles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    .fa-stack {
+        position: relative;
+        color: #2B59A2;
+        /* color: lightgreen; */
+    }
+</style>
+
+<body>
+    <ul class="nav nav-tabs container" role="tablist" style="background-color:#FDF2E5;margin-top:5px">
+        <li class="nav-item">
+            <a class="nav-link active" href="#profile" role="tab" data-toggle="tab" style="color:black">Jobs Awaiting
+                Action
+                <!-- <sup>
+                    <span class="fa-stack fa-sm">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-inverse fa-stack-1x">1</i>
+                    </span>
+                </sup> -->
+
+            </a>
+
+
+
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#buzz" role="tab" data-toggle="tab" id="open" style="color:black">Open Jobs
+                <!-- <sup>
+                    <span class="fa-stack fa-sm">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-inverse fa-stack-1x">234</i>
+                    </span>
+                </sup> -->
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#references" role="tab" data-toggle="tab" id="progress" style="color:black">Jobs
+                In Progress
+                <!-- <sup>
+                    <span class="fa-stack fa-sm">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-inverse fa-stack-1x">15</i>
+                    </span>
+                </sup> -->
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#ref" role="tab" data-toggle="tab" id="suspended" style="color:black">Suspended
+                Jobs
+                <!-- <sup>
+                    <span class="fa-stack fa-sm">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-inverse fa-stack-1x">8</i>
+                    </span>
+                </sup> -->
+            </a>
+        </li>
+        <!-- <li class="nav-item">
+            <a class="nav-link" href="#re_inspect" role="tab" data-toggle="tab" id="re_inspection" style="color:black">Failed
+                Jobs
+                <sup>
+                    <span class="fa-stack fa-sm">
+                        <i class="fa fa-circle fa-stack-2x"></i>
+                        <i class="fa fa-inverse fa-stack-1x">8</i>
+                    </span>
+                </sup>
+            </a>
+        </li> -->
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="profile">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <br>
+                <h3 class="text-center font-weight-bold">JOBS AWAITING ACTION</h3>
+                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                    data-ajax="/beweb/orders/{{user.username}}/?format=datatables" data-server-side="false"
+                    id="completed" style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                    <thead>
+                        <tr>
+                            <th style="color:black" id="work_order">Workorder Number</th>
+                            <th style="color:black" id="job_number">Job Number</th>
+                            <th style="color:black" id="description">Description</th>
+                            <th style="color:black" id="date_created"> Date Created</th>
+                            <th style="color:black" id="status">Status</th>
+                            <th style="color:black" id="forms">Forms</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="buzz">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <br>
+                <h3 class="text-center font-weight-bold">OPEN JOBS</h3>
+                <table class="w3-table thead-dark w3-border table table-striped table-bordered"
+                    data-ajax="/beweb/openjobs/{{user.username}}/{{section}}/1/?format=datatables"
+                    data-server-side="false" id="open_jobs"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="color:black">Workorder Number</th>
+                            <th style="color:black">Job Number</th>
+                            <th style="color:black">Description</th>
+                            <th style="color:black"> Date Created</th>
+                            <th style="color:black">Status</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="references">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <br>
+                <h3 class="text-center font-weight-bold"> JOBS IN PROGRESS </h3>
+                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                    data-ajax="/beweb/progressjobs/{{user.username}}/{{section}}/2/?format=datatables"
+                    data-server-side="false" id="progress_jobs"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="color:black">Workorder Number</th>
+                            <th style="color:black">Job Number</th>
+                            <th style="color:black">Description</th>
+                            <th style="color:black"> Date Created</th>
+                            <th style="color:black">Status</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="ref">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <br>
+                <h3 class="text-center font-weight-bold">SUSPENDED JOBS</h3>
+                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                    data-ajax="/beweb/supervisorjobs/{{user.username}}/{{section}}/3/?format=datatables"
+                    data-server-side="false" id="suspended_jobs"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="color:black">Workorder Number</th>
+                            <th style="color:black">Job Number</th>
+                            <th style="color:black">Description</th>
+                            <th style="color:black"> Date Created</th>
+                            <th style="color:black">Status</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <!-- <div role="tabpanel" class="tab-pane fade" id="re_inspect">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <br>
+                <h3 class="text-center font-weight-bold">FAILED JOBS</h3>
+                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                    data-ajax="/beweb/rejectedjobs/?format=datatables" data-server-side="false"
+                    id="re_inspectio" style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                    <thead>
+                        <tr>
+                            <th style="color:black">Workorder Number</th>
+                            <th style="color:black">Job Number</th>
+                            <th style="color:black">Description</th>
+                            <th style="color:black"> Date Created</th>
+                            <th style="color:black">Inspection Status</th>
+                            <th style="color:black">Forms</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div> -->
+    </div>
+
+
+
+    <script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+    <script>
+        $(document).ready(function () {
+            var table = $('#completed').DataTable({
+                "serverSide": true,
+                "ajax": "/beweb/orders/{{user.username}}/?format=datatables",
+                "columns": [
+                    { "data": "work_order_id", "searchable": false },
+                    {
+                        "data": "job_id", "searchable": true,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).html("<a data-toggle='collapse' href='#" + oData.job_id + "' aria-expanded='false' aria-controls='" + oData.job_id + "'>" + oData.job_id + "</a><div class='card card-body collapse' id='" + oData.job_id + "'><a class='row' href='/beweb/job/?q=" + oData.job_id + "'>View</a><a class='row' href='/beweb/editjob/?q=" + oData.job_id + "'>Edit</a></div>");
+                        }
+                    },
+                    { "data": "description", "searchable": true },
+                    { "data": "created_on", "searchable": true },
+                    { "data": "status_value", "searchable": false },
+                    {
+                        "data": "job_form", "searchable": false,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).html("<a href='/beweb/forms/?job_id=" + oData.job_id + "&type=" + oData.type + "'>" + oData.number_of_forms + "</a>");
+                        }
+                    }
+                ]
+            });
+
+            var table1 = $('#progress_jobs').DataTable({
+                "ajax": '/beweb/progressjobs/{{user.username}}/{{section}}/2/?format=datatables',
+                "serverSide": false,
+                "columns": [
+                    { "data": "work_order_id", "searchable": false },
+                    {
+                        "data": "job_id", "searchable": true,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).html("<a data-toggle='collapse' href='#" + oData.job_id + "' aria-expanded='false' aria-controls='" + oData.job_id + "'>" + oData.job_id + "</a><div class='card card-body collapse' id='" + oData.job_id + "'><a class='row' href='/beweb/job/?q=" + oData.job_id + "'>View</a><a class='row' href='/beweb/editjob/?q=" + oData.job_id + "'>Edit</a></div>");
+                        }
+                    },
+                    { "data": "description", "searchable": true },
+                    { "data": "created_on", "searchable": true },
+                    { "data": "status_value", "searchable": false }
+                ]
+            });
+
+            var table2 = $('#open_jobs').DataTable({
+                "ajax": '/beweb/openjobs/{{user.username}}/{{section}}/1/?format=datatables',
+                "serverSide": false,
+                "columns": [
+                    { "data": "work_order_id", "searchable": true },
+                    {
+                        "data": "job_id", "searchable": true,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).html("<a data-toggle='collapse' href='#" + oData.job_id + "' aria-expanded='false' aria-controls='" + oData.job_id + "'>" + oData.job_id + "</a><div class='card card-body collapse' id='" + oData.job_id + "'><a class='row' href='/beweb/job/?q=" + oData.job_id + "'>View</a><a class='row' href='/beweb/editjob/?q=" + oData.job_id + "'>Edit</a></div>");
+                        }
+                    },
+                    { "data": "description", "searchable": true },
+                    { "data": "created_on", "searchable": false },
+                    { "data": "status_value", "searchable": false }
+                ]
+            });
+
+            var table3 = $('#suspended_jobs').DataTable({
+                "ajax": '/beweb/supervisorjobs/{{user.username}}/{{section}}/3/?format=datatables',
+                "serverSide": false,
+                "columns": [
+                    { "data": "work_order_id", "searchable": true },
+                    {
+                        "data": "job_id", "searchable": true,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).html("<a data-toggle='collapse' href='#" + oData.job_id + "' aria-expanded='false' aria-controls='" + oData.job_id + "'>" + oData.job_id + "</a><div class='card card-body collapse' id='" + oData.job_id + "'><a class='row' href='/beweb/job/?q=" + oData.job_id + "'>View</a><a class='row' href='/beweb/editjob/?q=" + oData.job_id + "'>Edit</a></div>");
+                        }
+                    },
+                    { "data": "description", "searchable": true },
+                    { "data": "created_on", "searchable": false },
+                    { "data": "status_value", "searchable": false }
+                ]
+            });
+            /*var table4 = $('#re_inspectio').DataTable({
+                "ajax": '/beweb/rejectedjobs/?format=datatables',
+                "serverSide": false,
+                "columns": [
+                    { "data": "work_order_id", "searchable": true },
+                    {
+                        "data": "job_id", "searchable": true,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).html("<a data-toggle='collapse' href='#" + oData.job_id + "' aria-expanded='false' aria-controls='" + oData.job_id + "'>" + oData.job_id + "</a><div class='card card-body collapse' id='" + oData.job_id + "'><a class='row' href='/beweb/job/?q=" + oData.job_id + "'>View</a><a class='row' href='/beweb/editjob/?q=" + oData.job_id + "'>Edit</a><a class='row' href='/beweb/reinspection/?q=" + oData.job_id + "'>Re Inspect</a></div>");
+                        }
+                    },
+                    { "data": "description", "searchable": true },
+                    { "data": "created_on", "searchable": false },
+                    { "data": "decision", "searchable": false }
+                ]
+            });*/
+        });
+
+    </script>
+</body>
+{% endif %} {% endblock %}

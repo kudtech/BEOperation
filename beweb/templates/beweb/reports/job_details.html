@@ -1,0 +1,95 @@
+{% extends "beweb/dashboard.html" %}{% block content %} {% if user.is_authenticated %} {% load render_table from django_tables2 %}
+<br />
+
+<div class="container col-md-12">
+<form action="{% url 'beweb:addjob' %}" method="get">
+<div class="row">
+        <div class="col-md-2">
+            <div class="row">
+
+
+
+                <div class="col-md-12">
+            {% csrf_token %}
+                    <h2 class="bg-dark text-light text-center">
+                     
+                                        {{Workorder_selected}}
+</h2>
+                   
+                    
+                </div>
+              
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div class="row">
+
+
+                <div class="col-md-10">
+                    <h4 class="bg-dark text-light text-center">
+                        Jobs 
+                       <input value="{{Workorder_selected.work_order_id}}" hidden name="wo" id="wo" />
+                      
+                            </i></button>
+                
+                    </h4>
+                    {% render_table job_table %}
+                </div>
+               
+                <div class="col-md-10">
+                    <h4 class="bg-dark text-light text-center">
+                        Assistant Members
+                    </h4>
+                    <table class="table">
+                        <thead class="text-justify">
+                            <tr>
+                                <th>Team Member</th>
+                                <th>Start Date</th>
+                              </tr>
+                        </thead>
+                        <tbody> {% for jp in my_progress %} {% for tm in my_team %} {% if jp == tm.job_progress%}
+                            <tr>
+
+                                <td>{{tm.ec_num}}</td>
+                                <td>{{tm.start_dt}}</td>
+                               
+                            </tr>
+                            {% endif%} {% endfor %} {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+                 <div class="col-md-10">
+                    <h4 class="bg-dark text-light text-center">
+                        Job Progress 
+                   
+                    </h4>
+                    {% render_table jobp_table %}
+                </div>
+                 <div class="col-md-10">
+                <br>  <h4 class="bg-dark text-light text-center">
+                        E84 General
+                      </h4>
+                    {% render_table E84_general %}
+                  </div >  <div class="col-md-10">
+                <br>  <h4 class="bg-dark text-light text-center">
+                        E84 Form
+                    </h4>
+                    {% render_table E84_table %}
+                  </div >
+                 
+               
+               
+               
+                <div class="container">
+                  <div class="col-md-6">
+                      <input class="btn btn-sm btn-dark btn-block btn-round text-info" type="submit" value="Add Job"name="Add Job">
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+</div> {% endif %} {% endblock %}s

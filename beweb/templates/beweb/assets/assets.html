@@ -1,0 +1,578 @@
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+{%load staticfiles %}
+
+<style>
+    @media (min-width:768px) {
+        .modal-xl {
+            width: 90%;
+            max-width: 1200px;
+        }
+    }
+</style>
+<div class="container">
+    <form id="asset_form" method="POST" action="{% url 'beweb:saveasset' %}">
+        {% csrf_token %}
+        <input type="hidden" name="asset_type" value="{{asset_type}}" />
+        <input type="hidden" name="asset_code_pk" id="selected_asset" value="" />
+        <input type="hidden" name="wo" type="text" class="form-control" value="{{wo}}" />
+        <input type="hidden" name="joid" type="text" class="form-control" value="{{joid}}" />
+        <input type="hidden" name="work_type" value="{{work_type}}" />
+        {% if 'E50' in job_type %}
+        <h3 class="text-center m-4">Sub Stations</h3>
+        <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+            data-ajax="/beweb/stations/{{user_centre}}/?format=datatables" data-server-side="false" id="stations"
+            style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="color:black">Station ID</th>
+                    <th style="color:black">Station Name</th>
+                    <th style="color:black">Type</th>
+                    <th style="color:black"> Classification</th>
+                </tr>
+            </thead>
+        </table>
+        {% elif 'E60' in job_type %}
+        <h3 class="text-center m-4">Transformers</h3>
+        <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+            data-ajax="/beweb/transformers/{{user_centre}}/?format=datatables" data-server-side="false" id="e60_transformers"
+            style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="color:black" hidden>Transformer ID</th>
+                    <th style="color:black">Name</th>
+                    <th style="color: black;">System Number</th>
+                    <th style="color:black"> Voltage Ratio</th>
+                    <th style="color:black">Capacity</th>
+                    <th style="color:black">Mounting</th>
+                    <th style="color:black">Make</th>
+                </tr>
+            </thead>
+        </table>
+        {% elif 'E84' in job_type %}
+
+        <h6 class="text-center font-weight-bold">Select {{asset_type.capitalize}}</h6>
+        <table class="w3-table thead-dark w3-border table table-striped table-bordered display" data-server-side="false"
+            data-ajax="http://172.20.0.10:8089/gis/{{asset_type}}/{{centre_code}}/?format=datatables" id="assets"
+            style="background-color:#f4f4f4;border-radius: 5px">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th style="color: black;">{{column_one}}</th>
+                    <th style="color: black;">{{column_two}}</th>
+                    <th style="color: black;">{{column_three}}</th>
+                    <th style="color: black;">{{column_four}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td style="color: black;">{{data_one}}</td>
+                    <td style="color: black;">{{data_two}}</td>
+                    <td style="color: black;">{{data_three}}</td>
+                    <td style="color: black;">{{data_four}}</td>
+                </tr>
+            </tbody>
+        </table>
+        {% endif %}
+
+        <div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center ">
+            <div class="col-md-3">
+                {% if 'E50' in job_type %}
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                    <input type="button" class="btn  btn-sm  btn-block " value="Back" name="back" formaction="" />
+                </a>
+                {% endif %}
+            </div>
+            <div class="col-md-3">
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                    <input type="Submit" class="btn  btn-sm  btn-block " value="Create" name="create"
+                        formaction="/beweb/saveasset/" />
+                </a>
+            </div>
+
+            <div class=" col-md-3">
+                {% if 'E50' in job_type %}
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                    <input type="button" class="btn  btn-sm  btn-block " value=" View Equipment" name="view_equipment"
+                        id="view_equipment" data-toggle="modal" data-target="#equipment_modal" />
+                </a>
+
+                <!-- Modal -->
+                <div class="modal fade" id="equipment_modal" tabindex="-1" role="dialog"
+                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <h3 class="text-center transformers">Transformers</h3>
+                                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                                    data-server-side="false" id="transformers"
+                                    style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="color:black">Transformer ID</th>
+                                            <th style="color:black">Transformer Name</th>
+                                            <th style="color:black">VT Ratio</th>
+                                            <th style="color:black">SS Code</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+
+
+                                <h3 class="text-center feeders">Feeders</h3>
+                                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                                    data-server-side="false" id="feeders"
+                                    style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="color:black">Feeder Code</th>
+                                            <th style="color:black">Name</th>
+                                            <th style="color:black">Voltage Level</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+
+
+                                <h3 class="text-center circuitbreakers">Circuit Breakers</h3>
+                                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                                    data-server-side="false" id="circuitbreakers"
+                                    style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="color:black">Switchgear Number</th>
+                                            <th style="color:black">Switchgear ID</th>
+                                            <th style="color:black">Type</th>
+                                            <th style="color:black">Voltage Rating</th>
+                                            <th style="color:black">Make</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+
+
+                                <h3 class="text-center disconnectors_isolators">Disconnectors & Isolators</h3>
+                                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                                    data-server-side="false" id="disconnectors_isolators"
+                                    style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="color:black">Switchgear Number</th>
+                                            <th style="color:black">Switchgear ID</th>
+                                            <th style="color:black">Type</th>
+                                            <th style="color:black">Voltage Rating</th>
+                                            <th style="color:black">Make</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+
+                            </div>
+                            <div class="modal-footer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!---->
+                {% endif %}
+            </div>
+
+            <div class=" col-md-3">
+                {% if 'E60' in job_type %}
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                    <input type="button" class="btn  btn-sm  btn-block " value=" View Equipment" name="e60view_equipment"
+                        id="e60view_equipment" data-toggle="modal" data-target="#e60equipment_modal" />
+                </a>
+
+                <!-- Modal -->
+                <div class="modal fade" id="e60equipment_modal" tabindex="-1" role="dialog"
+                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <h3 class="text-center e60metering">Metering</h3>
+                                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                                    data-server-side="false" id="e60metering"
+                                    style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="color:black">Meter ID</th>
+                                            <th style="color:black">Make</th>
+                                            <th style="color:black">Zesa Number</th>
+                                            <th style="color:black">CT RATIO</th>
+                                            <th style="color:black">VOLTS</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+
+
+                                <h3 class="text-center e60_circuitbreakers">ACB/OCB</h3>
+                                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                                    data-server-side="false" id="e60_circuitbreakers"
+                                    style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="color:black">MAKE</th>
+                                            <th style="color:black">SWITCHGEAR NUMBER</th>
+                                            <th style="color:black">VT RATING</th>
+                                            <th style="color:black">TYPE</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+
+
+
+                                <h3 class="text-center lightingarresters">Lighting Arresters</h3>
+                                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                                    data-server-side="false" id="lightingarresters"
+                                    style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="color:black">MAKE</th>
+                                            <th style="color:black">TYPE</th>
+                                            <th style="color:black">PHASE</th>
+                                            <th style="color:black">HT/LT</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <h3 class="text-center dfuses">DFUSES</h3>
+                                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                                    data-server-side="false" id="dfuses"
+                                    style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th style="color:black">DFUSE ID</th>
+                                            <th style="color:black">RATING</th>
+                                            <th style="color:black">DFUSE TYPE</th>
+                                            <th style="color:black">PHASE</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div class="modal-footer">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!---->
+                {% endif %}
+            </div>
+        </div>
+
+
+
+    </form>
+
+</div>
+<script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/dataTables.checkboxes.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/dataTables.checkboxes.min.js' %}" />
+<script>
+    $(document).ready(function () {
+        $('#view_equipment').click(function () {
+            asset_id = $("input[name='asset_id']:checked").val()
+            transformers_table = $('#transformers').DataTable({
+                //function to hide empty datatable
+                initComplete: function () {
+                    if ($(this).find('tbody tr').length <= 1) {
+                        $('#transformers').parents('div.dataTables_wrapper').first().hide()
+                        $('.transformers').hide()
+                    }
+                },
+                //customise show entries to start from 5
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "serverSide": false,
+                //attribute to enable datatable re-initialisation without problems
+                "destroy": true,
+                "ajax": "/beapi/station/transformers/" + asset_id + "/?format=datatables",
+                "columns": [
+                    { "data": "transformerid", "searchable": true },
+                    { "data": "name", "searchable": true },
+                    { "data": "voltageratio", "searchable": true },
+                    { "data": "sscode", "searchable": true }
+                ]
+            });
+
+
+            feeders_table = $('#feeders').DataTable({
+                initComplete: function () {
+                    if ($(this).find('tbody tr').length <= 1) {
+                        $('#feeders').parents('div.dataTables_wrapper').first().hide()
+                        $('.feeders').hide()
+                    }
+                },
+                //customise show entries to start from 5
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "serverSide": false,
+                "destroy": true,
+                "ajax": "/beapi/station/feeders/" + asset_id + "/?format=datatables",
+                "columns": [
+                    { "data": "feedercode", "searchable": true },
+                    { "data": "name", "searchable": true },
+                    { "data": "voltagelevel", "searchable": true }
+                ]
+            });
+
+
+            circuitbreakers_table = $('#circuitbreakers').DataTable({
+                initComplete: function () {
+                    if ($(this).find('tbody tr').length <= 1) {
+                        $('#circuitbreakers').parents('div.dataTables_wrapper').first().hide()
+                        $('.circuitbreakers').hide()
+                    }
+                },
+                //customise show entries to start from 5
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "serverSide": false,
+                "destroy": true,
+                "ajax": "/beapi/station/circuitbreakers/" + asset_id + "/?format=datatables",
+                "columns": [
+                    { "data": "switchgearno", "searchable": true },
+                    { "data": "switchgearid", "searchable": true },
+                    { "data": "type", "searchable": true },
+                    { "data": "voltagerating", "searchable": true },
+                    { "data": "make", "searchable": true }
+                ]
+            });
+
+            disconnectors_isolators_table = $('#disconnectors_isolators').DataTable({
+                initComplete: function () {
+                    if ($(this).find('tbody tr').length <= 1) {
+                        $('#disconnectors_isolators').parents('div.dataTables_wrapper').first().hide()
+                        $('.disconnectors_isolators').hide()
+                    }
+                },
+                //customise show entries to start from 5
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "serverSide": false,
+                "destroy": true,
+                "ajax": "/beapi/station/isolators/" + asset_id + "/?format=datatables",
+                "columns": [
+                    { "data": "switchgearno", "searchable": true },
+                    { "data": "switchgearid", "searchable": true },
+                    { "data": "type", "searchable": true },
+                    { "data": "voltagerating", "searchable": true },
+                    { "data": "make", "searchable": true }
+                ]
+            });
+
+        });
+
+        $('#e60view_equipment').click(function () {
+            asset_id = $("input[name='asset_id']:checked").val()
+            metering_table = $('#e60metering').DataTable({
+                initComplete: function () {
+                    if ($(this).find('tbody tr').length <= 1) {
+                        //$('#e60metering').parents('div.dataTables_wrapper').first().hide()
+                        //$('.e60metering').hide()
+                    }
+                },
+                //customise show entries to start from 5
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "serverSide": false,
+                "destroy": true,
+                "ajax": "/beapi/transformers/metering/" + asset_id + "/?format=datatables",
+                "columns": [
+                    { "data": "metering_id", "searchable": true },
+                    { "data": "make", "searchable": true },
+                    { "data": "zesa_number", "searchable": true },
+                    { "data": "ct_ratio", "searchable": true },
+                    { "data": "volts", "searchable": true }
+                ]
+            });
+
+            lighting_table = $('#lightingarresters').DataTable({
+                initComplete: function () {
+                    if ($(this).find('tbody tr').length <= 1) {
+                        //$('#e60metering').parents('div.dataTables_wrapper').first().hide()
+                        //$('.e60metering').hide()
+                    }
+                },
+                //customise show entries to start from 5
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "serverSide": false,
+                "destroy": true,
+                "ajax": "/beapi/transformer/lightingarrester/" + asset_id + "/?format=datatables",
+                "columns": [
+                    { "data": "make", "searchable": true },
+                    { "data": "type", "searchable": true },
+                    { "data": "phase", "searchable": true },
+                    { "data": "ht_lt", "searchable": true }
+                ]
+            });
+            switchgear_table = $('#e60_circuitbreakers').DataTable({
+                initComplete: function () {
+                    if ($(this).find('tbody tr').length <= 1) {
+                        //$('#e60metering').parents('div.dataTables_wrapper').first().hide()
+                        //$('.e60metering').hide()
+                    }
+                },
+                //customise show entries to start from 5
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "serverSide": false,
+                "destroy": true,
+                "ajax": "/beapi/transformer/switchgear/" + asset_id + "/?format=datatables",
+                "columns": [
+                    { "data": "make", "searchable": true },
+                    { "data": "switchgearno", "searchable": true },
+                    { "data": "voltagerating", "searchable": true },
+                    { "data": "type", "searchable": true }
+                ]
+            });
+            dfuses_table = $('#dfuses').DataTable({
+                initComplete: function () {
+                    if ($(this).find('tbody tr').length <= 1) {
+                    }
+                },
+                //customise show entries to start from 5
+                "lengthMenu": [5, 10, 25, 50, 100],
+                "serverSide": false,
+                "destroy": true,
+                "ajax": "/beapi/transformer/dfuse/" + asset_id + "/?format=datatables",
+                "columns": [
+                    { "data": "dfuse_id", "searchable": true },
+                    { "data": "rating", "searchable": true },
+                    { "data": "dfuse_type", "searchable": true },
+                    { "data": "phase", "searchable": true }
+                ]
+            });
+        });
+
+        var table1 = $('#stations').DataTable({
+            'columnDefs': [
+                {
+                    'targets': 0,
+                    'searchable': false,
+                    'orderable': false,
+                    'width': '5%',
+                    'className': 'dt-body-center',
+                    "data": "stationid",
+                    'render': function (data, type, full, meta) {
+                        return '<input type="radio" id="asset_id" name="asset_id" class="selected-asset" value="' + data + '">';
+                    }
+
+                }],
+            "serverSide": true,
+            "ajax": "/beweb/stations/{{user_centre}}/?format=datatables",
+            "columns": [
+                {},
+                {
+                    "data": "stationid", "searchable": true,
+                    "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                        $(nTd).html("<a data-toggle='collapse' href='#" + oData.stationid + "' aria-expanded='false' aria-controls='" + oData.stationid + "'>" + oData.stationid + "</a><div class='card card-body collapse' id='" + oData.stationid + "'><a class='row' href='/beweb/job/?q=" + oData.stationid + "'>View Equipment</a></div>");
+                    }
+                },
+                { "data": "name", "searchable": true },
+                { "data": "type", "searchable": true },
+                { "data": "classification", "searchable": true }
+            ]
+            });
+
+            var table1 = $('#e60_transformers').DataTable({
+                'columnDefs': [
+                    {
+                        'targets': 0,
+                        'searchable':false,
+                        'orderable': false,
+                        'width': '5%',
+                        'className': 'dt-body-center',
+                        "data": "transformerid",
+                        'render': function (data, type, full, meta) {
+                            return '<input type="radio" id="asset_id" name="asset_id" class="selected-asset" value="' + data + '">';
+                        }
+    
+                    }],
+                "serverSide": true,
+                "ajax": "/beweb/transformers/{{user_centre}}/?format=datatables",
+                "columns": [
+                    {},
+                    {
+                        "data": "transformerid", "searchable": true,
+                        "visible":false,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).html("<a data-toggle='collapse' href='#" + oData.transformerid + "' aria-expanded='false' aria-controls='" + oData.transformerid + "'>" + oData.transformerid + "</a><div class='card card-body collapse' id='" + oData.transformerid + "'><a class='row' href='/beweb/job/?q=" + oData.transformerid + "'>View Equipment</a></div>");
+                        }
+                    },
+                    { "data": "name", "searchable": true },
+                    {"data":"systemno","searchable":true},
+                    { "data": "voltageratio", "searchable": true },
+                    { "data": "capacity", "searchable": true },
+                    { "data": "mounting", "searchable": true },
+                    { "data": "make", "searchable": true }
+                ]
+                });
+            let data_one = "{{ data_one  }}";
+            let data_two = "{{ data_two  }}";
+            let data_three = "{{ data_three  }}";
+            let data_four = "{{ data_four  }}";
+            var table = $('#assets').DataTable({
+            'columnDefs': [
+                {
+                    'targets': 0,
+                    'searchable': false,
+                    'orderable': false,
+                    'width': '5%',
+                    'className': 'dt-body-center',
+                    "data": data_one,
+                    'render': function (data, type, full, meta) {
+                        return '<input type="radio" name="asset" class="selected-asset" value="' + data + '">';
+                    }
+
+                }],
+            "serverSide": false,
+            "ajax": {
+                type: 'GET',
+                url: 'http://172.20.0.10:8089/gis/{{asset_type}}/{{centre_code}}/?format=datatables'
+            },
+            "columns": [
+                {},
+                {
+                    "data": data_one, "searchable": true
+                },
+                {
+                    "data": data_two, "searchable": true
+                },
+                {
+                    "data": data_three, "searchable": true
+                },
+                {
+                    "data": data_four, "searchable": true
+                }
+            ]
+        });
+
+
+
+        $('#asset_form').on('submit', function (e) {
+            // e.preventDefault()
+            var form = this;
+            var params = table.$('input').serializeArray();
+            $('#selected_asset').val(params[0]['value']);
+            $.each(params, function () {
+                if (!$.contains(document, form[this.name])) {
+                    $(form).append(
+                        $('<input>')
+                            .attr('type', 'hidden')
+                            .attr('name', this.name)
+                            .val(this.value)
+                    );
+                }
+            });
+        });
+    });
+</script>
+{% endif %} {% endblock %}

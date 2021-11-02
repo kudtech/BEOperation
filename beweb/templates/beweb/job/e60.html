@@ -1,0 +1,1271 @@
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+
+{% load staticfiles %}
+<style>
+    .tabs-wrap {
+        margin-top: 40px;
+    }
+
+    .tab-content .tab-pane {
+        padding: 20px 0;
+    }
+
+    @media (min-width:768px) {
+        .modal-xl {
+            width: 90%;
+            max-width: 1120px;
+        }
+    }
+
+    .truncate {
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<!-- Modal -->
+<div class="modal fade" id="reject_modal" tabindex="-1" role="dialog" aria-labelledby="modal_centre_title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label class="font-weight-bold col-xs-3 col-form-label text-center" style="padding-left: 50px;">REASON
+                    FOR REJECTING
+                </label>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for e60 in e60_general %}
+                    <input type="hidden" value="{{e60.job}}" name="job_id" />
+                    {% endfor %}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <textarea class="form-control" name="reject_reason" id="reject_reason"></textarea>
+                        </div>
+                    </div>
+                    <div class="row form-group" style="border-radius:15px;padding-bottom:40px;">
+                        <div class="col-sm-4"></div>
+                        <div class="col-sm-2">
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                                <input type="button" class="btn  btn-sm  btn-block " value="Cancel" data-dismiss="modal"
+                                    id="cancel_btn" />
+                            </a>
+                        </div>
+                        <div class="col-sm-2">
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                                <input type="submit" class="btn  btn-sm  btn-block" value="Send" name="send"
+                                    formaction="/beweb/approve" />
+                            </a>
+                        </div>
+                        <div class="col-sm-4"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<!---->
+<div class="container">
+    <h2 class="text-center font-weight-bold">INSPECTION AND OVERHAUL OF CONSUMER SUBSTATION FORM (E60)</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">DISTRICT</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{district}}" readonly />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e60_subgeneral.created_on}}" readonly />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">TRANSFORMER
+                        NAME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{transformr.name}}" readonly />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">TIME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e60_subgeneral.created_at}}" readonly />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">TRANSFORMER
+                        NUMBER</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{transformr.systemno}}" readonly />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">TYPE OF 
+                        CONSTRUCTION</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e60.construction_type}}" readonly />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">SECTION
+                        </label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e60.line_section}}" readonly />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">TYPE OF 
+                        WORK</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e60.type_of_work}}" readonly />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!---->
+    <ul class="nav nav-tabs container" role="tablist" style="background-color:#FDF2E5;margin-top:5px">
+        <li class="nav-item">
+            <a class="nav-link active" href="#transformer" role="tab" data-toggle="tab" id="transformer_id"
+                style="color:black;">Transformer
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#switchgear" role="tab" data-toggle="tab" id="switchgear_id" style="color:black">ACB/OCB
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#metering" role="tab" data-toggle="tab" id="metering_id"
+                style="color:black">Metering
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#housing" role="tab" data-toggle="tab" id="housing_id"
+                style="color:black">Meter SG/Housing
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#dfuses" role="tab" data-toggle="tab" id="dfuses_id"
+                style="color:black"> 'D' FUSES
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#htlighting" role="tab" data-toggle="tab" id="htlighting_id"
+                style="color:black">HT Lighting Arrestr
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#ltlighting" role="tab" data-toggle="tab" id="ltlighting_id"
+                style="color:black">LT Lighting Arrestr
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#sgeneral" role="tab" data-toggle="tab" id="ssgeneral_id"
+                style="color:black">SS General
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#safetyprecautions" role="tab" data-toggle="tab" id="safetyprecaution_id"
+                style="color:black">Safety Precautions
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#consumerinstallation" role="tab" data-toggle="tab" id="consumerinstallation_id"
+                style="color:black">Consumer's Installation
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#general" role="tab" data-toggle="tab" id="general_id" style="color:black">General
+            </a>
+        </li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane" id="transformer">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table " data-ajax="" data-server-side="false" id="transformer_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+
+
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold">As Found</th>
+                            <th  style="color:black;font-weight: bold">As Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">MAKE</th>
+                          <td>{{transformr.make}}</td>
+                          <td>{{transformr.make}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">KVA</th>
+                          <td>{{transformr.assetno}}</td>
+                          <td>{{transformers.rating}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">VOLTAGE RATIO</th>
+                          <td>{{transformr.voltageratio}}</td>
+                          <td>{{transformers.voltageratio}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">ZESA NUMBER</th>
+                            <td>{{transformr.assetno}}</td>
+                            <td>{{transformers.assetno}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">SERIAL NUMBER</th>
+                            <td>{{transformr.serialno}}</td>
+                            <td>{{transformers.serialno}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">SECURITY OF MOUNTNG</th>
+                            <td>{{asfoundtransfomer.mounting_security}}</td>
+                            <td>{{asleft_transformer.mounting_security}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">TANK BONDED TO EARTH</th>
+                            <td>{{asfoundtransfomer.tank_bonded_earth}}</td>
+                            <td>{{asleft_transformer.tank_bonded_earth}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">LT NEUTRAL BONDED TO EARTH</th>
+                            <td>{{asfoundtransfomer.neutral_bonded_earth}}</td>
+                            <td>{{asleft_transformer.tank_bonded_earth_cmt}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONDITION OF BUSHING</th>
+                            <td>{{asfoundtransfomer.bushings_condition}}</td>
+                            <td>{{asleft_transformer.bushings_condition}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONDITION OF PAINTWORK</th>
+                            <td>{{asfoundtransfomer.paintwork_condition}}</td>
+                            <td>{{asleft_transformer.paintwork_condition}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">ARCING HORN SETTINGS</th>
+                            <td>{{asfoundtransfomer.arcing_settings}}</td>
+                            <td>{{asleft_transformer.arcing_settings}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">SILICA GEL CONDITION</th>
+                            <td>{{asfoundtransfomer.silica_condition}}</td>
+                            <td>{{asleft_transformer.silica_condition}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">OIL LEAKS(WHERE)</th>
+                            <td>{{asfoundtransfomer.oil_leaks}}</td>
+                            <td>{{asleft_transformer.oil_leaks}}</td>
+                            
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">MEGGER (HT-E) MOHMS</th>
+                            <td>{{asfoundtransfomer.megger_ht_e}}</td>
+                            <td>{{asleft_transformer.megger_ht_e}}</td>
+                            
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">MEGGER(LT-E) MOHMS</th>
+                            <td>{{asfoundtransfomer.megger_lt_e}}</td>
+                            <td>{{asleft_transformer.megger_lt_e}}</td>
+                            
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">MEGGER(HT-LT) MOHMS</th>
+                            <td>{{asfoundtransfomer.megger_ht_lt}}</td>
+                            <td>{{asleft_transformer.megger_ht_lt}}</td>
+                            
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">MEGGER (HT-LT/E) MOHMS</th>
+                            <td>{{asfoundtransfomer.megger_ht_lt_e}}</td>
+                            <td>{{asleft_transformer.megger_ht_lt_e}}</td>
+                            
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">OIL TEMPERATURE</th>
+                            <td>{{asfoundtransfomer.oil_temp}}</td>
+                            <td>{{asleft_transformer.oil_temp}}</td>
+                            
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">OIL DIELECTRIC TEST(KV)</th>
+                            <td>{{asfoundtransfomer.oil_dielectric_test}}</td>
+                            <td>{{asleft_transformer.oil_dielectric_test}}</td>
+                            
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">TAP POSITION</th>
+                            <td>{{asfoundtransfomer.tap_position}}</td>
+                            <td>{{asleft_transformer.tap_position}}</td>
+                          </tr>
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-5">
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next" id="transformer_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-5"></div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="switchgear">            
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark table" id="switchgear_table" data-ajax="" data-server-side="false" style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold">As Found</th>
+                            <th  style="color:black;font-weight: bold">As Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for switchs in ctx_switchgears %}
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">Make</th>
+                          <td>{{switchs.make}}</td>
+                          <td>{{switchs.asfound.make}}</td>
+                        </tr>
+                        
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">TYPE</th>
+                          <td>{{switchs.asfound.type}}</td>
+                          <td>{{switchs.asleft.type}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">VOLTAGE RATING(VOLTS)</th>
+                          <td>{{switchs.asfound.voltagerating}}</td>
+                          <td>{{switchs.asleft.voltagerating}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CURRENT RATING(AMPERES)</th>
+                            <td>{{switchs.asfound.ratedcc}}</td>
+                            <td>{{switchs.asleft.ratedcc}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">ZETDC NUMBER</th>
+                            <td>{{switchs.asfound.assetno}}</td>
+                            <td>{{switchs.asleft.assetno}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">TRIP SETTING</th>
+                            <td>{{switchs.asfound.trip_setting}}</td>
+                            <td>{{switchs.asleft.trip_setting}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">OIL CONDITION</th>
+                            <td>{{switchs.oil_condition.asfound}}</td>
+                            <td>{{switchs.oil_condition.asleft}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONDITION OF CONTACTS</th>
+                            <td>{{switchs.contacts_condition.asfound}}</td>
+                            <td>{{switchs.contacts_condition.asleft}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONDITION OF CONNECTIONS</th>
+                            <td>{{switchs.conn_conditions.asfound}}</td>
+                            <td>{{switchs.conn_conditions.asleft}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONSUMER ACB/OCB TRIP SETTINGS</th>
+                            <td>{{switchs.consumer_trip_setting.asfound}}</td>
+                            <td>{{switchs.consumer_trip_setting.asleft}}</td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous" id="switchgear_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next" id="switchgear_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="metering">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="metering_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold">As Found</th>
+                            <th  style="color:black;font-weight: bold">As Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for metering in ctx_metering%}
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">MAKE</th>
+                          <td>{{metering.make.asfound}}</td>
+                          <td>{{metering.make.asfound}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">AMPS</th>
+                            <td>{{metering.amps.asfound}}</td>
+                            <td>{{metering.amps.asfound}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">VOLTS</th>
+                            <td>{{metering.volts.asfound}}</td>
+                            <td>{{metering.volts.asfound}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">MAKER'S TYPE</th>
+                            <td>{{metering.maker_type.asfound}}</td>
+                            <td>{{metering.maker_type.asfound}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">SERIAL NUMBER</th>
+                            <td>{{metering.serial_number.asfound}}</td>
+                            <td>{{metering.serial_number.asfound}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">ZESA NUMBER</th>
+                            <td>{{metering.zesa_number.asfound}}</td>
+                            <td>{{metering.zesa_number.asfound}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">VAD TRANSFORMER ZESA NUMBER</th>
+                            <td>{{metering.vad_transformer_no.asfound}}</td>
+                            <td>{{metering.vad_transformer_no.asfound}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CT RATIO</th>
+                            <td>{{metering.ct_ratio.asfound}}</td>
+                            <td>{{metering.ct_ratio.asfound}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">METER PROTECTION TYPE</th>
+                            <td>{{metering.protection_type.asfound}}</td>
+                            <td>{{metering.protection_type.asfound}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">METER CASE EARTHED</th>
+                            <td>{{metering.meter_case_earthed.asfound}}</td>
+                            <td>{{metering.meter_case_earthed.asleft}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONDITION OF POTENTIAL FUSES</th>
+                            <td>{{metering.fuses_condition.asfound}}</td>
+                            <td>{{metering.fuses_condition.asleft}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">POTENTIAL PHASE ROTATION</th>
+                            <td>{{metering.phase_rotation.asfound}}</td>
+                            <td>{{metering.phase_rotation.asleft}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">ALL CONNECTIONS TIGHT?</th>
+                            <td>{{metering.connections_tight.asfound}}</td>
+                            <td>{{metering.connections_tight.asleft}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">ALL METERING SEALED?</th>
+                            <td>{{metering.metering_sealed.asfound}}</td>
+                            <td>{{metering.metering_sealed.asleft}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">METER READING CARDS AVAILABE</th>
+                            <td>{{metering.cards_availabe.asfound}}</td>
+                            <td>{{metering.cards_availabe.asleft}}</td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="metering_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next" id="metering_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="housing">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="housing_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold">As Found</th>
+                            <th  style="color:black;font-weight: bold">As Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">TYPE</th>
+                          <td>{{e60housing.type}}</td>
+                          <td>{{e60housing.housing_type}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">HOUSING WEATHERPROOF</th>
+                          <td>{{switchgears.type}}</td>
+                          <td>{{e60housing.housing_weatherproof}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">DOOR WEATHERPROOF</th>
+                          <td>{{switchgears.voltagerating}}</td>
+                          <td>{{e60housing.door_weatherproof}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">DOOR WITH BAR AND 2 PADLOCKS</th>
+                            <td>{{switchgears.assetno}}</td>
+                            <td>{{e60housing.door_padlocks}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">ZESA PADLOCK LUBRICATED</th>
+                            <td>{{switchgears.assetno}}</td>
+                            <td>{{e60housing.padlock_lubricated}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">PAINTWORK</th>
+                            <td>{{switchgears.tripcoilsno}}</td>
+                            <td>{{e60housing.paintwork}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">WATER OUTLET IN CONDUIT</th>
+                            <td>{{switchgears.transformer}}</td>
+                            <td>{{e60housing.outlet_conduit}}</td>
+                          </tr>
+                          
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="housing_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="housing_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="dfuses">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="dfuses_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold">As Found</th>
+                            <th  style="color:black;font-weight: bold">As Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dfuse in ctx_dfuses%}
+                        <tr>
+                          <th style="color:black;font-weight: bold">MAKE</th>
+                          <td></td>
+                          <td>{{dfuse.make.asfound}}</td>
+                          <td>{{dfuse.make.asfound}}</td>
+                        </tr>
+                        <tr>
+                          <th style="color:black;font-weight: bold">VOLTAGE RATING(KV)</th>
+                          <td></td>
+                          <td>{{dfuse.rating.asfound}}</td>
+                          <td>{{dfuse.rating.asfound}}</td>
+                        </tr>
+                        <tr>
+                            <th style="color:black;font-weight: bold">PHASE</th>
+                            <td></td>
+                            <td>{{dfuse.phase.asfound}}</td>
+                            <td>{{dfuse.phase.asfound}}</td>
+                          </tr>
+                        <tr>
+                          <th style="color:black;font-weight: bold">KVAR RATING</th>
+                          <td></td>
+                          <td>{{dfuse.kvar_rating.asfound}}</td>
+                          <td>{{dfuse.kvar_rating.asfound}}</td>
+                        </tr>
+                        <tr>
+                            <th style="color:black;font-weight: bold">CAPACITATOR SATISFACTORY(REF EI 32/2)</th>
+                            <td></td>
+                            <td>{{dfuse.as_state.asfound}}</td>
+                            <td>{{dfuse.as_state.asleft}}</td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="dfuses_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="dfuses_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div role="tabpanel" class="tab-pane fade" id="htlighting">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="htlighting_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold">As Found</th>
+                            <th  style="color:black;font-weight: bold">As Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for htlighting in ctx_htlightings %}
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">MAKE</th>
+                          <td>{{htlighting.make.asfound}}</td>
+                          <td>{{htlighting.make.asfound}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">VOLTAGE RATING(KV)</th>
+                          <td>{{htlighting.voltage_rating.asfound}}</td>
+                          <td>{{htlighting.voltage_rating.asfound}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">PHASE</th>
+                            <td>{{htlighting.phase.asfound}}</td>
+                            <td>{{htlighting.phase.asfound}}</td>
+                          </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">KVAR RATING</th>
+                          <td>{{htlighting.kvar_rating.asfound}}</td>
+                          <td>{{htlighting.kvar_rating.asfound}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CAPACITATOR SATISFACTORY(REF EI 32/2)</th>
+                            <td>{{htlighting.rails_connection.asfound}}</td>
+                            <td>{{htlighting.rails_connection.asfound}}</td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="htlighting_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="htlighting_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div role="tabpanel" class="tab-pane fade" id="ltlighting">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="ltlighting_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold">As Found</th>
+                            <th  style="color:black;font-weight: bold">As Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for ltlighting in ctx_ltlightings%}
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">MAKE</th>
+                          <td>{{ltlighting.make.asfound}}</td>
+                          <td>{{ltlighting.make.asfound}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">VOLTAGE RATING(KV)</th>
+                          <td>{{ltlighting.voltage_rating.asfound}}</td>
+                          <td>{{ltlighting.voltage_rating.asfound}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">PHASE</th>
+                            <td>{{ltlighting.phase.asfound}}</td>
+                            <td>{{ltlighting.phase.asfound}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">KVAR RATING</th>
+                          <td>{{ltlighting.kvar_rating.asfound}}</td>
+                          <td>{{ltlighting.kvar_rating.asfound}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CAPACITATOR SATISFACTORY(REF EI 32/2)</th>
+                            <td>{{ltlighting.rails_connection.asfound}}</td>
+                            <td>{{ltlighting.rails_connection.asfound}}</td>
+                          </tr>
+                          {% endfor %}
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="htlighting_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="htlighting_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="sgeneral">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="ssgeneral_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold">As Found</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">EARTH RESISTANCE(OHMS)</th>
+                          <td>{{e60_subgeneral.earth_resistance}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">NUMBER OF EARTH ELECTRODES</th>
+                          <td>{{e60_subgeneral.earth_electrodes}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">ALL STRUCTURES BONDED TO EARTH</th>
+                          <td>{{e60_subgeneral.structures_bonded}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">LT CABLE SHEATH BONDED TO EARTH</th>
+                            <td>{{e60_subgeneral.sheath_bonded}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">LT MAINS CONDITION</th>
+                            <td>{{e60_subgeneral.mains_condition}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">POLES CONDITION</th>
+                            <td>{{e60_subgeneral.poles_condition}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">PAINTWORK</th>
+                            <td>{{e60_subgeneral.paint_work}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">VEGETATION UNDERGROWTH</th>
+                            <td>{{e60_subgeneral.vegetation_undergrowth}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">SITE ACCESSIBLE WITH VEHICLE</th>
+                            <td>{{e60_subgeneral.site_access}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">TYPE AND LENGTH OF LT MAINS</th>
+                            <td>{{e60_subgeneral.lt_mains}}</td>
+                          </tr>
+                          
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="htlighting_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="htlighting_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div role="tabpanel" class="tab-pane fade" id="safetyprecautions">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="safetyprecautions_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold">As Found</th>
+                            <th  style="color:black;font-weight: bold">As Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">DANGER NOTICE ADEQUATE</th>
+                          <td>{{lightingarrestor.make}}</td>
+                          <td>{{e60safety_data.danger_notices}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">ANTI CLIMB DEVICE ADEQUATE</th>
+                          <td>{{lightingarrestor.voltage_rating}}</td>
+                          <td>{{e60safety_data.anti_climbing}}</td>
+                        </tr>
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="htlighting_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="htlighting_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="consumerinstallation">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="consumerinstallation_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold">As Found</th>
+                            <th  style="color:black;font-weight: bold">As Left</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">CONDITION</th>
+                          <td>{{lightingarrestor.make}}</td>
+                          <td>{{e60htlighting.housing_type}}</td>
+                        </tr>
+                      </tbody>
+                </table>
+                <div class="col-6">
+                    <label class="font-weight-bold col-xs-3 col-form-label text-center">COMMENT</label>
+                    
+                </div>
+                <div class="col-6">
+                    <textarea readonly>{{transformr.comment}}</textarea>
+                </div>
+                
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="htlighting_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="htlighting_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="general">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id=""
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                        </tr>
+                    </thead>
+                    <div class="col-6">
+                        <label class="font-weight-bold col-xs-3 col-form-label text-center">REMARKS</label>
+                        
+                    </div>
+                    <div class="col-6">
+                        <textarea class="form-control" readonly>{{e60.remarks}}</textarea>
+                    </div>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous" id="general_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="/beweb/Jobworkflow/?job_id={{job.job_id}}&status={{status}}&decision={{reject}}">
+                            <input type="button" class="btn  btn-sm  btn-block"  value="Reject" name="reject"
+                                id="reject" data-toggle="modal" data-target="#reject_modal" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <form method="POST">
+                            {% csrf_token %}
+
+                            <input type="hidden" name="job" value="{{e60.job}}" />
+
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="/beweb/Jobworkflow/?job_id={{job.job_id}}&status={{status}}&decision={{approve}}">
+                                <input type="submit" class="btn  btn-sm  btn-block " value="{{role_name}}" name="check"
+                                    id="check" formaction="/beweb/approvee60" />
+                            </a>
+                        </form>
+                    </div>
+                    <div class="col-sm-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+        var type_of_page = sessionStorage.getItem('type_of_page');
+        if (type_of_page === "reports"){
+            $("#reject").hide()
+            $('#check').hide()
+        }
+        
+        else{
+            
+            $("#reject").show()
+            $('#check').show()
+        }
+        sessionStorage.removeItem('type_of_page');
+
+        $('#transformer').show()
+        var tx_table = $('#transformer_table').DataTable({
+            columnDefs: [
+                {
+                    targets: [1],
+                    className: "truncate"
+                }
+            ],
+            createdRow: function (row) {
+                var td = $(row).find(".truncate");
+                td.attr("title", td.html());
+            },
+            "pageLength": 28,
+            "destroy": true,
+            "lengthMenu": [14],
+            "scrollY": 180, //350 
+            "scrollX": true, //enables scrolling horizontally
+            "bSort": false, //disables sorting
+            "bFilter": false, // Removes search button
+            "lengthChange": false, // Remove show entries dropdown
+            "bInfo": false//Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+
+        });
+
+        $('#transformer_id').click(function () {
+            $('#transformer').show()
+            var table = $('#transformer_table').DataTable({
+                "pageLength": 28,
+                "destroy": true,
+                "lengthMenu": [14],
+                "scrollY": 180, //350 
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+        $('#switchgear_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#switchgear_table').DataTable({
+                "pageLength":10,
+                "destroy": true,
+                "lengthMenu": [2],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+        $('#metering_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#metering_table').DataTable({
+                "pageLength": 15,
+                "destroy": true,
+                "lengthMenu": [3],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+        $('#housing_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#housing_table').DataTable({
+                "pageLength": 7,
+                "destroy": true,
+                "lengthMenu": [4],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+        $('#dfuses_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#dfuses_table').DataTable({
+                "pageLength": 5,
+                "destroy": true,
+                "lengthMenu": [7],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+        $('#htlighting_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#htlighting_table').DataTable({
+                "pageLength": 5,
+                "destroy": true,
+                "lengthMenu": [3],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+        $('#ltlighting_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#ltlighting_table').DataTable({
+                "pageLength": 5,
+                "destroy": true,
+                "lengthMenu": [3],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+        $('#ssgeneral_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#ssgeneral_table').DataTable({
+                "pageLength": 10,
+                "destroy": true,
+                "lengthMenu": [3],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+        $('#general_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#general_table').DataTable({
+                columnDefs: [
+                    {
+                        targets: [3],
+                        className: "truncate"
+                    }
+                ],
+                createdRow: function (row) {
+                    var td = $(row).find(".truncate");
+                    td.attr("title", td.html());
+                },
+                "paging": false,//remove pagination
+                "pageLength": 5,
+                "destroy": true,
+                "lengthMenu": [5],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+
+
+        //Next and Back Button Navigation
+        $('#transformer_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#switchgear"]').click()
+        })
+        $('#switchgear_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#transformer"]').click()
+        })
+
+        $('#switchgear_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#metering"]').click()
+        })
+        $('#metering_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#housing"]').click()
+        })
+
+        $('#metering_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#switchgear"]').click()
+        })
+
+        $('#housing_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#dfuses"]').click()
+        })
+
+        $('#housing_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#metering"]').click()
+        })
+        $('#dfuses_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#htlighting"]').click()
+        })
+
+        $('#dfuses_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#housing"]').click()
+        })
+        $('#htlighting_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#general"]').click()
+        })
+
+        $('#htlighting_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#dfuses"]').click()
+        })
+        $('#general_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#htlighting"]').click()
+        })
+
+        // Autofocus on modal textarea when modal is shown
+        $('#reject_modal').on('shown.bs.modal', function () {
+            $('#reject_reason').focus()
+            $('#reject_reason').attr('required', 'required')
+        })
+
+        // Clear reject reason when user cancels the action 
+        $('#cancel_btn').click(function () {
+            $('#reject_reason').val('')
+        })
+    })
+   
+
+</script>
+
+{% endif %} {% endblock %}

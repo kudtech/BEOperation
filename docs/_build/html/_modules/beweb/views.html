@@ -1,0 +1,810 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>beweb.views &#8212; BEOperations 0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for beweb.views</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
+<span class="kn">from</span> <span class="nn">django.shortcuts</span> <span class="k">import</span> <span class="n">render</span><span class="p">,</span> <span class="n">render_to_response</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpRequest</span><span class="p">,</span> <span class="n">HttpResponseRedirect</span>
+<span class="kn">from</span> <span class="nn">django.http</span> <span class="k">import</span> <span class="n">HttpResponse</span>
+<span class="kn">from</span> <span class="nn">formtools.wizard.views</span> <span class="k">import</span> <span class="n">SessionWizardView</span>
+<span class="kn">from</span> <span class="nn">django.core.mail</span> <span class="k">import</span> <span class="n">send_mail</span>
+<span class="kn">from</span> <span class="nn">beapi.models</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.forms</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">uuid</span>
+<span class="kn">from</span> <span class="nn">rest_framework.views</span> <span class="k">import</span> <span class="n">APIView</span>
+<span class="kn">from</span> <span class="nn">rest_framework.response</span> <span class="k">import</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">rest_framework.permissions</span> <span class="k">import</span> <span class="n">IsAuthenticated</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth</span> <span class="k">import</span> <span class="n">authenticate</span>
+<span class="kn">from</span> <span class="nn">django.views.decorators.csrf</span> <span class="k">import</span> <span class="n">csrf_exempt</span>
+<span class="kn">from</span> <span class="nn">rest_framework.authtoken.models</span> <span class="k">import</span> <span class="n">Token</span>
+<span class="kn">from</span> <span class="nn">rest_framework.decorators</span> <span class="k">import</span> <span class="n">api_view</span><span class="p">,</span> <span class="n">permission_classes</span>
+<span class="kn">from</span> <span class="nn">rest_framework.permissions</span> <span class="k">import</span> <span class="n">AllowAny</span>
+<span class="kn">from</span> <span class="nn">rest_framework.status</span> <span class="k">import</span> <span class="p">(</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">,</span><span class="n">HTTP_404_NOT_FOUND</span><span class="p">,</span><span class="n">HTTP_200_OK</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">rest_framework.response</span> <span class="k">import</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.models</span> <span class="k">import</span> <span class="n">User</span>
+<span class="c1"># Create your views here.</span>
+<span class="kn">import</span> <span class="nn">posixpath</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="n">forms</span> <span class="kn">import</span> <span class="nn">NameForm</span><span class="o">,</span> <span class="nn">WorkOrderForm</span><span class="o">,</span> <span class="nn">JobForm</span><span class="o">,</span> <span class="nn">GeneralForm</span>
+<span class="kn">from</span> <span class="nn">django.views.generic</span> <span class="k">import</span> <span class="n">View</span>
+<span class="kn">from</span> <span class="nn">django.contrib.auth.decorators</span> <span class="k">import</span> <span class="n">login_required</span>
+
+<span class="c1"># BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))</span>
+<span class="c1"># root_dir = posixpath.join(*(BASE_DIR.split(os.path.sep)))</span>
+<span class="c1"># with open(root_dir + &#39;/users.json&#39;, &#39;r&#39;) as f:</span>
+<span class="c1">#     users_data = json.load(f)</span>
+
+<span class="kn">from</span> <span class="nn">rest_framework.authtoken.models</span> <span class="k">import</span> <span class="n">Token</span>
+
+<div class="viewcode-block" id="authenticate"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.authenticate">[docs]</a><span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">):</span>
+    <span class="n">users</span> <span class="o">=</span> <span class="n">User</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">user</span> <span class="ow">in</span> <span class="n">users</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span> <span class="o">==</span> <span class="n">username</span><span class="p">:</span>
+            <span class="n">token</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">Token</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span> <span class="n">token</span><span class="o">.</span><span class="n">key</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="HelloView"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.HelloView">[docs]</a><span class="k">class</span> <span class="nc">HelloView</span><span class="p">(</span><span class="n">APIView</span><span class="p">):</span>
+    <span class="n">permission_classes</span> <span class="o">=</span> <span class="p">(</span><span class="n">IsAuthenticated</span><span class="p">,)</span>
+<div class="viewcode-block" id="HelloView.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.HelloView.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Hello, World!&#39;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="login"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.login">[docs]</a><span class="nd">@csrf_exempt</span>
+<span class="nd">@api_view</span><span class="p">([</span><span class="s2">&quot;POST&quot;</span><span class="p">])</span>
+<span class="nd">@permission_classes</span><span class="p">((</span><span class="n">AllowAny</span><span class="p">,))</span>
+<span class="k">def</span> <span class="nf">login</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;username&quot;</span><span class="p">)</span>
+    <span class="n">password</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;password&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">username</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">password</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Please provide both username and password&#39;</span><span class="p">},</span>
+                        <span class="n">status</span><span class="o">=</span><span class="n">HTTP_400_BAD_REQUEST</span><span class="p">)</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="o">=</span><span class="n">username</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="n">password</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s1">&#39;error&#39;</span><span class="p">:</span> <span class="s1">&#39;Invalid Credentials&#39;</span><span class="p">},</span>
+                        <span class="n">status</span><span class="o">=</span><span class="n">HTTP_404_NOT_FOUND</span><span class="p">)</span>
+    <span class="n">token</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">Token</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">({</span><span class="s1">&#39;token&#39;</span><span class="p">:</span> <span class="n">token</span><span class="o">.</span><span class="n">key</span><span class="p">},</span>
+                    <span class="n">status</span><span class="o">=</span><span class="n">HTTP_200_OK</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="sample_api"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.sample_api">[docs]</a><span class="nd">@csrf_exempt</span>
+<span class="nd">@api_view</span><span class="p">([</span><span class="s2">&quot;GET&quot;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">sample_api</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;sample_data&#39;</span><span class="p">:</span> <span class="mi">123</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">HTTP_200_OK</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="execsys"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.execsys">[docs]</a><span class="k">def</span> <span class="nf">execsys</span><span class="p">(</span><span class="n">ecnum</span><span class="p">):</span>
+    <span class="n">URL</span> <span class="o">=</span> <span class="s2">&quot;http://172.20.1.20:8082/users/username/&quot;</span> <span class="o">+</span> <span class="n">ecnum</span>
+    <span class="c1"># defining a params dict for the parameters to be sent to the API</span>
+    <span class="n">PARAMS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">ecnum</span><span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">URL</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">PARAMS</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">data</span></div>
+<div class="viewcode-block" id="get_center"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.get_center">[docs]</a><span class="k">def</span> <span class="nf">get_center</span><span class="p">(</span><span class="n">centre_code</span><span class="p">):</span>
+    <span class="n">centre</span> <span class="o">=</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">50000</span><span class="p">):</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="mi">50000</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Regional Office (ER)&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">50100</span><span class="p">):</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="mi">50100</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Eastern Maintenance&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">50200</span><span class="p">):</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="mi">50200</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Network Development&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">51000</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Mutare District&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">51010</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Mutare Urban&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">51020</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Mutare Environs&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">51030</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Mutare Garage&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">52000</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Manicaland District&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="p">(</span><span class="mi">52010</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Nyanga&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">52020</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Rusape&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">52030</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Chipinge&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">52040</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Chimanimani&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">52050</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Middle Sabi&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">53000</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Masvingo District&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">53020</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Masvingo Urban&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">53030</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Gutu&quot;</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">53040</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Mashava&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">53050</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Rutenga&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">53060</span><span class="p">):</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Chiredzi&quot;</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="mi">53060</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="k">if</span> <span class="n">centre</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="mi">53070</span><span class="p">):</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="mi">53070</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;Masvingo Garage&quot;</span>
+        <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span>
+    <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">centre_code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span></div>
+<div class="viewcode-block" id="MyTeam"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyTeam">[docs]</a><span class="k">class</span> <span class="nc">MyTeam</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+<div class="viewcode-block" id="MyTeam.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyTeam.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">tl</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;leader&#39;</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">tl</span><span class="p">)</span>
+        <span class="n">myteam</span><span class="p">,</span> <span class="n">teams</span> <span class="o">=</span> <span class="n">artisan_team</span><span class="p">(</span><span class="n">tl</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="c1"># return HttpResponse(&#39;Your team Data will be ready shortly&#39;)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/wo.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="s1">&#39;myteam&#39;</span><span class="p">:</span> <span class="n">myteam</span><span class="p">,</span> <span class="s1">&#39;teams&#39;</span><span class="p">:</span> <span class="n">teams</span><span class="p">,</span> <span class="s1">&#39;tl&#39;</span><span class="p">:</span> <span class="n">tl</span>
+        <span class="p">})</span></div>
+<div class="viewcode-block" id="MyTeam.post"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyTeam.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;Are you sure you want to save data&#39;</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="MTeam"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MTeam">[docs]</a><span class="k">class</span> <span class="nc">MTeam</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+<div class="viewcode-block" id="MTeam.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MTeam.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">execsys</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;centre&#39;</span><span class="p">]</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span>
+        <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span> <span class="o">=</span> <span class="n">get_center</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">centre_code</span><span class="p">))</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;centre&#39;</span><span class="p">]</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;centre_code&#39;</span><span class="p">]</span>
+        <span class="n">tl</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;leader&#39;</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">tl</span><span class="p">)</span>
+        <span class="n">myteam</span><span class="p">,</span> <span class="n">teams</span> <span class="o">=</span> <span class="n">artisan_team</span><span class="p">(</span><span class="n">tl</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="c1"># return HttpResponse(&#39;Your team Data will be ready shortly&#39;)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/job/create.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="s1">&#39;myteam&#39;</span><span class="p">:</span> <span class="n">myteam</span><span class="p">,</span> <span class="s1">&#39;teams&#39;</span><span class="p">:</span> <span class="n">teams</span><span class="p">,</span> <span class="s1">&#39;tl&#39;</span><span class="p">:</span> <span class="n">tl</span><span class="p">,</span> <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span>
+        <span class="p">})</span></div>
+<div class="viewcode-block" id="MTeam.post"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MTeam.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;Are you sure you want to save data&#39;</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="MyAssets"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyAssets">[docs]</a><span class="k">class</span> <span class="nc">MyAssets</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+<div class="viewcode-block" id="MyAssets.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyAssets.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">execsys</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;centre&#39;</span><span class="p">]</span>
+        <span class="c1"># centre = &quot;50000&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">centre</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/assets.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;centre&#39;</span><span class="p">:</span> <span class="n">centre</span>
+                                                     <span class="p">})</span></div>
+        <span class="c1"># return HttpResponse(&#39;Centre :&#39;+str (centre))</span>
+<div class="viewcode-block" id="MyAssets.post"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyAssets.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;Are you sure you want to save data&#39;</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="FilterAsset"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.FilterAsset">[docs]</a><span class="k">class</span> <span class="nc">FilterAsset</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+<div class="viewcode-block" id="FilterAsset.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.FilterAsset.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">transformers</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">switch</span> <span class="o">=</span> <span class="n">Switchgear</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">feeder</span> <span class="o">=</span> <span class="n">Feeder</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">submeter</span> <span class="o">=</span> <span class="n">Substationmeter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">pole</span> <span class="o">=</span> <span class="n">Pole</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;selecta&#39;</span><span class="p">]</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;acenter&#39;</span><span class="p">]</span>
+        <span class="n">centre</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;mycenter&#39;</span><span class="p">]</span>
+        <span class="n">asset</span> <span class="o">=</span> <span class="n">selected</span>
+        <span class="c1"># centre, centre_code = get_center(centre_code)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/asset.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;transformers&#39;</span><span class="p">:</span> <span class="n">transformers</span><span class="p">,</span> <span class="s1">&#39;switch&#39;</span><span class="p">:</span> <span class="n">switch</span><span class="p">,</span> <span class="s1">&#39;submeter&#39;</span><span class="p">:</span> <span class="n">submeter</span><span class="p">,</span> <span class="s1">&#39;selected&#39;</span><span class="p">:</span> <span class="n">selected</span><span class="p">,</span> <span class="s1">&#39;feeder&#39;</span><span class="p">:</span> <span class="n">feeder</span><span class="p">,</span> <span class="s1">&#39;asset&#39;</span><span class="p">:</span> <span class="n">asset</span><span class="p">,</span> <span class="s1">&#39;pole&#39;</span><span class="p">:</span> <span class="n">pole</span><span class="p">,</span> <span class="s1">&#39;centre&#39;</span><span class="p">:</span> <span class="n">centre</span><span class="p">,</span> <span class="s1">&#39;centre_code&#39;</span><span class="p">:</span> <span class="n">centre_code</span>
+        <span class="p">})</span></div></div>
+<div class="viewcode-block" id="WoSaveAsset"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.WoSaveAsset">[docs]</a><span class="k">class</span> <span class="nc">WoSaveAsset</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+<div class="viewcode-block" id="WoSaveAsset.post"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.WoSaveAsset.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/assets/create.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span> <span class="s1">&#39;wo&#39;</span><span class="p">:</span> <span class="n">wo</span><span class="p">,</span> <span class="s1">&#39;joid&#39;</span><span class="p">:</span> <span class="n">joid</span><span class="p">,</span>
+            <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span> <span class="s1">&#39;transformers&#39;</span><span class="p">:</span> <span class="n">transformers</span><span class="p">,</span> <span class="s1">&#39;switch&#39;</span><span class="p">:</span> <span class="n">switch</span><span class="p">,</span> <span class="s1">&#39;submeter&#39;</span><span class="p">:</span> <span class="n">submeter</span><span class="p">,</span> <span class="s1">&#39;selected&#39;</span><span class="p">:</span> <span class="n">selected</span><span class="p">,</span> <span class="s1">&#39;feeder&#39;</span><span class="p">:</span> <span class="n">feeder</span><span class="p">,</span> <span class="s1">&#39;asset&#39;</span><span class="p">:</span> <span class="n">asset</span><span class="p">,</span> <span class="s1">&#39;pole&#39;</span><span class="p">:</span> <span class="n">pole</span><span class="p">,</span> <span class="s1">&#39;centre&#39;</span><span class="p">:</span> <span class="n">centre</span><span class="p">,</span> <span class="s1">&#39;centre_code&#39;</span><span class="p">:</span> <span class="n">centre_code</span>
+        <span class="p">})</span></div>
+<div class="viewcode-block" id="WoSaveAsset.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.WoSaveAsset.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;im here&quot;</span><span class="p">)</span>
+        <span class="n">joid</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;joid&#39;</span><span class="p">]</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">save_e84</span><span class="p">(</span><span class="n">username</span> <span class="p">,</span><span class="n">joid</span><span class="p">)</span>
+        <span class="n">asset_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">]</span>
+        <span class="n">asset_name</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;make&#39;</span><span class="p">]</span>
+        <span class="n">asset_type</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;asset_type&#39;</span><span class="p">]</span>
+        <span class="n">asset_number</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;asset_number&#39;</span><span class="p">]</span>
+        <span class="n">asset_serial</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;asset_serial&#39;</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;asset_id&quot;</span><span class="p">:</span> <span class="n">asset_id</span><span class="p">,</span>
+            <span class="s2">&quot;asset_name&quot;</span><span class="p">:</span> <span class="n">asset_name</span><span class="p">,</span>
+            <span class="s2">&quot;asset_type&quot;</span><span class="p">:</span><span class="n">asset_type</span><span class="p">,</span>
+            <span class="s2">&quot;asset_number&quot;</span><span class="p">:</span><span class="n">asset_number</span><span class="p">,</span>
+            <span class="s2">&quot;asset_serial&quot;</span><span class="p">:</span><span class="n">asset_serial</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">joid</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://172.20.1.20:8087/beapi/jobupdate/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">joid</span><span class="p">)</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">usr</span> <span class="p">,</span> <span class="n">tkn</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">)</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s2">&quot;Token&quot;</span><span class="o">+</span><span class="n">tkn</span> <span class="o">+</span><span class="s2">&quot;&quot;</span><span class="p">}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">jobteam</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="s1">&#39;http://172.20.1.20:8087/beapi/jobteams&#39;</span> <span class="p">,)</span>
+        
+        <span class="c1"># jobteam = jobteam.json()</span>
+        <span class="c1"># work = requests.get(url=&#39;http://172.20.1.20:8087/beapi/workorder&#39; )</span>
+        <span class="c1"># work = jobteam.json()</span>
+        <span class="c1"># print(jobteam.text)</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">job_id</span> <span class="o">=</span> <span class="n">joid</span><span class="p">)</span>
+        <span class="c1"># jobs = requests.get(url=&#39;http://172.20.1.20:8087/beapi/jobs&#39; )</span>
+        <span class="c1"># jobs = jobs.json()</span>
+        <span class="c1"># print(jobs.text)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/reports/mywork.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;jobteam&#39;</span> <span class="p">:</span> <span class="n">jobteam</span> <span class="p">,</span><span class="s1">&#39;job&#39;</span><span class="p">:</span><span class="n">job</span> 
+            <span class="c1"># ,&#39;work&#39;:work</span>
+        <span class="p">})</span></div></div>
+        <span class="c1"># return HttpResponse(&#39;Data r Saved Sucessfully&#39;)</span>
+<div class="viewcode-block" id="WoFilterAsset"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.WoFilterAsset">[docs]</a><span class="k">class</span> <span class="nc">WoFilterAsset</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+<div class="viewcode-block" id="WoFilterAsset.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.WoFilterAsset.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">transformers</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">switch</span> <span class="o">=</span> <span class="n">Switchgear</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">feeder</span> <span class="o">=</span> <span class="n">Feeder</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">submeter</span> <span class="o">=</span> <span class="n">Substationmeter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">pole</span> <span class="o">=</span> <span class="n">Pole</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;selecta&#39;</span><span class="p">]</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;acenter&#39;</span><span class="p">]</span>
+        <span class="n">wo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;wo&#39;</span><span class="p">]</span>
+        <span class="n">joid</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;joid&#39;</span><span class="p">]</span>
+        <span class="c1"># centre=&quot;&quot;</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">asset</span> <span class="o">=</span> <span class="n">selected</span>
+        <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span> <span class="o">=</span> <span class="n">get_center</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">centre_code</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/assets/create.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span> <span class="s1">&#39;wo&#39;</span><span class="p">:</span> <span class="n">wo</span><span class="p">,</span> <span class="s1">&#39;joid&#39;</span><span class="p">:</span> <span class="n">joid</span><span class="p">,</span>
+            <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span> <span class="s1">&#39;transformers&#39;</span><span class="p">:</span> <span class="n">transformers</span><span class="p">,</span> <span class="s1">&#39;switch&#39;</span><span class="p">:</span> <span class="n">switch</span><span class="p">,</span> <span class="s1">&#39;submeter&#39;</span><span class="p">:</span> <span class="n">submeter</span><span class="p">,</span> <span class="s1">&#39;selected&#39;</span><span class="p">:</span> <span class="n">selected</span><span class="p">,</span> <span class="s1">&#39;feeder&#39;</span><span class="p">:</span> <span class="n">feeder</span><span class="p">,</span> <span class="s1">&#39;asset&#39;</span><span class="p">:</span> <span class="n">asset</span><span class="p">,</span> <span class="s1">&#39;pole&#39;</span><span class="p">:</span> <span class="n">pole</span><span class="p">,</span> <span class="s1">&#39;centre&#39;</span><span class="p">:</span> <span class="n">centre</span><span class="p">,</span> <span class="s1">&#39;centre_code&#39;</span><span class="p">:</span> <span class="n">centre_code</span>
+        <span class="p">})</span></div>
+
+<div class="viewcode-block" id="WoFilterAsset.post"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.WoFilterAsset.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;im here&quot;</span><span class="p">)</span>
+        <span class="n">asset_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">]</span>
+        <span class="n">asset_name</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;make&#39;</span><span class="p">]</span>
+        <span class="n">asset_type</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;asset_type&#39;</span><span class="p">]</span>
+        <span class="n">asset_number</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;asset_number&#39;</span><span class="p">]</span>
+        <span class="n">asset_serial</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;asset_serial&#39;</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;asset_id&quot;</span><span class="p">:</span> <span class="n">asset_id</span><span class="p">,</span>
+            <span class="s2">&quot;asset_name&quot;</span><span class="p">:</span> <span class="n">asset_name</span><span class="p">,</span>
+            <span class="s2">&quot;asset_type&quot;</span><span class="p">:</span><span class="n">asset_type</span><span class="p">,</span>
+            <span class="s2">&quot;asset_number&quot;</span><span class="p">:</span><span class="n">asset_number</span><span class="p">,</span>
+            <span class="s2">&quot;asset_serial&quot;</span><span class="p">:</span><span class="n">asset_serial</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">jobid</span><span class="p">)</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">usr</span> <span class="p">,</span> <span class="n">tkn</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://172.20.1.20:8087/beapi/jobupdate/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">joid</span><span class="p">)</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s2">&quot;Token &quot;</span><span class="o">+</span><span class="n">tkn</span><span class="o">+</span><span class="s2">&quot;&quot;</span><span class="p">}</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="p">,)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;Data Saved Sucessfully&#39;</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="MyAsset"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyAsset">[docs]</a><span class="k">class</span> <span class="nc">MyAsset</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+<div class="viewcode-block" id="MyAsset.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyAsset.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">transformers</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">switch</span> <span class="o">=</span> <span class="n">Switchgear</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">submeter</span> <span class="o">=</span> <span class="n">Substationmeter</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">feeder</span> <span class="o">=</span> <span class="n">Feeder</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">pole</span> <span class="o">=</span> <span class="n">Pole</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">execsys</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;centre&#39;</span><span class="p">]</span>
+        <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span> <span class="o">=</span> <span class="n">get_center</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">centre_code</span><span class="p">))</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;centre is&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">centre</span><span class="p">)</span>
+        <span class="c1"># return HttpResponse(&#39;Your team Data will be ready shortly&#39;)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/asset.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;transformers&#39;</span><span class="p">:</span> <span class="n">transformers</span><span class="p">,</span> <span class="s1">&#39;switch&#39;</span><span class="p">:</span> <span class="n">switch</span><span class="p">,</span> <span class="s1">&#39;submeter&#39;</span><span class="p">:</span> <span class="n">submeter</span><span class="p">,</span> <span class="s1">&#39;selected&#39;</span><span class="p">:</span> <span class="n">selected</span><span class="p">,</span> <span class="s1">&#39;feeder&#39;</span><span class="p">:</span> <span class="n">feeder</span><span class="p">,</span> <span class="s1">&#39;pole&#39;</span><span class="p">:</span> <span class="n">pole</span><span class="p">,</span> <span class="s1">&#39;centre&#39;</span><span class="p">:</span> <span class="n">centre</span><span class="p">,</span> <span class="s1">&#39;centre_code&#39;</span><span class="p">:</span> <span class="n">centre_code</span>
+        <span class="p">})</span></div>
+
+<div class="viewcode-block" id="MyAsset.post"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyAsset.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;Are you sure you want to save data&#39;</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="get_user"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.get_user">[docs]</a><span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">execsys</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="n">myteam</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">tl</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">myteam</span><span class="p">,</span> <span class="n">teams</span> <span class="o">=</span> <span class="n">artisan_team</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="n">myteam</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="c1"># data = data[&#39;username&#39; == username]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;user is&quot;</span><span class="p">)</span>
+    <span class="c1"># print json.dumps(parsed, indent=4, sort_keys=True)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/wo.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+        <span class="s1">&#39;data&#39;</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="s1">&#39;myteam&#39;</span><span class="p">:</span> <span class="n">myteam</span><span class="p">,</span> <span class="s1">&#39;teams&#39;</span><span class="p">:</span> <span class="n">teams</span><span class="p">,</span> <span class="s1">&#39;tl&#39;</span><span class="p">:</span> <span class="n">tl</span>
+    <span class="p">})</span></div>
+<span class="c1"># def get_assets()</span>
+<div class="viewcode-block" id="artisan_team"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.artisan_team">[docs]</a><span class="k">def</span> <span class="nf">artisan_team</span><span class="p">(</span><span class="n">ecnum</span><span class="p">):</span>
+    <span class="n">leader</span> <span class="o">=</span> <span class="n">ecnum</span>
+    <span class="n">teams</span> <span class="o">=</span> <span class="n">Team</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>
+    <span class="n">myteam</span> <span class="o">=</span> <span class="n">Team</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">team_leader</span><span class="o">=</span><span class="n">leader</span><span class="p">)</span>
+    <span class="c1"># print(teams)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">myteam</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">myteam</span><span class="p">,</span> <span class="n">teams</span></div>
+<div class="viewcode-block" id="WorkWizardView"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.WorkWizardView">[docs]</a><span class="k">class</span> <span class="nc">WorkWizardView</span><span class="p">(</span><span class="n">SessionWizardView</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;subject&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;Hi there&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;sender&#39;</span><span class="p">:</span> <span class="s1">&#39;invalid email address&#39;</span><span class="p">,</span> <span class="s1">&#39;cc_myself&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">WorkOrderForm</span>
+    <span class="n">form_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span><span class="p">,</span> <span class="n">JobForm</span><span class="p">,</span> <span class="n">TeamForm</span><span class="p">,</span> <span class="n">assetForm</span><span class="p">]</span>
+    <span class="c1"># ([WorkOrderForm, JobForm, TeamForm, assetForm])</span>
+    <span class="n">template_name</span> <span class="o">=</span> <span class="s2">&quot;beweb/create_wo.html&quot;</span>
+<div class="viewcode-block" id="WorkWizardView.get_form_initial"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.WorkWizardView.get_form_initial">[docs]</a>    <span class="k">def</span> <span class="nf">get_form_initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;cent&#39;</span><span class="p">:</span> <span class="s1">&#39;Mutare&#39;</span><span class="p">,</span> <span class="s1">&#39;position&#39;</span><span class="p">:</span> <span class="s1">&#39;SSO&#39;</span><span class="p">}</span>
+        <span class="n">initial</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">initial</span><span class="p">)</span></div>
+<div class="viewcode-block" id="WorkWizardView.done"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.WorkWizardView.done">[docs]</a>    <span class="k">def</span> <span class="nf">done</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">form_list</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">form_data</span> <span class="o">=</span> <span class="n">process_form_data</span><span class="p">(</span><span class="n">form_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/done.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;form_data&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span> <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="n">form_list</span><span class="p">],</span>
+        <span class="p">})</span></div>
+<div class="viewcode-block" id="WorkWizardView.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.WorkWizardView.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_form</span><span class="p">())</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="process_form_data"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.process_form_data">[docs]</a><span class="k">def</span> <span class="nf">process_form_data</span><span class="p">(</span><span class="n">form_list</span><span class="p">):</span>
+    <span class="n">form_data</span> <span class="o">=</span> <span class="p">[</span><span class="n">form</span><span class="o">.</span><span class="n">cleaned_data</span> <span class="k">for</span> <span class="n">form</span> <span class="ow">in</span> <span class="n">form_list</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">form_data</span></div>
+<div class="viewcode-block" id="save_data"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.save_data">[docs]</a><span class="k">def</span> <span class="nf">save_data</span><span class="p">(</span><span class="n">created_on</span><span class="p">,</span> <span class="n">saved_by</span><span class="p">,</span> <span class="n">center</span><span class="p">):</span>
+    <span class="c1"># post data to api</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;&lt;h1&gt;Data saved successfull page&lt;/h1&gt;&#39;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="save_db"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.save_db">[docs]</a><span class="k">def</span> <span class="nf">save_db</span><span class="p">(</span><span class="n">form_data</span><span class="p">,</span> <span class="n">wo_id</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;&lt;h1&gt;Data saved successfull page&lt;/h1&gt;&#39;</span><span class="p">)</span></div>
+
+<span class="c1"># @login_required(login_url=&#39;&#39;)</span>
+<div class="viewcode-block" id="home"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.home">[docs]</a><span class="k">def</span> <span class="nf">home</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Renders the home page.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">HttpRequest</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/index.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Home Page&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+<div class="viewcode-block" id="wo"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.wo">[docs]</a><span class="k">def</span> <span class="nf">wo</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Renders the E84 page.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">HttpRequest</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="n">request</span><span class="p">,</span>
+        <span class="s1">&#39;beweb/wo.html&#39;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;E84 Page&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span></div>
+<div class="viewcode-block" id="create"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.create">[docs]</a><span class="k">def</span> <span class="nf">create</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Renders the E84 page.&quot;&quot;&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">execsys</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">)</span>
+    <span class="n">centre_code</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;centre&#39;</span><span class="p">]</span>
+    <span class="n">username</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span>
+    <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span> <span class="o">=</span> <span class="n">get_center</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">centre_code</span><span class="p">))</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">HttpRequest</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span>
+        <span class="n">request</span><span class="p">,</span>
+        <span class="s1">&#39;beweb/workorder/create.html&#39;</span><span class="p">,</span>
+        <span class="p">{</span>
+            <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s1">&#39;Create Work Order&#39;</span><span class="p">,</span> <span class="s1">&#39;centre&#39;</span><span class="p">:</span> <span class="n">centre</span><span class="p">,</span> <span class="s1">&#39;centre_code&#39;</span><span class="p">:</span> <span class="n">centre_code</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span> <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span>
+            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+        <span class="p">})</span></div>
+<div class="viewcode-block" id="Mywo"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.Mywo">[docs]</a><span class="k">class</span> <span class="nc">Mywo</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+<div class="viewcode-block" id="Mywo.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.Mywo.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">execsys</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;centre&#39;</span><span class="p">]</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span>
+        <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span> <span class="o">=</span> <span class="n">get_center</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">centre_code</span><span class="p">))</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
+        <span class="n">supervisor</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;supervisor&#39;</span><span class="p">]</span>
+        <span class="n">centre</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;centre&#39;</span><span class="p">]</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;centre_code&#39;</span><span class="p">]</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">tl</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">myteam</span><span class="p">,</span> <span class="n">teams</span> <span class="o">=</span> <span class="n">artisan_team</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+        <span class="n">myteam</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">wo</span> <span class="o">=</span> <span class="n">save_wo</span><span class="p">(</span><span class="n">username</span> <span class="p">,</span><span class="n">description</span><span class="p">,</span> <span class="n">supervisor</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">centre_code</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/job/create.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;wo&#39;</span><span class="p">:</span> <span class="n">wo</span><span class="p">,</span> <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span> <span class="s1">&#39;centre&#39;</span><span class="p">:</span> <span class="n">centre</span><span class="p">,</span> <span class="s1">&#39;centre_code&#39;</span><span class="p">:</span> <span class="n">centre_code</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span> <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span>
+            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span> <span class="s1">&#39;myteam&#39;</span><span class="p">:</span> <span class="n">myteam</span><span class="p">,</span> <span class="s1">&#39;tl&#39;</span><span class="p">:</span> <span class="n">tl</span><span class="p">,</span> <span class="s1">&#39;teams&#39;</span><span class="p">:</span> <span class="n">teams</span>
+        <span class="p">})</span></div>
+<div class="viewcode-block" id="Mywo.post"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.Mywo.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;Are you sure you want to save data&#39;</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="Myjob"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.Myjob">[docs]</a><span class="k">class</span> <span class="nc">Myjob</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+<div class="viewcode-block" id="Myjob.get"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.Myjob.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">execsys</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+        <span class="n">centre_code</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;centre&#39;</span><span class="p">]</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;username&#39;</span><span class="p">]</span>
+        <span class="n">centre</span><span class="p">,</span> <span class="n">centre_code</span> <span class="o">=</span> <span class="n">get_center</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">centre_code</span><span class="p">))</span>
+        <span class="n">wo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;wo&#39;</span><span class="p">]</span>
+        <span class="n">assignee</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;assignee&#39;</span><span class="p">]</span>
+        <span class="n">job_type</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;jobtype&#39;</span><span class="p">]</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
+        <span class="n">assignee</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;assignee&#39;</span><span class="p">]</span>
+        <span class="n">job_type</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;jobtype&#39;</span><span class="p">]</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span>
+        <span class="n">workflow</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;workflow&#39;</span><span class="p">]</span>
+        <span class="n">expected_end_dt</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">GET</span><span class="p">[</span><span class="s1">&#39;expected_end_dt&#39;</span><span class="p">]</span>
+        <span class="n">createdby</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">username</span> <span class="o">=</span> <span class="n">createdby</span>
+        <span class="n">joid</span> <span class="o">=</span> <span class="n">save_jo</span><span class="p">(</span><span class="n">createdby</span><span class="p">,</span><span class="n">assignee</span><span class="p">,</span> <span class="n">job_type</span> <span class="p">,</span><span class="n">wo</span><span class="p">,</span><span class="n">description</span><span class="p">,</span><span class="n">workflow</span> <span class="p">,</span><span class="n">expected_end_dt</span><span class="p">)</span>
+        <span class="n">jp</span> <span class="o">=</span> <span class="n">job_progress</span><span class="p">(</span><span class="n">joid</span> <span class="p">,</span><span class="n">createdby</span><span class="p">)</span>
+        <span class="n">save_team</span><span class="p">(</span><span class="n">username</span> <span class="p">,</span><span class="n">assignee</span> <span class="p">,</span> <span class="n">jp</span><span class="p">)</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">centre</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">centre_code</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/assets/create.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;joid&#39;</span><span class="p">:</span> <span class="n">joid</span><span class="p">,</span> <span class="s1">&#39;wo&#39;</span><span class="p">:</span> <span class="n">wo</span><span class="p">,</span> <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span> <span class="s1">&#39;centre&#39;</span><span class="p">:</span> <span class="n">centre</span><span class="p">,</span> <span class="s1">&#39;centre_code&#39;</span><span class="p">:</span> <span class="n">centre_code</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">:</span> <span class="n">username</span><span class="p">,</span> <span class="s1">&#39;step&#39;</span><span class="p">:</span> <span class="n">step</span><span class="p">,</span>
+            <span class="s1">&#39;year&#39;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+        <span class="p">})</span></div>
+<div class="viewcode-block" id="Myjob.post"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.Myjob.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;Are you sure you want to save data&#39;</span><span class="p">)</span></div></div>
+<div class="viewcode-block" id="MyjobAsset"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyjobAsset">[docs]</a><span class="k">class</span> <span class="nc">MyjobAsset</span><span class="p">(</span><span class="n">View</span><span class="p">):</span>
+    <span class="c1"># def get(self, request, *args, **kwargs):</span>
+    <span class="c1">#     assignee = request.GET[&#39;assignee&#39;]</span>
+    <span class="c1">#     job_type = request.GET[&#39;jobtype&#39;]</span>
+    <span class="c1">#     description = request.GET[&#39;description&#39;]</span>
+    <span class="c1">#     workflow = request.GET[&#39;workflow&#39;]</span>
+    <span class="c1">#     workflow = request.GET[&#39;expected_end_dt&#39;]</span>
+    <span class="c1">#     createdby = request.user.username</span>
+    <span class="c1">#     date_created = datetime.now().date</span>
+    <span class="c1">#     step = 3</span>
+    <span class="c1">#     return render(request, &#39;beweb/assets/create.html&#39;, {</span>
+    <span class="c1">#         &#39;wo&#39;: wo, &#39;step&#39;: step, &#39;centre&#39;: centre, &#39;centre_code&#39;: centre_code, &#39;username&#39;: username, &#39;step&#39;: step,</span>
+    <span class="c1">#         &#39;year&#39;: datetime.now(), &#39;myteam&#39;: myteam, &#39;tl&#39;: tl, &#39;teams&#39;: teams</span>
+    <span class="c1">#     })</span>
+
+<div class="viewcode-block" id="MyjobAsset.post"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.MyjobAsset.post">[docs]</a>    <span class="k">def</span> <span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">username</span> <span class="o">=</span>  <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+        <span class="n">wo</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;wo&#39;</span><span class="p">]</span>
+        <span class="n">jobid</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;jobid&#39;</span><span class="p">]</span>
+        <span class="n">asset_id</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;equipment_id&#39;</span><span class="p">]</span>
+        <span class="n">asset_name</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;make&#39;</span><span class="p">]</span>
+        <span class="n">asset_type</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;asset_type&#39;</span><span class="p">]</span>
+        <span class="n">asset_number</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;asset_number&#39;</span><span class="p">]</span>
+        <span class="n">asset_serial</span><span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;asset_serial&#39;</span><span class="p">]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;asset_id&quot;</span><span class="p">:</span> <span class="n">asset_id</span><span class="p">,</span>
+            <span class="s2">&quot;asset_name&quot;</span><span class="p">:</span> <span class="n">asset_name</span><span class="p">,</span>
+            <span class="s2">&quot;asset_type&quot;</span><span class="p">:</span><span class="n">asset_type</span><span class="p">,</span>
+            <span class="s2">&quot;asset_number&quot;</span><span class="p">:</span><span class="n">asset_number</span><span class="p">,</span>
+            <span class="s2">&quot;asset_serial&quot;</span><span class="p">:</span><span class="n">asset_serial</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">jobid</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://172.20.1.20:8087/beapi/jobupdate/&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">joid</span><span class="p">)</span>
+        <span class="n">usr</span> <span class="p">,</span> <span class="n">tkn</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="n">tkn</span><span class="p">)</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s2">&quot;Token &quot;</span><span class="o">+</span><span class="n">tkn</span><span class="o">+</span><span class="s2">&quot;&quot;</span><span class="p">}</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">patch</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span> <span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">data</span> <span class="p">,</span> <span class="n">headers</span> <span class="o">=</span> <span class="n">headers</span> <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">job_id</span> <span class="o">=</span> <span class="n">joid</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/reports/mywork.html&#39;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s1">&#39;job&#39;</span><span class="p">:</span><span class="n">job</span>
+        <span class="p">})</span></div></div>
+        <span class="c1"># return HttpResponse(&#39;Data Saved Sucessfully&#39;)</span>
+<div class="viewcode-block" id="generate_e84_id"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.generate_e84_id">[docs]</a><span class="k">def</span> <span class="nf">generate_e84_id</span><span class="p">():</span>
+    <span class="n">e84_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e84_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">e84_id</span></div>
+<div class="viewcode-block" id="save_e84"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.save_e84">[docs]</a><span class="k">def</span> <span class="nf">save_e84</span><span class="p">(</span><span class="n">username</span><span class="p">,</span><span class="n">jobid</span><span class="p">):</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="n">generate_e84_id</span><span class="p">()</span>
+    <span class="n">usr</span> <span class="p">,</span> <span class="n">tkn</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="n">tkn</span><span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://172.20.1.20:8087/beapi/e84linepost&quot;</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s2">&quot;Token &quot;</span><span class="o">+</span><span class="n">tkn</span><span class="o">+</span><span class="s2">&quot;&quot;</span><span class="p">}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;line_inspection_id&quot;</span><span class="p">:</span> <span class="s2">&quot;e8&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span> <span class="p">,</span>
+        <span class="s2">&quot;pole_number&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;pole_type&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;wayleave&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cross_arm&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;insulator&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;conductors&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;stays&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;earthing&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cradles&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;anti_climbing_device&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;job&quot;</span><span class="p">:</span> <span class="n">jobid</span>
+    <span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span> <span class="p">,</span><span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+    <span class="n">response_data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">e84_id</span> <span class="o">=</span> <span class="n">response_data</span><span class="p">[</span><span class="s2">&quot;line_inspection_id&quot;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;e84 saved&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">e84_id</span></div>
+<div class="viewcode-block" id="generate_job_progress_id"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.generate_job_progress_id">[docs]</a><span class="k">def</span> <span class="nf">generate_job_progress_id</span><span class="p">():</span>
+    <span class="n">jp_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">jp_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jp_id</span></div>
+<div class="viewcode-block" id="job_progress"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.job_progress">[docs]</a><span class="k">def</span> <span class="nf">job_progress</span><span class="p">(</span><span class="n">job_id</span> <span class="p">,</span><span class="n">createdby</span><span class="p">):</span>
+    <span class="n">jp_id</span> <span class="o">=</span> <span class="n">generate_job_progress_id</span><span class="p">()</span>
+    <span class="n">usr</span> <span class="p">,</span> <span class="n">tkn</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">createdby</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="n">tkn</span><span class="p">)</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s2">&quot;Token &quot;</span><span class="o">+</span><span class="n">tkn</span><span class="o">+</span><span class="s2">&quot;&quot;</span><span class="p">}</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://172.20.1.20:8087/beapi/jobprogresspost&quot;</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;job_progress_id&quot;</span><span class="p">:</span> <span class="s2">&quot;jp&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">jp_id</span><span class="p">),</span>
+        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="n">createdby</span><span class="p">,</span>
+        <span class="s2">&quot;created_on&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+        <span class="s2">&quot;modified_by&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;modified_on&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;start_dt&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;end_dt&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;fleet_no&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;open_mileage&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;close_mileage&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;geom_start&quot;</span><span class="p">:</span> <span class="s2">&quot;0101000020E6100000F0FCD160E8063E40F0724F1FCD2C34C0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;geom_end&quot;</span><span class="p">:</span> <span class="s2">&quot;0101000020E6100000F0FCD160E8063E40F0724F1FCD2C34C0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;job&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span> <span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+    <span class="n">response_data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">jp_id</span> <span class="o">=</span> <span class="n">response_data</span><span class="p">[</span><span class="s1">&#39;job_progress_id&#39;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">jp_id</span></div>
+<div class="viewcode-block" id="generate_job_team_id"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.generate_job_team_id">[docs]</a><span class="k">def</span> <span class="nf">generate_job_team_id</span><span class="p">():</span>
+    <span class="n">jt</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">jt</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">jt</span></div>
+<div class="viewcode-block" id="save_team"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.save_team">[docs]</a><span class="k">def</span> <span class="nf">save_team</span><span class="p">(</span><span class="n">username</span> <span class="p">,</span><span class="n">assignee</span> <span class="p">,</span> <span class="n">jp_id</span><span class="p">):</span>
+    <span class="n">tl</span> <span class="o">=</span> <span class="n">assignee</span>
+    <span class="n">myteam</span><span class="p">,</span> <span class="n">teams</span> <span class="o">=</span> <span class="n">artisan_team</span><span class="p">(</span><span class="n">tl</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">tm</span> <span class="ow">in</span> <span class="n">myteam</span> <span class="p">:</span>
+        <span class="c1"># id = tm.team_id</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="n">generate_job_team_id</span><span class="p">()</span>
+        <span class="n">tl</span> <span class="o">=</span> <span class="n">tm</span><span class="o">.</span><span class="n">team_leader</span>
+        <span class="n">mb</span> <span class="o">=</span><span class="n">tm</span><span class="o">.</span><span class="n">team_member</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="n">tm</span><span class="o">.</span><span class="n">specialisation</span>
+        <span class="c1"># date = datetime.strptime(expected_end_dt, &#39;%Y-%m-%d&#39;)</span>
+        <span class="n">usr</span> <span class="p">,</span> <span class="n">tkn</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+        <span class="nb">print</span> <span class="p">(</span><span class="n">tkn</span><span class="p">)</span>
+        <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;http://172.20.1.20:8087/beapi/jobteampost&quot;</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s2">&quot;Token &quot;</span><span class="o">+</span><span class="n">tkn</span><span class="o">+</span><span class="s2">&quot;&quot;</span><span class="p">}</span>
+       
+        <span class="n">data</span> <span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;job_team_id&quot;</span><span class="p">:</span> <span class="nb">id</span><span class="p">,</span>
+                <span class="s2">&quot;ec_num&quot;</span><span class="p">:</span> <span class="n">mb</span><span class="p">,</span>
+                <span class="s2">&quot;start_dt&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+                <span class="s2">&quot;end_dt&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;teamleader&quot;</span><span class="p">:</span> <span class="n">tl</span><span class="p">,</span>
+                <span class="s2">&quot;job_progress&quot;</span><span class="p">:</span> <span class="n">jp_id</span>
+            <span class="p">}</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span> <span class="p">,</span><span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+        <span class="n">response_data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+        <span class="n">member_id</span> <span class="o">=</span> <span class="n">response_data</span><span class="p">[</span><span class="s1">&#39;ec_num&#39;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Team member assigned job Successfully&#39;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="create_general"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.create_general">[docs]</a><span class="k">def</span> <span class="nf">create_general</span><span class="p">():</span>
+    <span class="n">createdby</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+    <span class="n">date_created</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span>
+    <span class="k">return</span> <span class="n">createdby</span><span class="p">,</span> <span class="n">date_created</span></div>
+<div class="viewcode-block" id="update_general"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.update_general">[docs]</a><span class="k">def</span> <span class="nf">update_general</span><span class="p">():</span>
+    <span class="n">modified_by</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span>
+    <span class="n">date_modified</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span>
+    <span class="k">return</span> <span class="n">modified_by</span><span class="p">,</span> <span class="n">date_modified</span></div>
+<div class="viewcode-block" id="post_data"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.post_data">[docs]</a><span class="k">def</span> <span class="nf">post_data</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">headers</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s2">&quot;POST&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">payload</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">response</span></div>
+<div class="viewcode-block" id="generate_work_order_id"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.generate_work_order_id">[docs]</a><span class="k">def</span> <span class="nf">generate_work_order_id</span><span class="p">():</span>
+    <span class="n">wo</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">wo</span></div>
+<div class="viewcode-block" id="save_wo"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.save_wo">[docs]</a><span class="k">def</span> <span class="nf">save_wo</span><span class="p">(</span><span class="n">username</span><span class="p">,</span><span class="n">description</span><span class="p">,</span> <span class="n">supervisor</span><span class="p">,</span> <span class="n">centre</span><span class="p">,</span> <span class="n">date</span><span class="p">,</span> <span class="n">centre_code</span><span class="p">):</span>
+    <span class="n">wo</span> <span class="o">=</span> <span class="n">generate_work_order_id</span><span class="p">()</span>
+    <span class="n">usr</span> <span class="p">,</span> <span class="n">tkn</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">username</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="n">tkn</span><span class="p">)</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://172.20.1.20:8087/beapi/workorderpost&#39;</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s2">&quot;Token &quot;</span><span class="o">+</span><span class="n">tkn</span><span class="o">+</span><span class="s2">&quot;&quot;</span><span class="p">}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;work_order_id&quot;</span><span class="p">:</span> <span class="s2">&quot;w&quot;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">wo</span><span class="p">),</span>
+        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="n">supervisor</span><span class="p">,</span>
+        <span class="s2">&quot;created_on&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+        <span class="s2">&quot;modified_by&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;modified_on&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+        <span class="s2">&quot;centre&quot;</span><span class="p">:</span> <span class="n">centre</span><span class="p">,</span>
+        <span class="s2">&quot;comments&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;created&quot;</span>
+    <span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span> <span class="p">,</span><span class="n">headers</span><span class="o">=</span><span class="n">headers</span> <span class="p">)</span>
+    <span class="n">response_data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">wo</span> <span class="o">=</span> <span class="n">response_data</span><span class="p">[</span><span class="s2">&quot;work_order_id&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">wo</span></div>
+<div class="viewcode-block" id="generate_job_id"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.generate_job_id">[docs]</a><span class="k">def</span> <span class="nf">generate_job_id</span><span class="p">():</span>
+    <span class="n">job_id</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">job_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">job_id</span></div>
+<div class="viewcode-block" id="save_jo"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.save_jo">[docs]</a><span class="k">def</span> <span class="nf">save_jo</span><span class="p">(</span><span class="n">createdby</span><span class="p">,</span><span class="n">assignee</span><span class="p">,</span> <span class="n">job_type</span> <span class="p">,</span><span class="n">wo</span><span class="p">,</span><span class="n">description</span><span class="p">,</span><span class="n">workflow</span> <span class="p">,</span><span class="n">expected_end_dt</span><span class="p">):</span>
+    <span class="n">usr</span> <span class="p">,</span> <span class="n">tkn</span> <span class="o">=</span> <span class="n">authenticate</span><span class="p">(</span><span class="n">createdby</span><span class="p">)</span>
+    <span class="nb">print</span> <span class="p">(</span><span class="n">tkn</span><span class="p">)</span>
+    <span class="n">jo</span> <span class="o">=</span> <span class="n">generate_job_id</span><span class="p">()</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;http://172.20.1.20:8087/beapi/jobpost&#39;</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="s2">&quot;Token &quot;</span><span class="o">+</span><span class="n">tkn</span><span class="o">+</span><span class="s2">&quot;&quot;</span><span class="p">}</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;job_id&quot;</span><span class="p">:</span> <span class="s2">&quot;j&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">jo</span><span class="p">),</span>
+        <span class="s2">&quot;created_by&quot;</span><span class="p">:</span> <span class="n">createdby</span><span class="p">,</span>
+        <span class="s2">&quot;created_on&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(),</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">job_type</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+        <span class="s2">&quot;assignee&quot;</span><span class="p">:</span> <span class="n">assignee</span><span class="p">,</span>
+        <span class="s2">&quot;expected_end_dt&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">expected_end_dt</span> <span class="p">,</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">),</span>
+        <span class="s2">&quot;workflow_id&quot;</span><span class="p">:</span> <span class="n">workflow</span><span class="p">,</span>
+        <span class="s2">&quot;work_order&quot;</span><span class="p">:</span> <span class="n">wo</span>
+    <span class="p">}</span> 
+    <span class="n">r</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span> <span class="p">,</span><span class="n">headers</span><span class="o">=</span><span class="n">headers</span> <span class="p">)</span>
+    <span class="n">response_data</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="n">jo</span> <span class="o">=</span> <span class="n">response_data</span><span class="p">[</span><span class="s2">&quot;job_id&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">jo</span></div>
+<div class="viewcode-block" id="contacts"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.contacts">[docs]</a><span class="k">def</span> <span class="nf">contacts</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;&lt;h1&gt;Contacts page&lt;/h1&gt;&#39;</span><span class="p">)</span></div>
+<div class="viewcode-block" id="create_workorder"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.create_workorder">[docs]</a><span class="k">def</span> <span class="nf">create_workorder</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">WorkOrderForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+    <span class="n">jform</span> <span class="o">=</span> <span class="n">JobForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+    <span class="n">gform</span> <span class="o">=</span> <span class="n">GeneralForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;&lt;h1&gt;Workorder Created&lt;/h1&gt;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">jform</span> <span class="o">=</span> <span class="n">JobForm</span><span class="p">()</span>
+            <span class="n">gform</span> <span class="o">=</span> <span class="n">GeneralForm</span><span class="p">()</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">WorkOrderForm</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/create_wo.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span> <span class="s1">&#39;jform&#39;</span><span class="p">:</span> <span class="n">jform</span><span class="p">,</span> <span class="s1">&#39;gform&#39;</span><span class="p">:</span> <span class="n">gform</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">WorkOrderForm</span><span class="p">()</span>
+        <span class="n">jform</span> <span class="o">=</span> <span class="n">JobForm</span><span class="p">()</span>
+        <span class="n">gform</span> <span class="o">=</span> <span class="n">GeneralForm</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/create_wo.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">,</span> <span class="s1">&#39;jform&#39;</span><span class="p">:</span> <span class="n">jform</span><span class="p">,</span> <span class="s1">&#39;gform&#39;</span><span class="p">:</span> <span class="n">gform</span><span class="p">})</span></div>
+<div class="viewcode-block" id="new_inspection"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.new_inspection">[docs]</a><span class="k">def</span> <span class="nf">new_inspection</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="n">e84Form</span> <span class="o">=</span> <span class="n">E84Lineinspection</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>   
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;beweb/e84.html&#39;</span><span class="p">,{</span><span class="s1">&#39;e84Form&#39;</span><span class="p">:</span><span class="n">e84Form</span><span class="p">})</span></div>
+<div class="viewcode-block" id="vworkorder"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.vworkorder">[docs]</a><span class="k">def</span> <span class="nf">vworkorder</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="n">wodr</span> <span class="o">=</span> <span class="n">Workorder</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>   
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;beweb/view_wo.html&#39;</span><span class="p">,{</span><span class="s1">&#39;wodr&#39;</span><span class="p">:</span><span class="n">wodr</span><span class="p">})</span></div>
+<div class="viewcode-block" id="vteam"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.vteam">[docs]</a><span class="k">def</span> <span class="nf">vteam</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+       <span class="n">team</span> <span class="o">=</span> <span class="n">Team</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>   
+       <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;beweb/view_tm.html&#39;</span><span class="p">,{</span><span class="s1">&#39;team&#39;</span><span class="p">:</span><span class="n">team</span><span class="p">})</span></div>
+<div class="viewcode-block" id="vjob"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.vjob">[docs]</a><span class="k">def</span> <span class="nf">vjob</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+        <span class="n">team</span> <span class="o">=</span> <span class="n">Team</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span> 
+        <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">all</span><span class="p">()</span>   
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span><span class="s1">&#39;beweb/view_job.html&#39;</span><span class="p">,{</span><span class="s1">&#39;job&#39;</span><span class="p">:</span><span class="n">job</span> <span class="p">,</span><span class="s1">&#39;team&#39;</span><span class="p">:</span><span class="n">team</span><span class="p">})</span></div>
+<div class="viewcode-block" id="get_name"><a class="viewcode-back" href="../../beweb/views.html#beweb.views.get_name">[docs]</a><span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">form</span> <span class="o">=</span> <span class="n">NameForm</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">POST</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">form</span><span class="o">.</span><span class="n">is_valid</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">HttpResponse</span><span class="p">(</span><span class="s1">&#39;&lt;h1&gt;Name Received&lt;/h1&gt;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">form</span> <span class="o">=</span> <span class="n">NameForm</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/name.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span>
+    <span class="k">return</span> <span class="n">render</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="s1">&#39;beweb/name.html&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;form&#39;</span><span class="p">:</span> <span class="n">form</span><span class="p">})</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">BEOperations</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../beapi/models.html">API Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beapi/serializers.html">Serializers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beapi/admin.html">API Admin Model Registration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beapi/urls.html">API Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beapi/views.html">API Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beweb/choices.html">Web Choices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beweb/forms.html">Web Forms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beweb/models.html">Web Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beweb/urls.html">Web urls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beweb/views.html">Web Views</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, BE Dev.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

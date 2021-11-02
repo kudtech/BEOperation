@@ -1,0 +1,588 @@
+{% extends "beweb/job/creation_forms/team.html" %}{% block form %}
+<div id="e117">
+    <div class="row form-group">
+        <div class="col-sm-4">
+        </div>
+        <div class="col-sm-4">
+            <label class="font-weight-bold" style="padding-left: 50px;">INSPECTION TYPE</label>
+        </div>
+        <div class="col-sm-4">
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-sm-4">
+        </div>
+
+        <div class="col-sm-4">
+            <select name="inspection_type" id="inspection_type" type="text" class="form-control"
+                placeholder="Please Select Type">
+                <option value="" disabled selected>Select Inspection Type</option>
+                <option value="new_installation">New Installation</option>
+                <option value="statutory">Statutory</option>
+            </select>
+            <textarea id="e117_tnames" name="e117_tnames" hidden class="form-control" value=""> </textarea>
+
+        </div>
+        <div class="col-sm-4">
+            <input type="text" name="description" value="{{description}}" hidden>
+        </div>
+    </div>
+    <!-- NEW INSTALLATION -->
+    <div id="new_installation">
+
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                    NAME</label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control " name="customer_name" id="e117_customer_name" />
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                    PHONE
+                </label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control " name="customer_phone" id="e117_customer_phone" />
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">PROPERTY
+                    ADDRESS</label>
+            </div>
+            <div class="col-sm-3">
+                <textarea name="property_address" id="new_installation_property_address" class="form-control"
+                    value=""></textarea>
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">PROPERTY
+                    OWNER`S NAME</label>
+            </div>
+            <div class="col-sm-3">
+                <input name="new_installation_property_owner_name" id="new_installation_property_owner_name"
+                    type="text" class="form-control" value="" />
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">PROPERTY
+                    OWNER`S ADDRESS</label>
+            </div>
+            <div class="col-sm-3">
+                <textarea name="new_installation_property_owner_address"
+                    id="new_installation_property_owner_address" class="form-control" value=""></textarea>
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CONTRACTOR`S
+                    NAME</label>
+            </div>
+            <div class="col-sm-3">
+                <select id="new_installation_contractor_name" name="new_installation_contractor_name"
+                    class="form-control">
+                    <option value="" disabled selected>Select Contractor</option>
+                    {% for contractor in contractors %}
+                    <option value="{{contractor.e117contractor_id}}"
+                        data-phone="{{contractor.contractor_phone}}"
+                        data-address="{{contractor.contractor_address}}">
+                        {{contractor.contractor_name}}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CONTRACTOR`S
+                    PHONE</label>
+            </div>
+            <div class="col-sm-3">
+                <input name="new_installation_contractor_phone" id="new_installation_contractor_phone"
+                    type="text" class="form-control" readonly />
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CONTRACTOR`S
+                    ADDRESS</label>
+            </div>
+            <div class="col-sm-3">
+                <textarea name="new_installation_contractor_address" id="new_installation_contractor_address"
+                    class="form-control" readonly></textarea>
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START
+                    DATE</label>
+            </div>
+            <div class="col-sm-3">
+                <input name="new_installation_start_date" id="new_installation_start_date" type="datetime-local"
+                    class="form-control" value="" />
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">EXPECTED END
+                    DATE</label>
+            </div>
+            <div class="col-sm-3">
+                <input name="new_installation_expected_end_dt" id="new_installation_expected_end_dt" type="datetime-local"
+                    class="form-control" value="" />
+            </div>
+        </div>
+        
+    </div>
+
+    <!-- STATUTORY-->
+    <div id="statutory">
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">NUMBER OF
+                    CLIENTS
+                </label>
+            </div>
+            <div class="col-sm-3">
+                <select name="statutory_number_of_clients" id="statutory_number_of_clients"
+                    class="form-control statutory">
+                    <option value="">Select Number of Clients</option>
+                    <option value="single">SINGLE</option>
+                    <option value="multiple">MULTIPLE</option>
+                </select>
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                    TYPE</label>
+            </div>
+            <div class="col-sm-3">
+                <select name="statutory_customer_type" id="statutory_customer_type" class="form-control">
+                    <option value="">Select Customer Type</option>
+                    <option value="domestic">Domestic</option>
+                    <option value="industrial">Industrial</option>
+                    <option value="farming">Farming</option>
+                    <option value="mining">Mining</option>
+                    <option value="institutions">Institutions</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="statutory_single">
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                        NAME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control " name="e117_statutory_customer_name"
+                        id="e117_statutory_customer_name" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                        PHONE
+                    </label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control " name="e117_statutory_customer_phone"
+                        id="e117_statutory_customer_phone" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-4">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">PROPERTY
+                        ADDRESS</label>
+                </div>
+
+                <div class="col-sm-4">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">PROPERTY
+                        OWNER`S NAME</label>
+                </div>
+
+                <div class="col-sm-4">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">PROPERTY
+                        OWNER`S ADDRESS</label>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-4">
+                    <textarea name="statutory_single_property_address" id="statutory_single_property_address"
+                        class="form-control"></textarea>
+                </div>
+
+                <div class="col-sm-4">
+                    <input name="statutory_single_property_owner_name" id="statutory_single_property_owner_name"
+                        type="text" class="form-control" value="" />
+                </div>
+
+                <div class="col-sm-4">
+                    <textarea name="statutory_single_property_owner_address"
+                        id="statutory_single_property_owner_address" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START
+                        DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="statutory_single_start_date" id="statutory_single_start_date" type="datetime-local"
+                        class="form-control" value="" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">EXPECTED
+                        END
+                        DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="statutory_single_expected_end_dt" id="statutory_single_expected_end_dt"
+                        type="datetime-local" class="form-control" value="" />
+                </div>
+            </div>
+
+
+           
+
+
+        </div>
+        <div id="statutory_multiple">
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label"
+                        style="padding-left: 50px;">DESCRIPTION
+                    </label>
+                </div>
+                <div class="col-sm-9">
+                    <textarea name="e117_statutory_description" id="e117_statutory_description"
+                        class="form-control"></textarea>
+                </div>
+            </div>
+
+
+
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START
+                        DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="statutory_multiple_start_date" id="statutory_multiple_start_date" type="datetime-local"
+                        class="form-control" value="" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">EXPECTED
+                        END DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="statutory_multiple_expected_end_dt" id="statutory_multiple_expected_end_dt"
+                        type="datetime-local" class="form-control" value="" />
+                </div>
+            </div>
+
+
+         
+        </div>
+    </div>
+
+</div>
+<script>
+     $('#new_installation').hide()
+        $('#statutory').hide()
+        $('#new_installation_contractor_name').change(function () {
+        selectedOption = $('option:selected', this);
+        $('input[name=new_installation_contractor_phone]').val(selectedOption.data('phone'));
+        $('#new_installation_contractor_address').val(selectedOption.data('address'));
+    }); $('#inspection_type').change(function () { 
+            var selectedassistant = $('#inspection_type :selected').val();
+            selectedassistant
+            if (selectedassistant='statutory') {
+                $('#statutory').show();
+                $('#new_installation').hide()
+            }
+            
+            else {
+                if (selectedassistant='new_installation') {
+                $('#statutory').hide();
+                $('#new_installation').show()
+            }
+            }
+           var inspection_type = $('#inspection_type option:selected').val();
+            if (inspection_type === 'new_installation') {
+                $('#new_installation').show()
+                $('#e117_customer_name').attr('required', 'required')
+                $('#e117_customer_phone').attr('required', 'required')
+                $('#new_installation_property_address').attr('required', 'required')
+                $('#new_installation_property_owner_name').attr('required', 'required')
+                $('#new_installation_property_owner_address').attr('required', 'required')
+                $('#new_installation_contractor_name').attr('required', 'required')
+                $('#new_installation_contractor_phone').attr('required', 'required')
+                $('#new_installation_contractor_address').attr('required', 'required')
+                $('#new_installation_start_date').attr('required', 'required')
+                $('#new_installation_expected_end_dt').attr('required', 'required')
+                $('#new_installation_assignee').attr('required', 'required')
+                $('#new_installation_assistants').attr('required', 'required')
+                $('#new_installation_fleet').attr('required', 'required')
+                // REMOVE E84 REQUIRED ATTRIBUTES
+                $('#e84_description').removeAttr("required")
+                $('#e84_start_date').removeAttr("required")
+                $('#e84_expected_end_dt').removeAttr("required")
+                $('#e84_trigger').removeAttr("required")
+                $('#e84_fleet').removeAttr("required")
+                $('#e84_asset_type').removeAttr("required")
+                $('#e84_assignee').removeAttr("required")
+                $('#e84_xteams').removeAttr("required")
+                //REMOVE STATUTORY SINGLE CLIENT REQUIRED ATTRIBUTES
+                $('#e117_statutory_customer_name').removeAttr("required")
+                $('#e117_statutory_customer_phone').removeAttr("required")
+                $('#statutory_single_property_address').removeAttr("required")
+                $('#statutory_single_property_owner_name').removeAttr("required")
+                $('#statutory_single_property_owner_address').removeAttr("required")
+                $('#statutory_single_start_date').removeAttr("required")
+                $('#statutory_single_expected_end_dt').removeAttr("required")
+                $('#statutory_single_assignee').removeAttr("required")
+                $('#statutory_single_assistants').removeAttr("required")
+                $('#statutory_single_fleet').removeAttr("required")
+                // REMOVE STATUTORY MULTIPLE CLIENTS REQUIRED ATTRIBUTES
+                $('#e117_statutory_description').removeAttr("required")
+                $('#statutory_multiple_start_date').removeAttr("required")
+                $('#statutory_multiple_expected_end_dt').removeAttr("required")
+                $('#statutory_multiple_assignee').removeAttr("required")
+                $('#statutory_multiple_assistants').removeAttr("required")
+                $('#statutory_multiple_fleet').removeAttr("required")
+                $('#statutory_number_of_clients').removeAttr("required")
+                $('#statutory_customer_type').removeAttr("required")
+                //REMOVE RE-INSPECTION REQUIRED ATTRIBUTES
+                $('#re_inspection_service_number').removeAttr("required")
+                $('#re_inspection_receipt_number').removeAttr("required")
+                $('#re_inspection_fee').removeAttr("required")
+                $('#re_inspection_date_paid').removeAttr("required")
+                $('#re_inspection_customer_name').removeAttr("required")
+                $('#re_inspection_customer_phone').removeAttr("required")
+                $('#re_inspection_property_address').removeAttr("required")
+                $('#re_inspection_property_owner_name').removeAttr("required")
+                $('#re_inspection_property_owner_address').removeAttr("required")
+                $('#re_inspection_contractor_name').removeAttr("required")
+                $('#re_inspection_contractor_phone').removeAttr("required")
+                $('#re_inspection_contractor_address').removeAttr("required")
+                $('#re_inspection_expected_end_dt').removeAttr("required")
+                $('#re_inspection_start_date').removeAttr("required")
+                $('#re_inspection_assignee').removeAttr("required")
+                $('#statutory').hide()
+                $('#re_inspection').hide()
+            }
+            else if (inspection_type === 'statutory') {
+                $('#statutory').show()
+                $('#statutory_number_of_clients').attr('required', 'required')
+                $('#statutory_customer_type').attr('required', 'required')
+                $('#statutory_single').hide()
+                $('#statutory_multiple').hide()
+                $('#new_installation').hide()
+                $('#re_inspection').hide()
+            }
+            else if (inspection_type === 're_inspection') {
+                $('#re_inspection').show()
+                $('#re_inspection_service_number').attr('required', 'required')
+                $('#re_inspection_receipt_number').attr('required', 'required')
+                $('#re_inspection_fee').attr('required', 'required')
+                $('#re_inspection_date_paid').attr('required', 'required')
+                $('#re_inspection_customer_name').attr('required', 'required')
+                $('#re_inspection_customer_phone').attr('required', 'required')
+                $('#re_inspection_property_address').attr('required', 'required')
+                $('#re_inspection_property_owner_name').attr('required', 'required')
+                $('#re_inspection_property_owner_address').attr('required', 'required')
+                $('#re_inspection_contractor_name').attr('required', 'required')
+                $('#re_inspection_contractor_phone').attr('required', 'required')
+                $('#re_inspection_contractor_address').attr('required', 'required')
+                $('#re_inspection_expected_end_dt').attr('required', 'required')
+                $('#re_inspection_start_date').attr('required', 'required')
+                $('#re_inspection_assignee').attr('required', 'required')
+                // REMOVE NEW INSTALLATION REQUIRED ATTRIBUTES 
+                $('#e117_customer_name').removeAttr("required")
+                $('#e117_customer_phone').removeAttr("required")
+                $('#new_installation_property_address').removeAttr("required")
+                $('#new_installation_property_owner_name').removeAttr("required")
+                $('#new_installation_property_owner_address').removeAttr("required")
+                $('#new_installation_contractor_name').removeAttr("required")
+                $('#new_installation_contractor_phone').removeAttr("required")
+                $('#new_installation_contractor_address').removeAttr("required")
+                $('#new_installation_start_date').removeAttr("required")
+                $('#new_installation_expected_end_dt').removeAttr("required")
+                $('#new_installation_assignee').removeAttr("required")
+                $('#new_installation_assistants').removeAttr("required")
+                $('#new_installation_fleet').removeAttr("required")
+                // REMOVE E84 INSTALLATION REQUIRED ATTRIBUTES
+                $('#e84_description').removeAttr("required")
+                $('#e84_start_date').removeAttr("required")
+                $('#e84_expected_end_dt').removeAttr("required")
+                $('#e84_trigger').removeAttr("required")
+                $('#e84_fleet').removeAttr("required")
+                $('#e84_asset_type').removeAttr("required")
+                $('#e84_assignee').removeAttr("required")
+                $('#e84_xteams').removeAttr("required")
+                // REMOVE STATUTORY REQUIRED ATTRIBUTES
+                $('#e117_statutory_description').removeAttr("required")
+                $('#statutory_multiple_start_date').removeAttr("required")
+                $('#statutory_multiple_expected_end_dt').removeAttr("required")
+                $('#statutory_multiple_assignee').removeAttr("required")
+                $('#statutory_multiple_assistants').removeAttr("required")
+                $('#statutory_multiple_fleet').removeAttr("required")
+                $('#statutory_number_of_clients').removeAttr("required")
+                $('#statutory_customer_type').removeAttr("required")
+                //REMOVE STATUTORY SINGLE CLIENT REQUIRED ATTRIBUTES
+                $('#e117_statutory_customer_name').removeAttr("required")
+                $('#e117_statutory_customer_phone').removeAttr("required")
+                $('#statutory_single_property_address').removeAttr("required")
+                $('#statutory_single_property_owner_name').removeAttr("required")
+                $('#statutory_single_property_owner_address').removeAttr("required")
+                $('#statutory_single_start_date').removeAttr("required")
+                $('#statutory_single_expected_end_dt').removeAttr("required")
+                $('#statutory_single_assignee').removeAttr("required")
+                $('#statutory_single_assistants').removeAttr("required")
+                $('#statutory_single_fleet').removeAttr("required")
+                $('#new_installation').hide()
+                $('#statutory').hide()
+            }
+        });
+
+        $('#statutory_number_of_clients').change(function () {
+            var statutory_number_of_clients = $('#statutory_number_of_clients option:selected').val();
+            if (statutory_number_of_clients === 'single') {
+                $('#e117_statutory_customer_name').attr('required', 'required')
+                $('#e117_statutory_customer_phone').attr('required', 'required')
+                $('#statutory_single_property_address').attr('required', 'required')
+                $('#statutory_single_property_owner_name').attr('required', 'required')
+                $('#statutory_single_property_owner_address').attr('required', 'required')
+                $('#statutory_single_start_date').attr('required', 'required')
+                $('#statutory_single_expected_end_dt').attr('required', 'required')
+                $('#statutory_single_assignee').attr('required', 'required')
+                $('#statutory_single_assistants').attr('required', 'required')
+                $('#statutory_single_fleet').attr('required', 'required')
+                //REMOVE RE-INSPECTION REQUIRED ATTRIBUTES
+                $('#re_inspection_service_number').removeAttr("required")
+                $('#re_inspection_receipt_number').removeAttr("required")
+                $('#re_inspection_fee').removeAttr("required")
+                $('#re_inspection_date_paid').removeAttr("required")
+                $('#re_inspection_customer_name').removeAttr("required")
+                $('#re_inspection_customer_phone').removeAttr("required")
+                $('#re_inspection_property_address').removeAttr("required")
+                $('#re_inspection_property_owner_name').removeAttr("required")
+                $('#re_inspection_property_owner_address').removeAttr("required")
+                $('#re_inspection_contractor_name').removeAttr("required")
+                $('#re_inspection_contractor_phone').removeAttr("required")
+                $('#re_inspection_contractor_address').removeAttr("required")
+                $('#re_inspection_expected_end_dt').removeAttr("required")
+                $('#re_inspection_start_date').removeAttr("required")
+                $('#re_inspection_assignee').removeAttr("required")
+                // REMOVE NEW INSTALLATION REQUIRED ATTRIBUTES 
+                $('#e117_customer_name').removeAttr("required")
+                $('#e117_customer_phone').removeAttr("required")
+                $('#new_installation_property_address').removeAttr("required")
+                $('#new_installation_property_owner_name').removeAttr("required")
+                $('#new_installation_property_owner_address').removeAttr("required")
+                $('#new_installation_contractor_name').removeAttr("required")
+                $('#new_installation_contractor_phone').removeAttr("required")
+                $('#new_installation_contractor_address').removeAttr("required")
+                $('#new_installation_start_date').removeAttr("required")
+                $('#new_installation_expected_end_dt').removeAttr("required")
+                $('#new_installation_assignee').removeAttr("required")
+                $('#new_installation_assistants').removeAttr("required")
+                $('#new_installation_fleet').removeAttr("required")
+                // REMOVE E84 INSTALLATION REQUIRED ATTRIBUTES
+                $('#e84_description').removeAttr("required")
+                $('#e84_start_date').removeAttr("required")
+                $('#e84_expected_end_dt').removeAttr("required")
+                $('#e84_trigger').removeAttr("required")
+                $('#e84_fleet').removeAttr("required")
+                $('#e84_asset_type').removeAttr("required")
+                $('#e84_assignee').removeAttr("required")
+                $('#e84_xteams').removeAttr("required")
+                // REMOVE STATUTORY MULTIPLE CLIENTS REQUIRED ATTRIBUTES
+                $('#e117_statutory_description').removeAttr("required")
+                $('#statutory_multiple_start_date').removeAttr("required")
+                $('#statutory_multiple_expected_end_dt').removeAttr("required")
+                $('#statutory_multiple_assignee').removeAttr("required")
+                $('#statutory_multiple_assistants').removeAttr("required")
+                $('#statutory_multiple_fleet').removeAttr("required")
+                $('#statutory_number_of_clients').removeAttr("required")
+                $('#statutory_customer_type').removeAttr("required")
+                $('#statutory_single').show()
+                $('#statutory_multiple').hide()
+            }
+            else {
+                $('#statutory_single').hide()
+                $('#statutory_multiple').show()
+                $('#e117_statutory_description').attr('required', 'required')
+                $('#statutory_multiple_start_date').attr('required', 'required')
+                $('#statutory_multiple_expected_end_dt').attr('required', 'required')
+                $('#statutory_multiple_assignee').attr('required', 'required')
+                $('#statutory_multiple_assistants').attr('required', 'required')
+                $('#statutory_multiple_fleet').attr('required', 'required')
+                //REMOVE RE-INSPECTION REQUIRED ATTRIBUTES
+                $('#re_inspection_service_number').removeAttr("required")
+                $('#re_inspection_receipt_number').removeAttr("required")
+                $('#re_inspection_fee').removeAttr("required")
+                $('#re_inspection_date_paid').removeAttr("required")
+                $('#re_inspection_customer_name').removeAttr("required")
+                $('#re_inspection_customer_phone').removeAttr("required")
+                $('#re_inspection_property_address').removeAttr("required")
+                $('#re_inspection_property_owner_name').removeAttr("required")
+                $('#re_inspection_property_owner_address').removeAttr("required")
+                $('#re_inspection_contractor_name').removeAttr("required")
+                $('#re_inspection_contractor_phone').removeAttr("required")
+                $('#re_inspection_contractor_address').removeAttr("required")
+                $('#re_inspection_expected_end_dt').removeAttr("required")
+                $('#re_inspection_start_date').removeAttr("required")
+                $('#re_inspection_assignee').removeAttr("required")
+                // REMOVE NEW INSTALLATION REQUIRED ATTRIBUTES 
+                $('#e117_customer_name').removeAttr("required")
+                $('#e117_customer_phone').removeAttr("required")
+                $('#new_installation_property_address').removeAttr("required")
+                $('#new_installation_property_owner_name').removeAttr("required")
+                $('#new_installation_property_owner_address').removeAttr("required")
+                $('#new_installation_contractor_name').removeAttr("required")
+                $('#new_installation_contractor_phone').removeAttr("required")
+                $('#new_installation_contractor_address').removeAttr("required")
+                $('#new_installation_start_date').removeAttr("required")
+                $('#new_installation_expected_end_dt').removeAttr("required")
+                $('#new_installation_assignee').removeAttr("required")
+                $('#new_installation_assistants').removeAttr("required")
+                $('#new_installation_fleet').removeAttr("required")
+                // REMOVE E84 INSTALLATION REQUIRED ATTRIBUTES
+                $('#e84_description').removeAttr("required")
+                $('#e84_start_date').removeAttr("required")
+                $('#e84_expected_end_dt').removeAttr("required")
+                $('#e84_trigger').removeAttr("required")
+                $('#e84_fleet').removeAttr("required")
+                $('#e84_asset_type').removeAttr("required")
+                $('#e84_assignee').removeAttr("required")
+                $('#e84_xteams').removeAttr("required")
+                // REMOVE STATUTORY MULTIPLE CLIENTS REQUIRED ATTRIBUTES
+                $('#e117_statutory_customer_name').removeAttr("required")
+                $('#e117_statutory_customer_phone').removeAttr("required")
+                $('#statutory_single_property_address').removeAttr("required")
+                $('#statutory_single_property_owner_name').removeAttr("required")
+                $('#statutory_single_property_owner_address').removeAttr("required")
+                $('#statutory_single_start_date').removeAttr("required")
+                $('#statutory_single_expected_end_dt').removeAttr("required")
+                $('#statutory_single_assignee').removeAttr("required")
+                $('#statutory_single_assistants').removeAttr("required")
+                $('#statutory_single_fleet').removeAttr("required")
+            }
+           
+        });
+</script>
+{% endblock form %}
+
+{% block buttons %}
+<div class="col-md-3">
+    <a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:home' %}">
+        <input type="button" class="btn  btn-sm btn-block " value="Cancel"
+            onclick="return confirm('Are you sure you want to cancel the job?');" />
+    </a>
+</div>
+<div class=" col-md-3">
+    <a class="navbar-brand  col-sm-8 pt-sm-0">
+        <input type="submit" class="btn btn-sm  btn-block" id="new_installation_create"
+            value="Create" name="new_installation_create_submit" formaction="/beweb/create/e117/"
+            onclick=" return confirm('Are you sure you want to create job?');" />
+
+    </a>
+</div>
+{% endblock%}

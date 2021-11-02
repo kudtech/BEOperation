@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="kk">
+    <title>Be Operations - Dashboard</title>
+    {% load staticfiles %}
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/content/style.css'%}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+</head>
+
+<div class="container">
+    <h2 class="text-center font-weight-bold">JOB</h2>
+
+    <form method="GET">
+        {% csrf_token %}
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">WORK ORDER
+                    NUMBER</label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control " required placeholder="" id="wo" name="wo"
+                    value="{{job.work_order}}" readonly />
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">JOB NUMBER</label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" required placeholder="" id="job_number" name="job_number"
+                    value="{{job.job_id}}" readonly />
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold" style="padding-left: 50px;">JOB TYPE</label>
+            </div>
+            <div class="col-sm-3">
+                <input name="type" type="text" class="form-control" value="{{job.type}}" />
+            </div>
+            {% if is_e60 %}
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">TYPE OF WORK
+                </label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control " name="type_work" id="type_work"
+                    value="{{is_e60}}" />
+            </div>
+            {% else %}
+            {% endif %}
+
+            {% if is_e117 %}
+            <div class="col-sm-3">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">INSPECTION TYPE
+                </label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control " name="inspection_type" id="inspection_type"
+                    value="{{e117_data.client_inspection_type}}" />
+            </div>
+            {% else %}
+            {% endif %}
+        </div>
+        <!--------------E84----------- -->
+        <div id="E84">
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label"
+                        style="padding-left: 50px;">DESCRIPTION</label>
+                </div>
+                <div class="col-sm-3">
+
+                    <textarea id="tnames" name="tnames" hidden class="form-control" value=""> </textarea>
+                    <textarea name="description" class="form-control" value="" required
+                        placeholder="">{{job.description}} </textarea>
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START
+                        DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="start_date" type="text" class="form-control" value="{{start_date}}" />
+                </div>
+            </div>
+
+            <div class="row form-group">
+
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">EXPECTED END DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="expected_end_dt" type="text" class="form-control" value="{{expected_end_dt}}" />
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">TRIGGER</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder="" id="trigger" name="trigger"
+                        value="{{trigger}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">FLEET</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder="" id="fleet" name="fleet"
+                        value="{{fleet}}" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">PLANT/EQUIPMENT TYPE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder="" id="plantequip"
+                        name="plant_equipment" value="{{job.asset_type}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">TEAM LEADER</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{team_leader}}" />
+                </div>
+            </div>
+
+
+
+
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">TEAM MEMBERS</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control">
+                        {% for member in team_data %}
+                        <option value="{{member.ec_num}}">
+                            {{member.description}}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+            </div>
+            <h3 class="text-center">Job Progress</h3>
+            <div class="form-group container row">
+                <table id="jobprogress" class="table table-striped table-bordered table-responsive-md"
+                    style="background-color:#f4f4f4;border-radius: 5px">
+                    <thead>
+                        <tr>
+                            <th style="color: black;">Job Progress ID</th>
+                            <th style="color: black;">Team Leader</th>
+                            <th style="color: black;">Start Date</th>
+                            <th style="color: black;">End Date</th>
+                            <th style="color: black;" id="status">Status</th>
+                            <th style="color: black;">Team Members</th>
+                            <th style="color: black;">Fleet</th>
+                            <th style="color: black;">Start Mileage</th>
+                            <th style="color: black;">End Mileage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for jp in job_progress %}
+                        <tr>
+                            <td><a href="/beweb/jobprogress/?q={{jp.job_progress_id}}"
+                                    style="color: blue;">{{jp.job_progress_id}}</a>
+                            </td>
+                            <td>{{team_leader}}</td>
+                            <td>{{jp.start_dt }}</td>
+                            <td>{{jp.end_dt}}</td>
+                            <td>{{jp.status}}</td>
+                            <td>{{jp.jobteam_members|length }}</td>
+                            <td>{{jp.fleet_no}}</td>
+                            <td>{{jp.open_mileage}}</td>
+                            <td>{{jp.close_mileage}}</td>
+                            <td>{{hours}}</td>
+                        </tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!--------------E117------------->
+        <div id="E117">
+            <!-- <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">INSPECTION TYPE
+                    </label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control " name="inspection_type" id="inspection_type"
+                        value="{{e117_data.client_inspection_type}}" />
+                </div>
+            </div> -->
+        </div>
+        <!-- New Installation -->
+        <div id="new_installation">
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                        NAME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="customer_name" type="text" class="form-control" value="{{client_data.client_name}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                        PHONE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="customer_phone" type="text" class="form-control"
+                        value="{{client_data.client_phone}}" />
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">CONTRACTOR NAME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="contractor_name" type="text" class="form-control"
+                        value="{{contractor_data.contractor_name}}" />
+
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">CONTRACTOR's PHONE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="contractor_phone" type="text" class="form-control"
+                        value="{{contractor_data.contractor_phone}}" />
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">CONTRACTOR's ADDRESS</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder="" id="contractor_address"
+                        name="contractor_address" value="{{contractor_data.contractor_address}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">PROPERTY OWNER'S NAME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder="" id="property_owner_name"
+                        name="property_owner_name" value="{{client_data.owner_name}}" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">PROPERTY OWNER ADDRESS</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder="" id="property_owner_address"
+                        name="property_owner_address" value="{{client_data.owner_address}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">PROPERTY ADDRESS</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{client_data.property_address}}"
+                        id="property_address" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">START DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="start_date" type="text" class="form-control" id="start_date" value="{{start_date}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">END DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="end_date" id="end_date" type="text" class="form-control" value="{{expected_end_dt}}" />
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">TEAM LEADER</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder="" id="team_leader"
+                        value="{{team_leader}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">TEAM MEMBERS</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control">
+                        {% for member in team_data %}
+                        <option value="{{member.ec_num}}">
+                            {{member.description}}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">FLEET</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder="" id="e117_fleet" name="e117_fleet"
+                        value="{{fleet}}" />
+                </div>
+            </div>
+        </div>
+        <!-- End of New Installation -->
+        <!-- Re-Inspection-->
+        <div id="re_inspection">
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">SERVICE
+                        NUMBER</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control " name="re_inspection_service_number"
+                        id="re_inspection_service_number" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">RECEIPT
+                        NUMBER
+                    </label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control " name="re_inspection_receipt_number"
+                        id="re_inspection_receipt_number" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">RE-INSPECTION
+                        FEE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control " name="re_inspection_fee" id="re_inspection_fee" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">DATE
+                        PAID</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="date" class="form-control " name="re_inspection_date_paid"
+                        id="re_inspection_date_paid" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                        NAME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="customer_name" type="text" class="form-control" value="{{client_data.client_name}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                        PHONE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="customer_phone" type="text" class="form-control"
+                        value="{{client_data.client_phone}}" />
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">CONTRACTOR NAME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="contractor_name" type="text" class="form-control"
+                        value="{{contractor_data.contractor_name}}" />
+
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">CONTRACTOR's PHONE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="contractor_phone" type="text" class="form-control"
+                        value="{{contractor_data.contractor_phone}}" />
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">CONTRACTOR's ADDRESS</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder=""
+                        id="re_inspection_contractor_address" name="contractor_address"
+                        value="{{contractor_data.contractor_address}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">PROPERTY OWNER'S NAME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder=""
+                        id="re_inspection_property_owner_name" name="property_owner_name"
+                        value="{{client_data.owner_name}}" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">PROPERTY OWNER ADDRESS</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder=""
+                        id="re_inspection_property_owner_address" name="property_owner_address"
+                        value="{{client_data.owner_address}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">PROPERTY ADDRESS</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{client_data.property_address}}"
+                        id="re_inspection_property_address" />
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">START DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="start_date" type="text" class="form-control" id="re_inspection_start_date"
+                        value="{{start_date}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">END DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input name="end_date" id="re_inspection_end_date" type="text" class="form-control"
+                        value="{{expected_end_dt}}" />
+                </div>
+            </div>
+
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">TEAM LEADER</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" required placeholder="" id="re_inspection_team_leader"
+                        name="team_leader" value="{{team_leader}}" />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">TEAM MEMBERS</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control">
+                        {% for member in team_data %}
+                        <option value="{{member.ec_num}}">
+                            {{member.description}}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 50px;">FLEET</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="re_inspection_e117_fleet" name="e117_fleet"
+                        value="{{fleet}}" />
+                </div>
+            </div>
+        </div>
+        <!-- End of Re-Inspection -->
+        <!-- Statutory Start -->
+        <div id="statutory">
+            {% if is_statutory %}
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">NUMBER OF
+                        CLIENTS
+                    </label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e117_data.number_of_clients}}">
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                        TYPE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" name="" value="{{e117_data.customer_type}}">
+                </div>
+            </div>
+            {% else %}
+            {% endif %}
+
+            <div id="statutory_single">
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                            NAME</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control " name="e117_statutory_customer_name"
+                            value="{{client_data.client_name}}" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                            PHONE
+                        </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control " name="e117_statutory_customer_phone"
+                            value="{{client_data.client_phone}}" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-2">
+                        <label class="font-weight-bold" style="padding-left: 50px;">PROPERTY OWNER'S NAME</label>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" required placeholder="" name="property_owner_name"
+                            value="{{client_data.owner_name}}" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="font-weight-bold" style="padding-left: 50px;">PROPERTY OWNER ADDRESS</label>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" required placeholder="" name="property_owner_address"
+                            value="{{client_data.owner_address}}" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="font-weight-bold" style="padding-left: 50px;">PROPERTY ADDRESS</label>
+                    </div>
+                    <div class="col-sm-2">
+                        <input type="text" class="form-control" value="{{client_data.property_address}}" />
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START
+                            DATE</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="statutory_single_start_date" id="statutory_single_start_date" type="date"
+                            class="form-control" value="{{start_date}}" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">EXPECTED
+                            END
+                            DATE</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="statutory_single_expected_end_dt" id="statutory_single_expected_end_dt" type="date"
+                            class="form-control" value="{{expected_end_dt}}" />
+                    </div>
+                </div>
+
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold" style="padding-left: 50px;">TEAM LEADER</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" required placeholder="" id="" name="team_leader"
+                            value="{{team_leader}}" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold" style="padding-left: 50px;">TEAM MEMBERS</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <select class="form-control">
+                            {% for member in team_data %}
+                            <option value="{{member.ec_num}}">
+                                {{member.description}}
+                            </option>
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold" style="padding-left: 50px;">FLEET</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" placeholder="" id="statutory_single_fleet"
+                            name="statutory_single_fleet" value="{{fleet}}" />
+                    </div>
+                    <div class="col-sm-3">
+                    </div>
+                    <div class="col-sm-3">
+                    </div>
+                </div>
+            </div>
+
+            <div id="statutory_multiple">
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">DESCRIPTION
+                        </label>
+                    </div>
+                    <div class="col-sm-9">
+                        <textarea name="e117_statutory_description" id="e117_statutory_description"
+                            class="form-control">{{job_description}}</textarea>
+                    </div>
+                </div>
+
+
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START
+                            DATE</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="statutory_multiple_start_date" id="statutory_multiple_start_date" type="date"
+                            class="form-control" value="{{start_date}}" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">EXPECTED
+                            END DATE</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="statutory_multiple_expected_end_dt" id="statutory_multiple_expected_end_dt"
+                            type="date" class="form-control" value="{{expected_end_dt}}" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold" style="padding-left: 50px;">TEAM LEADER</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" required placeholder="" name="team_leader"
+                            value="{{team_leader}}" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold" style="padding-left: 50px;">TEAM MEMBERS</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <select class="form-control">
+                            {% for member in team_data %}
+                            <option value="{{member.ec_num}}">
+                                {{member.description}}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <!-- <div class="card border-0">
+                            <div class="card-body ">
+                                {% for member in team_data %}
+                                <div class="form-group">
+                                    <div class="input-group mb-2">
+                                        <div class="input-group-prepend">
+                                            <div class="input-group-text"><i class="fa fa-user text-info"></i></div>
+                                        </div>
+                                        <input type="text" class="form-control" value="{{member.description}}">
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div> -->
+                    </div>
+                </div>
+
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold" style="padding-left: 50px;">FLEET</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" placeholder="" id="statutory_multiple_fleet"
+                            name="statutory_multiple_fleet" value="{{fleet}}" />
+                    </div>
+                    <div class="col-sm-3">
+                    </div>
+                    <div class="col-sm-3">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End of Statutory -->
+        <h3 class="text-center">Job Progress</h3>
+        <div class="form-group container row">
+            <table id="e117_jobprogress" class="table table-striped table-bordered table-responsive-md"
+                style="background-color:#f4f4f4;border-radius: 5px">
+                <thead>
+                    <tr>
+                        <th style="color: black;">Job Progress ID</th>
+                        <th style="color: black;">Team Leader</th>
+                        <th style="color: black;">Start Date</th>
+                        <th style="color: black;">End Date</th>
+                        <th style="color: black;" id="e117_status">Status</th>
+                        <th style="color: black;">Team Members</th>
+                        <th style="color: black;">Fleet</th>
+                        <th style="color: black;">Start Mileage</th>
+                        <th style="color: black;">End Mileage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for jp in job_progress %}
+                    <tr>
+                        <td><a href="/beweb/jobprogress/?q={{jp.job_progress_id}}"
+                                style="color: blue;">{{jp.job_progress_id}}</a>
+                        </td>
+                        <td>{{team_leader}}</td>
+                        <td>{{jp.start_dt }}</td>
+                        <td>{{jp.end_dt}}</td>
+                        <td>{{jp.status}}</td>
+                        <td>{{jp.jobteam_members|length }}</td>
+                        <td>{{jp.fleet_no}}</td>
+                        <td>{{jp.open_mileage}}</td>
+                        <td>{{jp.close_mileage}}</td>
+                        <td>{{hours}}</td>
+                    </tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- End of E117 -->
+
+        <div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center ">
+            <div class=" col-md-3">
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="/beweb/forms/?job_id={{job.job_id}}&type={{jobtype}}">
+                    <input type="button" id="view_form" class="btn btn-sm  btn-block " value="View Form" />
+                </a>
+            </div>
+            <div class=" col-md-3">
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:listjobs' %}">
+                    <input type="button" class="btn btn-sm  btn-block " value="BACK" />
+                </a>
+            </div>
+            <!-- <div class=" col-md-3">
+                <a class="navbar-brand  col-sm-8 pt-sm-0"
+                    href="/beweb/Jobworkflow/?job_id={{job.job_id}}&status={{status}}&decision={{approve}}">
+                    <input type="button" class="btn btn-sm text-capitalize   btn-block " value=" {{role_name}}"
+                        id="check_job" onclick="return confirm('Are you sure you want to {{role_name}}?');" />
+                </a>
+            </div>
+            <div class=" col-md-3">
+                <a class="navbar-brand   col-sm-8 pt-sm-0"
+                    href="/beweb/Jobworkflow/?job_id={{job.job_id}}&status={{status}}&decision={{reject}}">
+                    <input type="button" class="btn btn-sm text-capitalize  btn-block " value="Reject job"
+                        id="reject_job" onclick="return confirm('Are you sure you want to reject the job?');" />
+                </a>
+            </div> -->
+        </div>
+    </form>
+</div>
+<script>
+    $(document).ready(function () {
+        var status = "{{status}}";
+        if (status < 4||status==7) {
+            $("#check_job").hide();
+            $("#reject_job").hide();
+            $("#view_form").hide();
+        }
+        
+        var table = $('#jobprogress').DataTable({});
+    });
+    var job_type = "{{job.type}}";
+    if (job_type == "E84") {
+        $("#E84").show();
+        $("#E117").hide();
+    }
+    else {
+        $("#E84").hide();
+        $("#E117").show();
+        var inspection_type = "{{e117_data.client_inspection_type}}"
+        if (inspection_type == "re_inspection") {
+            $("#new_installation").hide()
+            $("#re_inspection").show()
+            $("#statutory").hide()
+        }
+        else if (inspection_type == "new_installation") {
+            $("#new_installation").show()
+            $("#re_inspection").hide()
+            $("#statutory").hide()
+        }
+        else {
+            $("#new_installation").hide()
+            $("#re_inspection").hide()
+            $("#statutory").show()
+            var number_of_clients = "{{client_data.number_of_clients}}"
+            if (number_of_clients == "single") {
+                $("#statutory_single").show()
+                $("#statutory_multiple").hide()
+
+            }
+            else {
+                $("#statutory_single").hide()
+                $("#statutory_multiple").show()
+            }
+        }
+    }
+
+</script>
+{% endif %} {% endblock %}

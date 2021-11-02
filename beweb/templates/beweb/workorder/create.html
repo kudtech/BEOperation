@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	{%load staticfiles %}
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="{%static 'beweb/content/style.css'%}" />
+
+
+	<style>
+		body,
+		html {
+			height: 100%;
+		}
+
+		h1,
+		h3 {
+			text-align: center;
+			padding: 0px;
+			background-color: #BCCCC;
+			color: black;
+			font-weight: bold;
+			text-align: center;
+			height: 100px;
+			line-height: 150px;
+			background: #BCCCC;
+			display: block;
+		}
+
+		h6 {
+
+			font-weight: bold;
+			display: block;
+			text-align: center;
+		}
+
+		* {
+			box-sizing: border-box;
+		}
+
+		/* Add styles to the form container */
+		.container {
+			position: absolute;
+			right: 0;
+			margin: 20px;
+			max-width: 300px;
+			padding: 16px;
+			background-color: white;
+		}
+
+		/* Full-width input fields */
+		input[type=text],
+		input[type=password],
+		input[type=textarea] {
+			width: 100%;
+			padding: 15px;
+			margin: 5px 0 22px 0;
+			border: none;
+			background: #ffe5b4;
+
+		}
+
+		input[type=text]:focus,
+		input[type=password]:focus,
+		input[type=textarea]:focus {
+			background-color: #fff8b4;
+			outline: none;
+		}
+
+		/* Set a style for the submit button */
+		.btn {
+			background-color: #2B59A2;
+			color: white;
+			padding: 10px;
+			border: none;
+			cursor: pointer;
+			width: 70%;
+			opacity: 0.8;
+			position: absolute;
+			margin-left: 15px;
+			margin-right: 15px;
+
+		}
+
+		.btn:hover {
+			opacity: 1;
+			color: #ffffff;
+		}
+
+		form {
+			margin: auto;
+			border-right: 10px;
+			text-align: center;
+			padding-right: 350px;
+			padding-left: 350px;
+			padding-top: 5px;
+		}
+
+		.row {
+			margin: 0px;
+		}
+
+		.row>label {
+			font-weight: bold;
+			margin: 15px 0px;
+		}
+	</style>
+
+</head>
+
+<body>
+	{% for field in form %} {{field.error}} {% endfor %}
+	<form action="{% url 'beweb:getwoid' %}" method="POST">
+		{% csrf_token %}
+
+		<h3>WORK ORDER</h3>
+		<div class="form-group row">
+			<label for="staticWorkOrderNumber" class="col-sm-4 col-form-label" align="center">
+				WORK ORDER NUMBER
+			</label>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" id="staticWorkOrderNumber" readonly name="work_order_id"
+					placeholder="" value="{{work_order}}">
+			</div>
+			<div class="col-sm-4">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label for="staticCreator" class="col-sm-4 col-form-label" align="center">
+				CREATOR
+			</label>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" id="staticCreator" name="supervisor" readonly placeholder=""
+					value="{{username}}">
+			</div>
+			<div class="col-sm-4">
+			</div>
+		</div>
+		<div class="form-group row" id="centre">
+			<label for="staticCentre" class="col-sm-4 col-form-label" align="center">
+				CENTRE
+			</label>
+			<div class="col-sm-4">
+				<input type="text" class="form-control" readonly id="staticCentre" name ="centre" value="{{centre}}">
+			</div>
+			<div class="col-sm-4">
+			</div>
+		</div>
+		<div class="form-group row" id="centres">
+			<label for="staticCentre" id="allCentrelabel" class="col-sm-4 col-form-label" align="center">
+				CENTRE
+			</label>
+			<div class="col-sm-4">
+				<select id="all_centre" class="form-control">
+					<option value="">Select Centre</option>
+					{% for centre in allcentres %}
+					<option value="{{centre.centre_code}}" name ="centre">{{centre.centrename}}</option>
+					{% endfor %}
+				</select>
+			</div>
+			<div class="col-sm-4">
+			</div>
+		</div>
+
+		<div class="form-group row" style="display:none">
+			<label for="staticCentre" class="col-sm-4 col-form-label" align="center">
+				CENTRE CODE
+			</label>
+			<div class="col-sm-4">
+				<input type="text" class="form-control-plaintext" readonly name="centre_code" id="centre_code"
+					value="{{centre_code}}">
+			</div>
+			<div class="col-sm-4">
+			</div>
+		</div>
+
+		<div class="form-group row">
+			<label for="staticDescription" class="col-sm-4 col-form-label" align="center">
+				DESCRIPTION
+			</label>
+			<div class="col-sm-6">
+				<textarea class="form-control" rows="4" id="Description" name="description" placeholder="Description"
+					required></textarea>
+			</div>
+			<div class="col-sm-4">
+			</div>
+		</div>
+		<div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center">
+			<div class="col-md-3">
+				<a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:home' %}">
+					<input type="button" class="btn  btn-sm btn-block " value="Cancel"
+						onclick="return confirm('Are you sure you want to cancel?');" />
+				</a>
+			</div>
+
+			<div class="col-md-3">
+				<a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+					<input type="submit" class="btn  btn-sm  btn-block " value="Create Job"
+						onclick="return confirm('Are you sure you want to add job?');" />
+				</a>
+			</div>
+			<div class=" col-md-3">
+				<a class="navbar-brand  col-sm-8 pt-sm-0" href="}">
+					<input type="Submit" class="btn btn-sm  btn-block " value="Submit"
+						formaction="/beweb/save/workorder/"
+						onclick="return confirm('Are you sure you want to create workorder?');" />
+				</a>
+
+			</div>
+		</div>
+	</form>
+
+</body>
+
+</html>
+<script>
+	$(document).ready(function () {
+		let centre_code = $('#centre_code').val();
+		if (centre_code === "URB" || centre_code === "ENV" || centre_code === "RSP" || centre_code === "NYA" || centre_code === "CHP"
+			|| centre_code === "CHM" || centre_code === "MSB" 
+			|| centre_code === "GUT" || centre_code === "RUT" || centre_code === "MAS" || centre_code === "MSV" || centre_code === "CHR"
+			|| centre_code === "MSG" || centre_code === "MTG") {
+
+			$('#centre').show(); //show only static centre field
+			$('#centres').hide(); //hide option to select centres
+			$('#centres').css('visibility', 'hidden');
+			$('#staticCentre').attr('name', 'centre');
+		}
+		else {
+
+			$('#centres').show();
+			$('#centre').hide();
+			$('#centre').css('visibility', 'hidden');
+			$('#all_centre').attr('name', 'centre');
+		}
+
+
+	});
+</script>
+
+{% endif %} {% endblock %}

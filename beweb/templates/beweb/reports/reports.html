@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+{%load static%}
+<!-- <style>
+    .button {
+        position: absolute;
+        top: 50%;
+    }
+</style> -->
+<div class="col-md-12">
+        <h2 class="text-center font-weight-bold">Reports</h2>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="row form-group">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold" style="padding-left: 100px;">Report</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control"  id="report_type" name="report_type" required>
+                        <option value="">Select Report Type</option>
+                        <option value="jobs" id="jobs">Jobs</option>
+                        <option value="workorder">Workorders</option>
+                    </select>
+                </div>
+                    <div class="col-sm-2" id="type_label">
+                        <label class="font-weight-bold" style="padding-left: 50px;">Type</label>
+                    </div>
+                    <div class="col-sm-4" id="job_type">
+                        <select name="jobtype" id="jobtype" type="text" class="form-control" placeholder="Please Select Type" required>
+                            <option>Select Job Type</option>
+                            {% for jptype in job_type%}
+                            <option value="{{jptype.job_type_id}}">
+                                {{jptype.type}}
+                            </option>
+                            {% endfor%}
+                        </select>
+                    </div>
+            </div>
+            <div class="row form-group" id="centre">
+                <div class="col-sm-3">
+                    <label  class="col-sm-3 font-weight-bold" style="padding-left: 100px;">
+                        Centre
+                    </label>
+                </div>
+                <div class="col-sm-3">
+                    {% for centre in allcentres%}
+                    <input type="text" class="form-control" name="centre" readonly id="staticCentre" value="{{centre.centrename}}">
+                    {% endfor %}
+                </div>
+                <div class="col-sm-3">
+                </div>
+                <div class="col-sm-3">
+                </div>
+            </div>
+            <div class="form-group row" id="centres">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3" style="padding-left: 100px;">Centre</label> 
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control" name="centres">
+                        <option value="">Select Centre</option>
+                        {% for centres in allcentres %}
+                        <option value="{{centres.centre_code}}">{{centres.centrename}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-3">
+                </div>
+                <div class="col-sm-3">
+                </div>
+            </div>
+            <div class="row form-group" style="display:none">
+                <label for="staticCentre" class="col-xs-3" align="center">
+                    CENTRE CODE
+                </label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control-plaintext" readonly name="centre_code" id="centre_code"
+                        value="{{centre_code}}">
+                </div>
+                <div class="col-sm-4">
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-3">
+                    <label  class="font-weight-bold col-xs-3" style="padding-left: 100px;">Date From:</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="date" name="start_date" class="form-control" required>
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3" style="padding-left: 100px;">Date To:</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="date" name="end_date" class="form-control" required>
+                </div>
+            </div>
+            <div class="form-group row" id="status">
+                <div class="col-sm-3">
+                    <label  class="font-weight-bold col-xs-3" style="padding-left: 100px;">Status</label>
+                </div>
+                <div class="col-sm-3">
+                    <select class="form-control" name="status">
+                        <option value="">Select Status</option>
+                        <option value="1" id="open">Open</option>
+                        <option value="4" id="completed">Completed</option>
+                        <option value="7" id="closed">Closed</option>
+                        <option value="8" id="rejected">Rejected</option>
+                        <option value="0" id="all">All</option>
+                    </select>
+                </div>
+                <div class="col-sm-3" style="display: none;">
+                </div>
+                <div class="col-sm-3" style="display: none;">
+                </div>
+            </div>
+
+            <div class=" form-group row">
+                <div class="col-sm-4">
+                </div>
+                <div class="col-sm-4" style="padding-left: 100px;margin:15px;">
+                    <input type="submit" class="btn  btn-sm  btn-block" value="Enter" formaction="/beweb/viewreport"/>
+                </div>
+                <div class="col-sm-4">
+                </div>
+            </div>
+        </form>
+        
+</div>
+<script>
+	$(document).ready(function (){
+        $('#job_type').hide();
+        $('#type_label').hide()
+		let centre_code = $('#centre_code').val();
+		if (centre_code === "URB" || centre_code === "ENV" || centre_code === "RSP" || centre_code === "NYA" || centre_code === "CHP"
+			|| centre_code === "CHM" || centre_code === "MSB" 
+			|| centre_code === "GUT" || centre_code === "RUT" || centre_code === "MAS" || centre_code === "MSV" || centre_code === "CHR"
+			|| centre_code === "MSG" || centre_code === "MTG") {
+                //centre_code === "MTD" || centre_code === "MND" || centre_code === "MSD"
+			$('#centre').show(); //show only static centre field
+			$('#centres').hide(); //hide option to select centres
+			$('#centres').css('visibility', 'hidden');
+			$('#staticCentre').attr('name', 'centre');
+		}
+		else {
+
+			$('#centres').show();
+			$('#centre').hide();
+			$('#centre').css('visibility', 'hidden');
+			$('#all_centre').attr('name', 'centre');
+		}
+        $('#report_type').change(function() {
+            $('#job_type').hide();
+            $('#type_label').hide();
+            var val = $(this).val();
+            
+            if(val==="jobs"){
+                $("#type_label").show();
+                $("#job_type").show();
+                $("#status").show();
+                $("#open").hide()
+                $("#completed").show();
+                $("#closed").show();
+                $("#rejected").show();
+                $("#all").show();
+                
+            }
+            
+            else if(val==="workorder") {
+                $("#type_label").hide();
+                $("#job_type").hide();
+                $("#completed").hide();
+                $("#closed").hide();
+                $("#rejected").hide();
+                $("#all").hide();
+                $("#open").show()
+                //$("#status").hide();
+            }
+            else{
+
+            }
+             
+            });
+	});
+</script>
+{% endif %} {% endblock %}

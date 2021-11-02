@@ -1,0 +1,9 @@
+{% extends 'beweb/layout.html' %} {% block content %}
+<div class="container" style="margin-top:30px">
+  <p>This is the message you send to the server: {{ message }}</p>
+
+  <p>Socket id: {{ socket }}</p>
+
+  <p>Your name is: {{ username }}</p>
+</div>
+{% endblock %}

@@ -1,0 +1,141 @@
+{% extends "beweb/job/create.html" %} {% block asset %}
+
+{% block form %} {% endblock %}
+<div class="row form-group  p-0 m-0" id="">
+    <div class="col-sm-3">
+        <label class="font-weight-bold" style="padding-left: 50px;">FLEET</label>
+    </div>
+    <div class="col-sm-3">
+        <input type="text" class="form-control" placeholder="" id="e60_fleet" name="_fleet" value="" />
+    </div>
+    <div class="col-sm-3">
+        <label class="font-weight-bold" style="padding-left: 50px;">TEAM LEADER</label>
+    </div>
+    <div class="col-sm-3">
+        
+        <select class="form-control" id="job_assignee" style="width:100%;height:100px;">
+            <option value=""></option>
+
+            {% for assignee in teams%}
+
+            <option value="{{assignee}}">
+                {{assignee.name}}
+            </option>
+            
+            {% endfor%}
+        </select>
+
+        <input type="text" id="job_leader" value="" hidden name="job_assignee">
+    </div>
+</div>
+<div class="row form-group  p-0 m-0">
+    <div class="col-sm-3 py-0 my-0">
+        <label class="font-weight-bold" style="padding-left: 50px;">TEAM MEMBERS</label>
+    </div>
+    <div class="col-sm-3 py-0 my-0">
+        <select class="form-control" id="job_assistants" style="width:100%;height:100px;">
+
+            <option value=""></option>
+            {% for teamleader in teams%}
+            {% for assistant in teamleader.members %}
+            <option value="{{assistant}}">
+                {{assistant.name}} | {{assistant.teamMember}} @ {{assistant.depot}}
+            </option>
+            {% endfor%}
+            {% endfor%}
+        </select>
+    </div>
+    <div class="btn-group-vertical" role="group" aria-label="Basic mixed styles example">
+        <input type="button" id="add" class="btn btn-info row h-50  m-1" value=">">
+        <input type="button" id="remove" class="btn btn-info row h-25 m-1" value="<">
+        <input type="button" id="removeAll" class="btn btn-info  row m-1 " value="<<<">
+    </div>
+    <div class="col-sm-3 py-0 my-0">
+        <label class="font-weight-bold" style="padding-left: 50px;">SELECTED</label>
+    </div>
+
+    <input hidden name="jobtype" value="{{type}}">
+    <div class="end col-sm-2 py-0 my-0">
+        <select id="teammembers" class="form-control w-100" multiple="true" name="teammembers">
+
+        </select>
+    </div>
+    <div style="clear:both;"></div>
+</div>
+<br>
+<br>
+<br>
+<div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center ">
+  {% block buttons %}
+  <div class="col-md-3">
+    <a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:home' %}">
+        <input type="button" class="btn  btn-sm btn-block " value="Cancel"
+            onclick="return confirm('Are you sure you want to cancel the job?');" />
+    </a>
+</div>
+
+<div class="col-md-3" id="e60_attach">
+    <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+        <input type="submit" class="btn  btn-l  btn-block " value="Attach Asset" name="Add Asset"
+            formaction="/beweb/save/asset/" onclick="return confirm('Are you sure you want to add asset?');" />
+    </a>
+</div>
+{% endblock%}
+</div>
+<script>
+    $(document).ready(function () {
+        $('#job_assistants').select2();
+        $('#job_assignee').select2();
+        function showmember() {
+            if ($('#teammembers > option').length > 0) {
+                $('#teammembers').show();
+
+            } else {
+                $('#teammembers').hide();
+            }
+        }
+        $('#add').click(function () {
+            var selectedassistant = $.parseJSON($('#job_assistants :selected').val().replace(/'/g, '"'));
+            var exist = false;
+            $("#teammembers > option").each(function () {
+   
+                if (this.value == selectedassistant.teamMember) {
+                    
+                    exist = true
+                }
+            });
+            if (exist) {
+                alert(selectedassistant.name + "already added")
+            } else {
+                $('<option>').val(selectedassistant.teamMember).text(selectedassistant.name).attr("selected", "selected").appendTo('#teammembers');
+
+            }
+            showmember();
+        });
+        $('#job_assignee').change(function () {
+            var selectedteam = $.parseJSON($('#job_assignee :selected').val().replace(/'/g, '"'));
+            $('#job_leader').val(selectedteam.teamLeader);
+            selectedteam = selectedteam.members
+            for (const member in selectedteam) {
+
+                $('<option>').val(selectedteam[member].teamMember).text(selectedteam[member].name).attr("selected", "selected").appendTo('#teammembers');
+            }
+            showmember();
+        });
+        $('#remove').click(function () {
+            $('#teammembers :selected').each(function () {
+                $("#teammembers option[value='" + $(this).val() + "']").remove();
+            });
+            showmember();
+        });
+        $('#removeAll').click(function () {
+            $('#teammembers').empty();
+            showmember();
+        });
+        showmember();
+
+    });
+</script>
+
+<!-- End E60 -->
+{% endblock asset %}

@@ -1,0 +1,87 @@
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="kk">
+    <title>Be Operations - Dashboard</title>
+    {% load staticfiles %}
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/content/style.css'%}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+</head>
+
+<div class="container d-flex justify-content-center align-content-center ">
+    <form method="GET">
+        {% csrf_token %}
+
+        <div class="form-group container row d-flex justify-content-center align-content-center">
+            <h2 class="text-center font-weight-bold ">MY JOBS</h2>
+            <table id="myjobs" class="table table-striped table-bordered table-responsive-md"
+                style="background-color:#f4f4f4;border-radius: 5px">
+                <thead>
+                    <tr>
+                        <th style="color: black;">Job ID</th>
+                        <th style="color: black;">Job Description</th>
+                        <th style="color: black;">Artisan</th>
+                        <th style="color: black;">Approve</th>
+                        <th style="color: black;">Reject</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for jp in data %}
+                    <tr>
+                        <td><a href="/beweb/myjobs/?q={{jp.job_id}}" style="color: blue;">{{jp.job_id}}</a></td>
+                        <td>{{jp.description}}</td>
+                        <td>{{jp.artisan}}</td>
+                        <td class="d-flex justify-content-start align-content-start ">
+                            <a
+                                href="/beweb/Jobworkflow/?job_id={{jp.job_id}}&decision={{jp.approve}}&status={{jp.approve}}&opt=Approve"><input
+                                    type="button" style="opacity:0.90; color:blue"
+                                    class="rounded-lg  btn-sm  btn-block " value="{{jp.nextaction}}" /></a>
+                        </td>
+                        <td>
+                            <a
+                                href="/beweb/Jobworkflow/?job_id={{jp.job_id}}&decision={{jp.reject}}&status={{jp.approve}}&opt=reject"><input
+                                    type="button" style="opacity:0.90; color:blue"
+                                    class="rounded-lg  btn-sm  btn-block " value="Reject job" /></a>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center ">
+            <div class=" col-md-2">
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:listjobs' %}">
+                    <input type="button" class="btn btn-sm  btn-block " value="BACK" />
+                </a>
+
+                {% comment %} </div>
+            <div class="col-md-2">
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="/beweb/editjob/?q={{job.job_id}}">
+                    <input type="button" class="btn  btn-sm btn-block " value="EDIT" />
+                </a>
+            </div>
+            <div class="col-md-2">
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="/beweb/dashboard">
+                    <input type="button" class="btn  btn-sm  btn-block " value="Work orders" />
+                </a>
+            </div> {% endcomment %}
+        </div>
+    </form>
+</div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        var table = $('#myjobs').DataTable({});
+    });
+</script>
+
+{% endif %} {% endblock %}

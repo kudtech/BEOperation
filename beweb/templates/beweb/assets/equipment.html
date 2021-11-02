@@ -1,0 +1,44 @@
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+{%load staticfiles %}
+<div class="container">
+    <form id="asset_form" method="GET" action="{% url 'beweb:saveasset' %}">
+       
+        <div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center ">
+            <div class="col-md-3">
+                {% if 'E50' in job_type %}
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                    <input type="button" class="btn  btn-sm  btn-block " value="Back" name="back" formaction="" />
+                </a>
+                {% endif %}
+            </div>
+            <div class="col-md-3">
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                    <input type="Submit" class="btn  btn-sm  btn-block " value="Create" name="create"
+                        formaction="/beweb/saveasset/" />
+                </a>
+            </div>
+
+            <div class=" col-md-3">
+                {% if 'E50' in job_type %}
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                    <input type="button" class="btn  btn-sm  btn-block " value="View Equipment" name="view"
+                        formaction="" />
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+    </form>
+
+</div>
+<script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/dataTables.checkboxes.css' %}" />
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/dataTables.checkboxes.min.js' %}" />
+<script>
+   
+
+
+
+</script>
+{% endif %} {% endblock %}

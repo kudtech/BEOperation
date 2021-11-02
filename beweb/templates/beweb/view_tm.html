@@ -1,0 +1,74 @@
+{% extends "beweb/dashboard.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+<br />
+<hr />
+<div class="container">
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="nav justify-content-center text-white bg-dark">Teams</h3>
+            {% for field in teams %}
+            <a class="nav-link collapsed" href="#e84" data-toggle="collapse" data-target="#{{field.team_leader}}collapsePage" aria-expanded="true" aria-controls="{{field.line_inspection_id}}collapsePage">
+                <i class="fas fa-fw fa-user"></i> Team Leader : {{field.team_leader}}
+            </a>
+            {% endfor %} {% for field in teams %}
+            <div id="{{field.team_leader}}collapsePage" class="collapse" aria-labelledby="headingPage" data-parent="#accordionSidebar">
+                <div class="bg-white py-2 collapse-inner rounded">
+                    <h6 class="collapse-header text-center" id="e84">Team {{field.team_leader}}</h6>
+                    <div class="text-center">
+
+                        <a class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm" href="#"><i
+                class="fas fa-check fa-sm text-white-50"></i> View Assigned Jobs</a>
+                        <a class="d-none d-sm-inline-block btn btn-sm btn-danger shadow-sm" href="#"><i
+                class="fas fa-eraser fa-sm text-white-50"></i> View History</a>
+                        <a class="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm" href="#"><i
+                class="fas fa-comment fa-sm text-white-50"></i>Member Comments</a>
+                        <a class="d-none d-sm-inline-block btn btn-sm btn-success shadow-sm" href="#"><i
+                class="fas fa-file-excel fa-sm text-white-50"></i>Team Member Report</a>
+                    </div>
+                    <table class="table table-boarder text-capitalize">
+                        <thead>
+                            <tr>
+
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tm in team%} {% if tm.team_leader == field.team_leader%}
+                            <tr class="bg-gray">
+
+                                <td><i class="fas fa-caret-right fa-sm  text-white"></i></td>
+
+                                <td>
+                                  default member</td>
+                                <td class="text-muted Muted link"> {{tm.team_member}}</td>
+
+
+                            </tr>
+                            {% else %}
+                            <tr>
+
+                                <td><i class="fas fa-caret-right fa-sm text-white-50"></i></td>
+
+                                <td>
+                                    add member</td>
+                                <td class="text-muted Muted link"> {{tm.team_member}}</td>
+
+
+                            </tr> {% endif %}
+                             {% endfor %}
+
+                    </table>
+                </div>
+            </div>
+            {% endfor %}
+
+
+        </div>
+    </div>
+
+
+</div>
+{% endif %} {% endblock %}

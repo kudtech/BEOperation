@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="kk">
+    <title>Be Operations - Dashboard</title>
+    {% load staticfiles %}
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <script src="{% static 'beweb/js/jquery.min.js' %}"></script>
+    <script src="{% static 'beweb/scripts/select2.min.js' %}"></script>
+    <script src="{% static 'beweb/scripts/popper.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/content/style.css'%}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'beweb/css/font-awesome.min.css' %}" />
+    <script src="{% static 'beweb/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'beweb/js/jquery-ui.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'beweb/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'beweb/css/select2.min.css' %}" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+
+    <link rel="stylesheet" type="text/css"
+        href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" type="text/css"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .link-button {
+            border: none;
+            border-radius: 5px;
+        }
+
+        .dropdown-item>a {
+            color: black;
+        }
+
+
+        .custom-select {
+            width: 50px !important;
+        }
+    </style>
+</head>
+
+<body id="page-top">
+    <!-- Navigation(Nav Bar) -->
+    <nav class="navbar navbar-expand-md sticky-top" style="padding:35px 0px; display:flex;">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="{%static 'beweb/img/belogo.png'%}" width="80" height="75">
+            </a>
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'beweb/img/logo.png'%}" width="60" height="60" style="border-radius: 30px;">
+            </a>
+        </div>
+    </nav>
+    <!-- Navigation(Nav Bar End)  -->
+    <div class="bg">
+        <!--Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light sticky-top"
+            style="padding:25px;background-color:#FDF2E5;opacity:0.8">
+            <div class="container-fluid">
+                <div class="dropdown">
+                    <a href="" id="imageDropdown" data-toggle="dropdown">
+                        <img src="{%static 'beweb/img/apps.png'%}" width="40" height="40">
+                    </a>
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item" type="button"><a tabindex='-1' href="#">Strategic
+                                Objectives</a></button>
+                        <button class="dropdown-item" type="button"><a tabindex='-1' href="#">Processes and
+                                Procedures</a></button>
+
+                        <button class="dropdown-item" type="button"><a tabindex='-1'
+                                href="{% url 'beweb:dashboard' %}">Business
+                                Applications</a></button>
+
+                        <button class="dropdown-item" type="button"><a tabindex='-1' href="#">Competence
+                                Building</a></button>
+                        <button class="dropdown-item" type="button"><a tabindex='-1' href="#">Engagement
+                                Forums</a></button>
+                        <button class="dropdown-item" type="button"><a tabindex='-1' href="#">Knowledge
+                                Centre</a></button>
+                        <button class="dropdown-item" type="button"><a tabindex='-1'
+                                href="{% url 'beweb:landing' %}">Dashboard</a></button>
+                    </div>
+                </div>
+
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle active font-weight-bold" href="{% url 'beweb:mywork' %}"
+                            id="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">WORK ORDERS</a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{% url 'beweb:dashboard' %}">View</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle font-weight-bold active" href="#" id="navbarDropdownMenuLink"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            JOBS
+                        </a>
+                        <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <a class="dropdown-item" href="{% url 'beweb:listjobs' %}">View</a>
+                        </div>
+                    </li>
+
+                    <li class="nav-item active">
+                        <a class="nav-link nav-brand font-weight-bold" href="{% url 'beweb:view_teams' %}">TEAMS</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link nav-brand font-weight-bold" href="{% url 'beweb:reports' %}">REPORTS</a>
+                    </li>
+                </ul>
+                <div class="collapse navbar-collapse w-100 order-3 dual-collapse2 " id="navbarTogglerDemo01">
+
+                    <a class="nav-link disabled">{% include 'beweb/loginpartial.html' %}</a>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item active">
+                            <button class="link-button"><a class="nav-link nav-brand font-weight-bold"
+                                    href="{% url 'beweb:create' %}"><i class="fa fa-plus-circle"
+                                        aria-hidden="true"></i>Create</a></button>
+                        </li>
+                        <!-- <li class="nav-item active">
+                            <button class="link-button"><a class="nav-link nav-brand font-weight-bold" href="#">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i>Edit</a></button>
+                        </li> -->
+                        <!-- <li class="nav-item active">
+                            <button class="link-button"><a class="nav-link nav-brand font-weight-bold" href="#">
+                                    <i class="fa fa-pause-circle-o" aria-hidden="true"></i>Suspend</a></button>
+                        </li> -->
+                        <li class="nav-item dropdown">
+                            <img src="{% static 'beweb/img/user.png'%}" style="margin-right:  10px">
+                            <a class=" mr-sm-2 dropdown-toggle" data-toggle="dropdown">{{ user.first_name }}
+                                {{ user.last_name }} <b class="caret"></b></a>
+                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                <a class="dropdown-item" href="#">View Profile</a>
+                                <a class="dropdown-item" href="{% url 'password_reset' %}">Change Password</a>
+                                <a class="dropdown-item"
+                                    href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                            </ul>
+                        </li>
+
+
+                    </ul>
+
+                </div>
+            </div>
+
+        </nav>
+        <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+              <br>
+            <h6 class="text-center font-weight-bold">WORK ORDERS</h6>
+            <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                data-server-side="false" data-ajax="/beweb/workorders/{{centre}}/?format=datatables" id="workorders"
+                style="background-color:#f4f4f4;border-radius: 5px">
+                <thead>
+                    <tr>
+                        <th style="color: black;">Work Order Number</th>
+                        <th style="color: black;">Description</th>
+                        <th style="color: black;">Date Created</th>
+                        <th style="color: black;">Job(s)</th>
+                        <th style="color: black;">Status</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <!-- Forms End -->
+    <script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+
+    <script>
+
+
+        $(document).ready(function () {
+            var jobss = "{{number_of_jobs}}";
+            var table = $('#workorders').DataTable({
+                "serverSide": false,
+                "ajax": "/beweb/workorders/{{centre}}/?format=datatables",
+                "columns": [
+                    {
+                        "data": "work_order_id", "searchable": true,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {$(nTd).html("<a data-toggle='collapse' href='#" + oData.work_order_id + "' aria-expanded='false' aria-controls='" + oData.work_order_id + "'>" + oData.work_order_id + "</a> <div class='card card-body collapse' id='" + oData.work_order_id + "'><a class='row' href='/beweb/mywork/?q=" + oData.work_order_id + "'>View</a><a class='row' href='/beweb/editwork/?q=" + oData.work_order_id + "'>Edit</a><a class='row' href='/beweb/deleteworkorder/?q=" + oData.work_order_id + "'>Delete</a> <a class='row ' href='' data-toggle='modal' data-target='#myModal" + oData.work_order_id + "'> Add Job </a> <!-- The Modal --> <div class='modal' id='myModal" + oData.work_order_id + "'> <div class='modal-dialog modal-dialog-centered'> <div class='modal-content'> <form action='{% url 'beweb:addjob' %}' method='GET'> <!-- Modal Header --> <div class='modal-header'> <h4 class='modal-title'>Select a form to be completed</h4> <input class='btn btn-link' name='workorder' value='" + oData.work_order_id + "' type='text' hidden ></div> <!-- Modal body --> <div class='modal-body'> <select name='jobtype' id='jobtype' type='text' class='form-control' placeholder='Please Select Type' required> <option value='' disabled selected>Select Type</option>{% for jptype in jobtp%} <option value='{{jptype.job_type_id}}'> {{jptype.type}} </option> {% endfor%} </select> </div> <!-- Modal footer --> <div class='modal-footer'> <button type='button' class='btn btn-danger' data-dismiss='modal'>Cancel</button> <input class='btn btn-link' type='submit'/> </div> </form> </div> </div> </div> </div>");
+                        }
+                    },
+                    { "data": "description", "searchable": true },
+                    { "data": "created_on", "searchable": true },
+                    { "data": "jobs.length", "searchable": false },
+                    { "data": "status", "searchable": false }
+                ]
+            });
+            
+        });
+
+    </script>
+
+</body>
+
+</html>

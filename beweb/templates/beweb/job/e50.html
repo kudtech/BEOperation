@@ -1,0 +1,2590 @@
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+
+{% load staticfiles %}
+<style>
+    .tabs-wrap {
+        margin-top: 40px;
+    }
+
+    .tab-content .tab-pane {
+        padding: 20px 0;
+    }
+
+    @media (min-width:768px) {
+        .modal-xl {
+            width: 90%;
+            max-width: 1120px;
+        }
+    }
+
+    .truncate {
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+</style>
+
+<!-- Modal -->
+<div class="modal fade" id="reject_modal" tabindex="-1" role="dialog" aria-labelledby="modal_centre_title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label class="font-weight-bold col-xs-3 col-form-label text-center" style="padding-left: 50px;">REASON
+                    FOR REJECTING
+                </label>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for e50 in e50_general %}
+                    <input type="hidden" value="{{e50.job}}" name="job_id" />
+                    {% endfor %}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <textarea class="form-control" name="reject_reason" id="reject_reason" required></textarea>
+                        </div>
+                    </div>
+                    <div class="row form-group" style="border-radius:15px;padding-bottom:40px;">
+                        <div class="col-sm-3"></div>
+                        <div class="col-sm-3">
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                                <input type="button" class="btn  btn-sm  btn-block " value="Cancel" data-dismiss="modal"
+                                    id="cancel_btn" />
+                            </a>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                                <input type="submit" class="btn  btn-sm  btn-block " value="REDO" id="redo_button" formaction="/beweb/reject/{{e50.job}}/" name="redo_button" onclick="return confirm('Are you sure you want to reject and redo this job?');"/>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                                <input type="submit" class="btn  btn-sm  btn-block" id="reassign_button" name="reassign_button" value="RE-ASSIGN" formaction="/beweb/reject/{{e50.job}}/"   onclick="return confirm('Are you sure you want to reject and reassign this job?');"/>
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<!---->
+<div class="container">
+    <h2 class="text-center font-weight-bold">MONTHLY LOAD READINGS FORM (E50)</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">DISTRICT</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{station.district}}" readonly />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">DATE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e50.created_on}}" readonly />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">SUBSTATION
+                        NAME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{station.name}}" readonly />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">TIME</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e50.created_at}}" readonly />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">SUBSTATION
+                        NUMBER</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{station.assetno}}" readonly />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">READING
+                        BY</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e50.reading_by}}" readonly />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!---->
+    <ul class="nav nav-tabs container" role="tablist" style="background-color:#FDF2E5;margin-top:5px">
+        <li class="nav-item">
+            <a class="nav-link active" href="#transformer" role="tab" data-toggle="tab" id="transformer_id"
+                style="color:black;">Transformer
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#feeder" role="tab" data-toggle="tab" id="feeder_id" style="color:black">Feeder
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#circuitbreaker" role="tab" data-toggle="tab" id="circuitbreaker_id"
+                style="color:black">Circuit
+                Breaker
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#autodisconnector" role="tab" data-toggle="tab" id="autodisconnector_id"
+                style="color:black">Auto-Disconnector & Isolator
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#protection_cubicle" role="tab" data-toggle="tab" id="protection_cubicle_id"
+                style="color:black">Protection Cubicle
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#control_cubicle" role="tab" data-toggle="tab" id="control_cubicle_id"
+                style="color:black">Control
+                Cubicle
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#general" role="tab" data-toggle="tab" id="general_id" style="color:black">General
+            </a>
+        </li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane" id="transformer">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table " data-ajax="" data-server-side="false" id="transformer_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+
+
+                    <thead>
+                        <tr>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for tx in transformers %}
+                        <tr>
+                            <td style="color:black;font-weight: bold">Transformer Number</td>
+                            <td style="color:black">{{tx.name}}</td>
+                            <td style="color:black;font-weight: bold">Max Wnd Temp Celsius</td>
+                            <td style="color:black">{{tx.max_wnd_temp}}</td>
+                            <td style="color:black;font-weight: bold">Aux Tx Oil Level</td>
+                            {% if tx.aux_tx_oil_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#aux_tx_oil_cmt_modal" aria-expanded="false">
+                                    {{tx.aux_tx_oil}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="aux_tx_oil_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Aux Tx Oil Level
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.aux_tx_oil_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.aux_tx_oil}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Rating(MVA)</td>
+                            <td style="color:black">{{tx.rating}}</td>
+                            <td style="color:black;font-weight: bold">Present Tape Change Counter</td>
+                            <td style="color:black">{{tx.present_tap_change}}</td>
+                            <td style="color:black;font-weight: bold">Main Tx Breather</td>
+                            {% if tx.main_tx_breather_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#main_tx_breather_cmt_modal" aria-expanded="false">
+                                    {{tx.main_tx_breather}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="main_tx_breather_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Main Tx Breather
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.main_tx_breather_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.main_tx_breather}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Voltage Ratio</td>
+                            <td style="color:black">{{tx.voltageratio}}</td>
+                            <td style="color:black;font-weight: bold">Last Date Tape Change Read</td>
+                            <td style="color:black">{{tx.last_tap_change}}</td>
+                            <td style="color:black;font-weight: bold">Aux Tx Breather</td>
+                            {% if tx.aux_tx_breather_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#aux_tx_breather_cmt_modal" aria-expanded="false">
+                                    {{tx.aux_tx_breather}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="aux_tx_breather_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Aux Tx Breather
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.aux_tx_breather_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.aux_tx_breather}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Ind Amps Ratio</td>
+                            <td style="color:black">{{tx.ind_amps}}</td>
+                            <td style="color:black;font-weight: bold">Past Tape Change Counter</td>
+                            <td style="color:black">{{tx.past_tap_change}}</td>
+                            <td style="color:black;font-weight: bold">Last Overhaul Date</td>
+                            <td style="color:black">{{tx.last_overhaul_date}}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">MD Amps "A"</td>
+                            <td style="color:black">{{tx.md_amps}}</td>
+                            <td style="color:black;font-weight: bold">Number of Tap Change Operations</td>
+                            <td style="color:black">{{tx.tap_change_operations}}</td>
+                            <td style="color:black;font-weight: bold">Last Oil Test Date</td>
+                            <td style="color:black">{{tx.last_oil_test}}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Ind Volts KV</td>
+                            <td style="color:black">{{tx.ind_volts}}</td>
+                            <td style="color:black;font-weight: bold">B27-B26</td>
+                            <td style="color:black"></td>
+                            <td style="color:black;font-weight: bold">Counter Reading When Overhauled</td>
+                            <td style="color:black">{{tx.counter_reading_overhauled}}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">KVA MD - 1.73xKVxA</td>
+                            <td style="color:black">{{tx.kva_md}}</td>
+                            <td style="color:black;font-weight: bold">Average Tap Change Operations Per Day</td>
+                            <td style="color:black">{{tx.ave_tap_change}}</td>
+                            <td style="color:black;font-weight: bold">Counter Reading When Overhauled</td>
+                            <td style="color:black">{{tx.counter_reading_overhauled}}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Tap Position</td>
+                            <td style="color:black">{{tx.tap_position}}</td>
+                            <td style="color:black;font-weight: bold">B29/(B7-B27)</td>
+                            <td style="color:black"></td>
+                            <td style="color:black;font-weight: bold">Diverter Switches</td>
+                            {% if tx.diverter_switches_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#diverter_switches_cmt_modal"
+                                    aria-expanded="false">
+                                    {{tx.diverter_switches}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="diverter_switches_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Diverter Switches
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.diverter_switches_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.diverter_switches}}</td>
+                            {% endif %}
+                        </tr>
+
+                        <tr>
+                            <td style="color:black;font-weight: bold">Max Tap</td>
+                            <td style="color:black">{{tx.max_tap}}</td>
+                            <td style="color:black;font-weight: bold">Tap Range</td>
+                            <td style="color:black">{{tx.tap_range}}</td>
+                            <td style="color:black;font-weight: bold">Selector Switches</td>
+                            {% if tx.selector_switches_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#selector_switches_cmt_modal"
+                                    aria-expanded="false">
+                                    {{tx.selector_switches}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="selector_switches_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Selector Switches
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.selector_switches_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.selector_switches}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Min Tap</td>
+                            <td style="color:black">{{tx.min_tap}}</td>
+                            <td style="color:black;font-weight: bold">Tap Change Operations Satisfactory</td>
+                            {% if tx.ops_satisfactory_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    id="ops_satisfactory" data-toggle="modal" data-target="#ops_satisfactory_cmt_modal">
+                                    {{tx.ops_satisfactory}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="ops_satisfactory_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Tap Change Operations Satisfactory
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.ops_satisfactory_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.ops_satisfactory}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Mechanism Lubrication</td>
+                            {% if tx.mechanism_lubrication_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#mechanism_lubrication_cmt_modal"
+                                    aria-expanded="false">
+                                    {{tx.mechanism_lubrication}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="mechanism_lubrication_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Mechanism Lubrication
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.mechanism_lubrication_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.mechanism_lubrication}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Tx on Load</td>
+                            {% if tx.tx_on_load_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#tx_on_load_cmt_modal" aria-expanded="false">
+                                    {{tx.tx_on_load}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="tx_on_load_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Tx on Load
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.tx_on_load_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.tx_on_load}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Oil Leaks</td>
+                            {% if tx.oil_leaks_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#oil_leaks_cmt_modal" aria-expanded="false">
+                                    {{tx.oil_leaks}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="oil_leaks_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Oil Leaks
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.oil_leaks_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.oil_leaks}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Bushings Condition</td>
+                            {% if tx.bushings_condition_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#bushings_condition_cmt_modal"
+                                    aria-expanded="false">
+                                    {{tx.bushings_condition}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="bushings_condition_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Bushings Condition
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.bushings_condition_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.bushings_condition}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Max Oil Temp Celsius</td>
+                            <td style="color:black">{{tx.max_oil_temp}}</td>
+                            <td style="color:black;font-weight: bold">Main Tank Oil Level</td>
+                            {% if tx.tank_oil_level_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#tank_oil_level_cmt_modal" aria-expanded="false">
+                                    {{tx.tank_oil_level}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="tank_oil_level_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Main Tank Oil Level
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.tank_oil_level_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.tank_oil_level}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Sign of Flashover</td>
+                            {% if tx.sign_of_flashover_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#sign_of_flashover_cmt_modal"
+                                    aria-expanded="false">
+                                    {{tx.sign_of_flashover}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="sign_of_flashover_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Sign of Flashover
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.sign_of_flashover_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.sign_of_flashover}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold"></td>
+                            <td style="color:black"></td>
+                            <td style="color:black;font-weight: bold">Diverter Tank Oil Level</td>
+                            {% if tx.diverter_tank_level_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#diverter_tank_level_cmt_modal"
+                                    aria-expanded="false">
+                                    {{tx.diverter_tank_level}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="diverter_tank_level_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Diverter Tank Oil Level
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.diverter_tank_level_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.diverter_tank_level}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Buccholz Free From Gas</td>
+                            {% if tx.buccholz_gas_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#buccholz_gas_cmt_modal" aria-expanded="false">
+                                    {{tx.buccholz_gas}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="buccholz_gas_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Buccholz Free From Gas
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.buccholz_gas_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.buccholz_gas}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold"></td>
+                            <td style="color:black"></td>
+                            <td style="color:black;font-weight: bold"></td>
+                            <td style="color:black"></td>
+                            <td style="color:black;font-weight: bold">Tx and Lighting Arrestor Earthing Intact</td>
+                            {% if tx.tx_earthing_intact_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#tx_earthing_intact_cmt_modal"
+                                    aria-expanded="false">
+                                    {{tx.tx_earthing_intact}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="tx_earthing_intact_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Tx and Lighting Arrestor Earthing Intact
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{tx.tx_earthing_intact_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{tx.tx_earthing_intact}}</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-5">
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next" id="transformer_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-5"></div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="feeder">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+
+                <table class="table" id="feeder_table" style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for feeder in feeders %}
+                        <tr>
+                            <td style="color:black;font-weight: bold">Nominal Voltage (KV)</td>
+                            <td style="color:black">{{feeder.nominal_voltage}}</td>
+                            <td style="color:black;font-weight: bold">Feeder Number</td>
+                            <td style="color:black">{{feeder.feeder_number}}</td>
+                            <td style="color:black;font-weight: bold">Indicated Red Phase Amps</td>
+                            <td style="color:black">{{feeder.indicated_red_phase}}</td>
+
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Indicated Yellow Phase Amps</td>
+                            <td style="color:black">{{feeder.indicated_yellow_phase}}</td>
+                            <td style="color:black;font-weight: bold">Indicated Blue Phase Amps</td>
+                            <td style="color:black">{{feeder.indicated_blue_phase}}</td>
+                            <td style="color:black;font-weight: bold">MD Amps</td>
+                            <td style="color:black">{{feeder.md_amps}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous" id="feeder_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next" id="feeder_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="circuitbreaker">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="circuitbreaker_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for circuitbreaker in circuitbreakers %}
+                        <tr>
+                            <td style="color:black;font-weight: bold">Present Counter Readings</td>
+                            <td style="color:black">{{circuitbreaker.present_counter_readings}}</td>
+                            <td style="color:black;font-weight: bold">Last Overhaul Reading</td>
+                            <td style="color:black">{{circuitbreaker.last_overhaul_reading}}</td>
+                            <td style="color:black;font-weight: bold">Number of Operations</td>
+                            <td style="color:black">{{circuitbreaker.number_of_operations}}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Date Oil Changed</td>
+                            <td style="color:black">{{circuitbreaker.date_oil_changed}}</td>
+                            <td style="color:black;font-weight: bold">Bushings Condition</td>
+                            {% if circuitbreaker.bushings_condition_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#bushings_condition_cmt_modal"
+                                    aria-expanded="false">
+                                    {{circuitbreaker.bushings_condition}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="bushings_condition_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Bushings Condition
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{circuitbreaker.bushings_condition_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{circuitbreaker.bushings_condition}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Oil Leaks</td>
+                            {% if circuitbreaker.oil_leaks_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#oil_leaks_cmt_modal" aria-expanded="false">
+                                    {{circuitbreaker.oil_leaks}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="oil_leaks_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Oil Leaks
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{circuitbreaker.oil_leaks_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{circuitbreaker.oil_leaks}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Earthing Intact</td>
+                            {% if circuitbreaker.eathing_intact_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#eathing_intact_cmt_modal" aria-expanded="false">
+                                    {{circuitbreaker.eathing_intact}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="eathing_intact_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Earthing Intact
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{circuitbreaker.eathing_intact_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{circuitbreaker.eathing_intact}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Tripping Circuit Healthy</td>
+                            {% if circuitbreaker.tripping_circuit_healthy_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#tripping_circuit_healthy_cmt_modal"
+                                    aria-expanded="false">
+                                    {{circuitbreaker.tripping_circuit_healthy}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="tripping_circuit_healthy_cmt_modal" tabindex="-1"
+                                    role="dialog" aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Tripping Circuit Healthy
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{circuitbreaker.tripping_circuit_healthy_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{circuitbreaker.tripping_circuit_healthy}}</td>
+                            {% endif %}
+                            <td style="color:black"></td>
+                            <td style="color:black"></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="circuitbreaker_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next" id="circuitbreaker_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="autodisconnector">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="autodisconnector_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for autodisconnector in autodisconnectors %}
+                        <tr>
+                            <td style="color:black;font-weight: bold">Switch Number</td>
+                            <td style="color:black">{{autodisconnector.switch_number}}</td>
+                            <td style="color:black;font-weight: bold">Mechanism Operation</td>
+                            {% if autodisconnector.mechanism_operation_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#mechanism_operation_cmt_modal"
+                                    aria-expanded="false">
+                                    {{autodisconnector.mechanism_operation}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="mechanism_operation_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Mechanism Operation
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{autodisconnector.mechanism_operation_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{autodisconnector.mechanism_operation}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Bushing Condition</td>
+                            {% if autodisconnector.bushing_condition_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#bushing_condition_cmt_modal"
+                                    aria-expanded="false">
+                                    {{autodisconnector.bushing_condition}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="bushing_condition_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Bushing Condition
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{autodisconnector.bushing_condition_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{autodisconnector.bushing_condition}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Earthing Intact</td>
+                            {% if autodisconnector.earthing_intact_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#earthing_intact_cmt_modal" aria-expanded="false">
+                                    {{autodisconnector.earthing_intact}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="earthing_intact_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Earthing Intact
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{autodisconnector.earthing_intact_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{autodisconnector.earthing_intact}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Tripping Circuit Healthy</td>
+                            {% if autodisconnector.tripping_circuit_healthy_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#tripping_circuit_healthy_cmt_modal"
+                                    aria-expanded="false">
+                                    {{autodisconnector.tripping_circuit_healthy}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="tripping_circuit_healthy_cmt_modal" tabindex="-1"
+                                    role="dialog" aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Tripping Circuit Healthy
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{autodisconnector.tripping_circuit_healthy_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{autodisconnector.tripping_circuit_healthy}}</td>
+                            {% endif %}
+                            <td style="color:black"></td>
+                            <td style="color:black"></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="autodisconnector_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="autodisconnector_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="protection_cubicle">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="protection_cubicle_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e50 in e50_general %}
+                        <tr>
+                            <td style="color:black;font-weight: bold">Relays Satisfactory and Flags Reset</td>
+                            {% if e50.relays_flags_reset_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#relays_flags_reset_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.relays_flags_reset}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="relays_flags_reset_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Relays Satisfactory and Flags Reset
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.relays_flags_reset_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.relays_flags_reset}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Record Battery Voltage > 48V</td>
+                            <td style="color:black">{{e50.battery_voltage}}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Sef Uniselector Reset</td>
+                            {% if e50.sef_uniselector_reset_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#sef_uniselector_reset_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.sef_uniselector_reset}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="sef_uniselector_reset_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Sef Uniselector Reset
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.sef_uniselector_reset_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.sef_uniselector_reset}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Record Min Cell Voltage > 12V</td>
+                            <td style="color:black">{{e50.cell_voltage}}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">All Fuses & Links in Position</td>
+                            {% if e50.fuses_links_position_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#fuses_links_position_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.fuses_links_position}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="fuses_links_position_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">All Fuses & Links in Position
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.fuses_links_position_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.fuses_links_position}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Apply Load Test</td>
+                            {% if e50.apply_load_test_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#apply_load_test_cmt_modal" aria-expanded="false">
+                                    {{e50.apply_load_test}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="apply_load_test_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Apply Load Test
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.apply_load_test_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.apply_load_test}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Panels Clean and Wiring In Order</td>
+                            {% if e50.panels_wiring_order_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#panels_wiring_order_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.panels_wiring_order}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="panels_wiring_order_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Panels Clean and Wiring In Order
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.panels_wiring_order_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.panels_wiring_order}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Top Up Cells with Distilled Water</td>
+                            {% if e50.topup_cells_water_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#topup_cells_water_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.topup_cells_water}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="topup_cells_water_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Top Up Cells with Distilled Water
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.topup_cells_water_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.topup_cells_water}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Record Charger Float Voltage</td>
+                            <td style="color:black">{{e50.record_charger_voltage}}</td>
+                            <td style="color:black;font-weight: bold">Clean Terminal and Cell Cases</td>
+                            {% if e50.clean_terminal_cases_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#clean_terminal_cases_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.clean_terminal_cases}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="clean_terminal_cases_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Clean Terminal and Cell Cases
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.clean_terminal_cases_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.clean_terminal_cases}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Record Charger Current</td>
+                            <td style="color:black">{{e50.record_charger_current}}</td>
+                            <td style="color:black;font-weight: bold">Check Terminal Connections</td>
+                            {% if e50.terminal_connections_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#terminal_connections_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.terminal_connections}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="terminal_connections_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Check Terminal Connections
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.terminal_connections_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.terminal_connections}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Ensure Float Voltage -56V After 15mm</td>
+                            {% if e50.float_voltage_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-dangerborder-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#float_voltage_cmt_modal" aria-expanded="false">
+                                    {{e50.float_voltage}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="float_voltage_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Ensure Float Voltage -56V After 15mm
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.float_voltage_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.float_voltage}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Cubicle Lights & Heaters</td>
+                            {% if e50.cubicle_lights_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#cubicle_lights_cmt_modal" aria-expanded="false">
+                                    {{e50.cubicle_lights}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="cubicle_lights_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Cubicle Lights & Heaters
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.cubicle_lights_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.cubicle_lights}}</td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="protection_cubicle_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="protection_cubicle_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div role="tabpanel" class="tab-pane fade" id="control_cubicle">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="control_cubicle_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e50 in e50_general %}
+                        <tr>
+                            <td style="color:black;font-weight: bold">Relays Clean and Operating Satisfactory</td>
+                            {% if e50.relays_clean_operate_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#relays_clean_operate_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.relays_clean_operate}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="relays_clean_operate_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Relays Clean and Operating Satisfactory
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.relays_clean_operate_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.relays_clean_operate}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">All Fuses & Links in Position</td>
+                            {% if e50.cubicle_fuses_links_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#cubicle_fuses_links_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.cubicle_fuses_links}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="cubicle_fuses_links_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">All Fuses & Links in Position
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.cubicle_fuses_links_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.cubicle_fuses_links}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Indicating Lamps</td>
+                            {% if e50.indicating_lamps_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#indicating_lamps_cmt_modal" aria-expanded="false">
+                                    {{e50.indicating_lamps}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="indicating_lamps_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Indicating Lamps
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.indicating_lamps_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.indicating_lamps}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Panel Clean and Wiring in Order</td>
+                            {% if e50.panel_clean_wiring_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#panel_clean_wiring_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.panel_clean_wiring}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="panel_clean_wiring_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Panel Clean and Wiring in Order
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.panel_clean_wiring_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.panel_clean_wiring}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Cubicle Lights and Heaters</td>
+                            {% if e50.cubicle_lights_heaters_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#cubicle_lights_heaters_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.cubicle_lights_heaters}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="cubicle_lights_heaters_cmt_modal" tabindex="-1"
+                                    role="dialog" aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Cubicle Lights and Heaters
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.cubicle_lights_heaters_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.cubicle_lights_heaters}}</td>
+                            {% endif %}
+                            <td style="color:black"></td>
+                            <td style="color:black"></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="control_cubicle_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="control_cubicle_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div role="tabpanel" class="tab-pane fade" id="general">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <table class="w3-table thead-dark  table" id="general_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for e50 in e50_general %}
+                        <tr>
+                            <td style="color:black;font-weight: bold">Insulators & Arrestors in order?</td>
+                            {% if e50.insulators_arrestors_inorder_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#insulators_arrestors_inorder_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.insulators_arrestors_inorder}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="insulators_arrestors_inorder_cmt_modal" tabindex="-1"
+                                    role="dialog" aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Insulators & Arrestors in order?
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.insulators_arrestors_inorder_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.insulators_arrestors_inorder}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">D Fuse isolators in order?</td>
+                            {% if e50.dfuse_isolators_inorder_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#dfuse_isolators_inorder_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.dfuse_isolators_inorder}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="dfuse_isolators_inorder_cmt_modal" tabindex="-1"
+                                    role="dialog" aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">D Fuse isolators in order?
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.dfuse_isolators_inorder_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.dfuse_isolators_inorder}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Busbars & Jumpers in order?</td>
+                            {% if e50.busbars_jumpers_inorder_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#busbars_jumpers_inorder_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.busbars_jumpers_inorder}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="busbars_jumpers_inorder_cmt_modal" tabindex="-1"
+                                    role="dialog" aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Busbars & Jumpers in order?
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.busbars_jumpers_inorder_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.busbars_jumpers_inorder}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">S/S Earth Resistance Date Tested?</td>
+                            <td style="color:black">{{e50.ss_earthresistance_date}}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Earthing Structure Fence intact?</td>
+                            {% if e50.earthing_structure_fence_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#earthing_structure_fence_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.earthing_structure_fence}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="earthing_structure_fence_cmt_modal" tabindex="-1"
+                                    role="dialog" aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Earthing Structure Fence intact?
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.earthing_structure_fence_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.earthing_structure_fence}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Fire Equipment Expiry date</td>
+                            <td style="color:black">{{e50.fire_equipment_expiry}}</td>
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Cables, Boxes, Glands in order?</td>
+                            {% if e50.cables_boxes_glands_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#cables_boxes_glands_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.cables_boxes_glands}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="cables_boxes_glands_cmt_modal" tabindex="-1" role="dialog"
+                                    aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Cables, Boxes, Glands in order?
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.cables_boxes_glands_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.cables_boxes_glands}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Substation & Surrounds Clean?</td>
+                            {% if e50.substation_surrounds_clean_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link  text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#substation_surrounds_clean_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.substation_surrounds_clean}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="substation_surrounds_clean_cmt_modal" tabindex="-1"
+                                    role="dialog" aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Substation & Surrounds Clean?
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.substation_surrounds_clean_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.substation_surrounds_clean}}</td>
+                            {% endif %}
+                        </tr>
+                        <tr>
+                            <td style="color:black;font-weight: bold">Paintwork & General Condition</td>
+                            {% if e50.paintwork_general_condition_cmt %}
+                            <td style="color:black">
+                                <button class="btn-link text-danger border-0 btn-light font-weight-bold" type="button"
+                                    data-toggle="modal" data-target="#paintwork_general_condition_cmt_modal"
+                                    aria-expanded="false">
+                                    {{e50.paintwork_general_condition}}<sup>*</sup>
+                                </button>
+                                <!-- Modal -->
+                                <div class="modal fade" id="paintwork_general_condition_cmt_modal" tabindex="-1"
+                                    role="dialog" aria-labelledby="modal_centre_title" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <label class="font-weight-bold col-xs-3 col-form-label text-center"
+                                                    style="padding-left: 50px;">Paintwork & General Condition
+                                                </label>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <div class="col-sm-12 text-center">
+                                                        {{e50.paintwork_general_condition_comment}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!---->
+                            </td>
+                            {% else %}
+                            <td style="color:black">{{e50.paintwork_general_condition}}</td>
+                            {% endif %}
+                            <td style="color:black;font-weight: bold">Remarks</td>
+                            <td style="color:black">{{e50.remarks}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous" id="general_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value=" Reject" name="reject"
+                                id="reject" data-toggle="modal" data-target="#reject_modal" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <form method="POST">
+                            {% csrf_token %}
+
+                            <input type="hidden" name="job" value="{{e50.job}}" />
+
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                                <input type="submit" class="btn  btn-sm  btn-block " value="Check" name="check"
+                                    id="check" formaction="/beweb/approve" />
+                            </a>
+                        </form>
+                    </div>
+                    <div class="col-sm-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+<script type="text/javascript">
+    $(document).ready(function () {
+        var type_of_page = sessionStorage.getItem('type_of_page');
+        if (type_of_page === "reports"){
+            $("#reject").hide()
+            $('#check').hide()
+        }
+        
+        else{
+            
+            $("#reject").show()
+            $('#check').show()
+        }
+        sessionStorage.removeItem('type_of_page');
+        if (val=='reports'){
+            $('#check').hide()
+        }
+        $('#transformer').show()
+        var tx_table = $('#transformer_table').DataTable({
+            columnDefs: [
+                {
+                    targets: [1],
+                    className: "truncate"
+                }
+            ],
+            createdRow: function (row) {
+                var td = $(row).find(".truncate");
+                td.attr("title", td.html());
+            },
+            "pageLength": 14,
+            "destroy": true,
+            "lengthMenu": [14],
+            "scrollY": 180, //350 
+            "scrollX": true, //enables scrolling horizontally
+            "bSort": false, //disables sorting
+            "bFilter": false, // Removes search button
+            "lengthChange": false, // Remove show entries dropdown
+            "bInfo": false//Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+
+        });
+
+        $('#transformer_id').click(function () {
+            $('#transformer').show()
+            var table = $('#transformer_table').DataTable({
+                "pageLength": 14,
+                "destroy": true,
+                "lengthMenu": [14],
+                "scrollY": 180, //350 
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+        $('#feeder_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#feeder_table').DataTable({
+                "destroy": true,
+                "lengthMenu": [2],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+        $('#circuitbreaker_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#circuitbreaker_table').DataTable({
+                "pageLength": 3,
+                "destroy": true,
+                "lengthMenu": [3],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+        $('#autodisconnector_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#autodisconnector_table').DataTable({
+                "pageLength": 2,
+                "destroy": true,
+                "lengthMenu": [2],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+        $('#protection_cubicle_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#protection_cubicle_table').DataTable({
+                "paging": false,//remove pagination
+                "pageLength": 7,
+                "destroy": true,
+                "lengthMenu": [7],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+        $('#control_cubicle_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#control_cubicle_table').DataTable({
+                "paging": false,//remove pagination
+                "pageLength": 3,
+                "destroy": true,
+                "lengthMenu": [3],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+        $('#general_id').click(function () {
+            $('#transformer').hide()
+            var table = $('#general_table').DataTable({
+                columnDefs: [
+                    {
+                        targets: [3],
+                        className: "truncate"
+                    }
+                ],
+                createdRow: function (row) {
+                    var td = $(row).find(".truncate");
+                    td.attr("title", td.html());
+                },
+                "paging": false,//remove pagination
+                "pageLength": 5,
+                "destroy": true,
+                "lengthMenu": [5],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+
+
+        //Next and Back Button Navigation
+        $('#transformer_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#feeder"]').click()
+        })
+        $('#feeder_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#transformer"]').click()
+        })
+
+        $('#feeder_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#circuitbreaker"]').click()
+        })
+        $('#circuitbreaker_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#autodisconnector"]').click()
+        })
+
+        $('#circuitbreaker_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#feeder"]').click()
+        })
+
+        $('#autodisconnector_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#protection_cubicle"]').click()
+        })
+
+        $('#autodisconnector_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#circuitbreaker"]').click()
+        })
+        $('#protection_cubicle_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#control_cubicle"]').click()
+        })
+
+        $('#protection_cubicle_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#autodisconnector"]').click()
+        })
+        $('#control_cubicle_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#general"]').click()
+        })
+
+        $('#control_cubicle_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#protection_cubicle"]').click()
+        })
+        $('#general_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#control_cubicle"]').click()
+        })
+
+        // Autofocus on modal textarea when modal is shown
+        $('#reject_modal').on('shown.bs.modal', function () {
+            $('#reject_reason').focus()
+            $('#reject_reason').attr('required', 'required')
+        })
+
+        // Clear reject reason when user cancels the action 
+        $('#cancel_btn').click(function () {
+            $('#reject_reason').val('')
+        })
+    })
+
+
+</script>
+
+{% endif %} {% endblock %}

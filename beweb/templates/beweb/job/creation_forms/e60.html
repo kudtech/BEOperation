@@ -1,0 +1,39 @@
+{% extends "beweb/job/creation_forms/team.html" %}{% block form %}
+    <div class="row form-group  p-0 m-0">
+        <div class="col-sm-3">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">DESCRIPTION</label>
+        </div>
+        <div class="col-sm-3">
+            <textarea id="e60_tnames" name="e60_tnames" hidden class="form-control" value=""> </textarea>
+            <textarea name="e60_description" class="form-control" value="" placeholder=""
+                id="e60_description"> {{description}}</textarea>
+        </div>
+        <div class="col-sm-3">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding: right 50px;">WORK TYPE</label>
+        </div>
+        <div class="col-sm-3">
+            <select name="work_type" type="text" class="form-control" value="" id="work_type">
+                <option value="" disabled selected>Select Work Type</option>
+                <option value="Inspection">Inspection</option>
+                <option value="Overhaul">Overhaul</option>
+                <option value="Inspection & Overhaul">Inspection and Overhaul</option>
+            </select>
+        </div>
+    </div>
+    <div class="row form-group  p-0 m-0">
+        <div class="col-sm-3 py-0 my-0">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START
+                DATE</label>
+        </div>
+        <div class="col-sm-3 py-0 my-0">
+            <input name="e60_start_date" type="datetime-local" class="form-control" value="" id="e60_start_date" />
+        </div>
+        <div class="col-sm-3 py-0 my-0">
+            <label class="font-weight-bold" style="padding-left: 50px;">EXPECTED COMPLETION DATE</label>
+        </div>
+        <div class="col-sm-3 py-0 my-0">
+            <input name="e60_expected_end_dt" type="datetime-local" class="form-control" value="" id="e60_expected_end_dt" />
+        </div>
+    </div>
+
+{% endblock form %}

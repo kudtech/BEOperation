@@ -1,0 +1,16 @@
+{% extends 'beweb/layout.html' %} {% block content %}
+<div class="container col-md-12">
+  <div class="container col-md-9">
+    <form action="{% url 'beapi:chat' %}" method="POST">
+      {% csrf_token %}
+      <textarea class="form-control"> </textarea>
+      <hr />
+      <input class="form-control" name="message" />
+      <br />
+      <button class="btn btn-sm btn-primary" name="submit" type="submit">
+        submit
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

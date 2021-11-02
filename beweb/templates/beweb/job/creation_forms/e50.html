@@ -1,0 +1,35 @@
+{% extends "beweb/job/creation_forms/team.html" %}{% block form %}
+<div id="e50">
+    <div class="row form-group">
+        <div class="col-sm-3">
+            <label class="font-weight-bold col-xs-3 col-form-label"
+                style="padding-left: 50px;">DESCRIPTION</label>
+        </div>
+        <div class="col-sm-9">
+            <textarea id="e50_tnames" name="e50_tnames" hidden class="form-control" value=""> </textarea>
+            <textarea name="e50_description" class="form-control" value="" placeholder=""
+                id="e50_description"> {{description}}</textarea>
+
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col-sm-3">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START
+                DATE</label>
+        </div>
+        <div class="col-sm-3">
+            <input name="e50_start_date" type="datetime-local" class="form-control" value="" id="e50_start_date" />
+        </div>
+        <div class="col-sm-3">
+            <label class="font-weight-bold" style="padding-left: 50px;">EXPECTED COMPLETION DATE</label>
+        </div>
+        <div class="col-sm-3">
+            <input name="e50_expected_end_dt" type="datetime-local" class="form-control" value=""
+                id="e50_expected_end_dt" />
+        </div>
+    </div>
+
+   
+   
+</div>
+{% endblock form %}

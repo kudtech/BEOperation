@@ -1,0 +1,54 @@
+{# tutorial/templates/tutorial/people.html #} {% extends "beweb/dashboard.html" %} {% block content %} {% load render_table from django_tables2 %}
+<hr />
+<div class="container col-md-12">
+    <div class="card o-hidden border-0 shadow-lg my-5">
+        <div>
+        </div>
+        <div class="card-body p-0 ">
+            <h6 class="text-center">
+                Workflows
+            </h6>
+            <div class="container">
+                {% render_table table4 %}
+            </div>
+
+        </div>
+        <div class="card-body p-0 ">
+            <h6 class="text-center">
+                Job
+            </h6>
+            <div class="container">
+                {% render_table table1 %}
+            </div>
+
+        </div>
+        <div class="card-body p-0 ">
+            <h6 class="text-center">
+                App
+            </h6>
+            <div class="container">
+                {% render_table table2 %}
+            </div>
+
+        </div>
+        <div class="card-body p-0 ">
+            <h6 class="text-center">
+                Office
+            </h6>
+            <div class="container">
+                {% render_table table3 %}
+            </div>
+
+        </div>
+        <div class="card-body p-0 ">
+            <h6 class="text-center">
+                Workflow
+            </h6>
+            <div class="container">
+                {% render_table table4 %}
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

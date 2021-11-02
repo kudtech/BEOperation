@@ -1,0 +1,149 @@
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}{% load tz %}
+
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="kk">
+    <title>Be Operations - Dashboard</title>
+    {% load staticfiles %}
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/content/style.css'%}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+
+</head>
+
+<div class="container">
+    <h4 class="text-center font-weight-bold col-xs-3 col-form-label">JOB PROGRESS</h4>
+    <div class="row form-group">
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">JOB NUMBER</label>
+
+            <input type="text" class="form-control" id="job_number" name="q" value="{{job}}" readonly />
+        </div>
+
+
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">JOB PROGRESS</label>
+
+            <input type="text" class="form-control" value="{{job_progress_id}}" readonly />
+        </div>
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">STATUS</label>
+
+            <input type="text" class="form-control " id="status" name="status" value="{{status}}" readonly />
+        </div>
+
+
+    </div>
+
+
+    <div class="row form-group">
+
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START DATE</label>
+
+            <input name="start_date" type="text" class="form-control" value="{{start_dt|slice:"0:-8" }}" />
+        </div>
+        <div class="col">
+            <!-- <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">WORK ORDER
+                NUMBER</label> -->
+
+            <input type="hidden" class="form-control " id="wo" name="wo" value="{{workorder}}" readonly />
+        </div>
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">END DATE</label>
+
+            <input name="expected_end_dt" type="text" class="form-control" value="{{end_dt|slice:"0:-8" }}" />
+        </div>
+    </div>
+
+    <div class="row form-group">
+
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">FLEET</label>
+
+            <input type="text" class="form-control" id="fleet" name="fleet" value="{{fleet_no}} " />
+        </div>
+        <div class="col">
+            <!-- <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">PLANT/EQUIPMENT
+                TYPE</label> -->
+
+            <input type="hidden" class="form-control" id="plantequip" name="plant_equipment" value="{{asset_type}} " />
+        </div>
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">COMMENTS</label>
+
+            <textarea name="description" class="form-control" value="">{{comments}} </textarea>
+        </div>
+
+    </div>
+
+
+    <div class="row form-group">
+
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">TEAM LEADER</label>
+
+            <input type="text" class="form-control" value="{{teamleader}} " />
+        </div>
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">TEAM MEMBERS</label>
+
+            <textarea name="description" class="form-control" value="">{{jobteam}} </textarea>
+
+        </div>
+    </div>
+    <div class="row form-group">
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">OPEN MILEAGE</label>
+
+            <input type="text" class="form-control" value="{{open_mileage}}" />
+        </div>
+        <div class="col">
+            <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CLOSING
+                MILEAGE</label>
+
+            <input type="text" class="form-control" value="{{close_mileage}}" />
+        </div>
+
+    </div>
+    <!-- <div class="row form-group">
+
+            <div class="col">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">DISTANCE FROM ASSET
+                    START</label>
+
+                <input type="text" class="form-control" />
+            </div>
+            <div class="col">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 40px;">DISTANCE FROM ASSET
+                    END</label>
+
+                <input type="text" class="form-control" />
+            </div>
+        </div> -->
+
+
+    <div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center ">
+        <div class="col-md-4">
+        </div>
+        <div class="col-md-4">
+            <a class="navbar-brand  col-sm-8 pt-sm-0" href="/beweb/job/?q={{job}}">
+                <input type="submit" class="btn  btn-sm  btn-block " value="BACK" />
+            </a>
+        </div>
+        <div class=" col-md-4">
+        </div>
+
+    </div>
+
+
+</div>
+{% endif %} {% endblock %}

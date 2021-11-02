@@ -1,0 +1,286 @@
+{% extends "beweb/layout.html" %} {% block content %}{% load render_table from django_tables2 %}
+<hr />
+<div class="container">
+    {% render_table transformer_table %}
+</div>
+<br />
+<div class="container">
+    <form action="{% url 'beweb:filterasset' %}" method="GET">
+        {% csrf_token %}
+        <hr />
+        <div class="row">
+            <div class="col-md-2">
+                <h6 class="text-info">Filter By :</h6>
+            </div>
+            <div class="col-md-4">
+                <label>
+                    Asset Center
+                </label>
+                <input hidden name="mycenter" id="mycenter" value="{{centre}}">
+                <select class="form-control col-md-12" name="acenter">
+                    <option selected="selected" value="{{centre_code}}">
+                        {{centre}}
+                    </option>
+                    <option value="51020">Mutare Environs</option>
+                    <option value="51010">Mutare Urban</option>
+                    <option value="53060">chiredzi</option>
+                    <option value="53070">Masvingo Garage</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="">
+                    Asset type
+                </label>
+
+                <select class="form-control col-md-12" name="selecta">
+                    <option selected="selected">
+                        {{asset}}
+                    </option>
+
+                    <option value="transformer">
+                        Transformer
+                    </option>
+                    <option value="switch">
+                        Switch Gear
+                    </option>
+                    <option value="meter">
+                        Substation Meter
+                    </option>
+                    <option value="feeder">
+                        Feeder
+                    </option>
+                    <option value="pole">
+                        Pole
+                    </option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="text-success">
+                    Search
+                </label>
+                <br />
+                <button type="submit" class="btn btn-sm btn-success"><svg xmlns="http://www.w3.org/2000/svg" width="24"
+                        height="24" viewBox="0 0 24 24">
+                        <title>ic_playlist_play_24px</title>
+                        <g fill="#000000">
+                            <path d="M19 9H2v2h17V9zm0-4H2v2h17V5zM2 15h13v-2H2v2zm15-2v6l5-3-5-3z"></path>
+                        </g>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <hr />
+    </form>
+    <label class="">
+        Equipment Id
+    </label>
+    <select class="form-control">
+
+        {% if selected == "transformer"%}
+        {% for tran in transformers %}
+        {% if tran.centre == centre%}
+        <option value=" {{tran.equipment_id}}"> {{tran.equipment_id}}</option>
+
+        {%endif%}
+        {% endfor%}
+
+
+        {%endif%}
+        {% if selected == "switch"%}
+
+        {% for sw in switch %}
+        {% if sw.centre == centre%}
+        <option value=" {{sw.equipment_id}}"> {{sw.equipment_id}}</option>
+        {%endif%}{% endfor%}
+
+
+        {%endif%}
+        {% if selected == "meter"%}
+        {% for sub in submeter %}
+        {% if sub.centre == centre%}
+        <option value=" {{sub.equipment_id}}"> {{sub.equipment_id}}</option>
+        {%endif%} {% endfor%}
+        {%endif%}
+        {% if selected == "feeder"%}
+        {% for feder in feeder %} {% if feder.centre == centre%}
+        <option value=" {{feder.equipment_id}}"> {{feder.equipment_id}}</option>
+        {%endif%}
+        {% endfor%}
+        {%endif%}
+
+        {% if selected == "pole"%}
+        {% for pol in pole %}
+        {% if pol.centre == centre%}
+        <option value=" {{pol.equipment_id}}"> {{pol.equipment_id}}</option>
+        {%endif%} {% endfor%}
+
+
+        {%endif%}
+    </select>
+    <hr />
+    <div class="col-md-12 bg-light">
+        <div class="row">
+            {% if selected == "transformer"%}
+            <div class="col-md-12">
+                <h3>
+                    Transformers List : {{centre}}
+                </h3>
+                <div class="container">
+                    {% render_table transformer_table %}
+                </div>
+            </div>
+
+
+            {%endif%} {% if selected == "switch"%}
+            <div class="col-md-12">
+                <h3>
+                    Switch Gears : {{centre}}
+                </h3>
+                <table class="table table-hover">
+                    <thead>
+
+                        <tr>
+                            <th>
+                                type
+                            </th>
+                            <th>
+                                equipment_id
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sw in switch %} {% if sw.centre == centre%}
+                        <tr>
+
+                            <td>
+                                {{sw.swtype}}
+                            </td>
+                            <td>
+                                {{sw.equipment_id}}
+                            </td>
+
+                        </tr>
+                        {%endif%}{% endfor%}
+                    </tbody>
+                    <tfoot>
+
+                    </tfoot>
+                </table>
+            </div>
+
+            {%endif%} {% if selected == "meter"%}
+            <div class="col-md-12">
+                <h3>
+                    Substation Meters : {{centre}}
+                </h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>
+                                Meter No:
+                            </th>
+                            <th>
+                                Equipment Id
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for sub in submeter %} {% if sub.centre == centre%}
+                        <tr>
+                            <td>
+                                {{sub.meter_no}}
+                            </td>
+                            <td>
+                                {{sub.equipment_id}}
+                            </td>
+
+                        </tr>{%endif%} {% endfor%}
+
+                    </tbody>
+                    <tfoot>
+
+                    </tfoot>
+                </table>
+            </div>
+
+
+            {%endif%} {% if selected == "feeder"%}
+            <div class="col-md-12">
+                <h3>
+                    Feeder List : {{centre}}
+                </h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <th>
+                                Equipment Id :
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody> {% for feder in feeder %} {% if feder.centre == centre%}
+                        <tr>
+
+
+                            <td>
+                                {{feder.name}}
+                            </td>
+                            <td>
+                                {{feder.equipment_id}}
+                            </td>
+
+
+                        </tr>
+                        {%endif%} {% endfor%}
+                    </tbody>
+                    <tfoot>
+
+                    </tfoot>
+                </table>
+            </div>
+            {% endif%} {% if selected == "pole"%}
+            <div class="col-md-12">
+                <h3>
+                    Pole : {{centre}}
+                </h3>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>
+                                Pole Number
+                            </th>
+                            <th>
+                                equipment_id
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pl in pole %} {% if pl.centre == centre%}
+                        <tr>
+
+                            <td>
+                                {{pl.pole_no}}
+                            </td>
+                            <td>
+                                {{pl.equipment_id}}
+                            </td>
+
+                        </tr>
+                        {%endif%} {% endfor%}
+                    </tbody>
+                    <tfoot>
+
+                    </tfoot>
+                </table>
+            </div>
+
+            {%endif%}
+        </div>
+    </div>
+
+</div>
+</div>
+{% endblock %}

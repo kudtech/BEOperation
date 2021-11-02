@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type='text/javascript'
+  src='http://code.jquery.com/jquery-1.8.3.js'></script>
+<script type='text/javascript'
+  src="http://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.1.0/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css"
+  href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.0/css/bootstrap-combined.min.css">
+<style type='text/css'>
+.container {
+  margin-top: 10px;
+}
+
+.hero-unit {
+  padding: 50px 50px 50px 50px;
+}
+
+.form-horizontal .control-label {
+  width: 61px;
+}
+
+.form-horizontal .controls {
+  margin-left: 80px;
+}
+/* Landscape phone to portrait tablet */
+@media ( max-width : 767px) {
+}
+/* Landscape phones and down */
+@media ( max-width : 480px) {
+  .hero-unit {
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+  .form-horizontal .controls {
+    margin-left: 0;
+  }
+}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="hero-unit">
+      <div class="row-fluid">
+        <div class="offset4 span4">
+          <legend>Business Excellence</legend>
+          <form class="form-horizontal">
+            <div class="control-group">
+              <label class="control-label" for="inputEmail">Email</label>
+              <div class="controls">
+                <input type="text" id="inputEmail" placeholder="Email">
+              </div>
+            </div>
+            <div class="control-group">
+              <label class="control-label" for="inputPassword">Password</label>
+              <div class="controls">
+                <input type="password" id="inputPassword" placeholder="Password">
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="controls">
+                <label class="checkbox"> <input type="checkbox">Remember
+                  me
+                </label>
+                <button type="submit" class="btn">Sign in</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

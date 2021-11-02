@@ -1,0 +1,33 @@
+<div class="form-row field-groups">
+    <div>
+            <label for="id_groups">Groups:</label>
+            
+                <div class="related-widget-wrapper">
+<select name="groups" id="id_groups" multiple class="selectfilter" data-field-name="groups" data-is-stacked="0">
+<option value="1">admin</option>
+<option value="2">artisans</option>
+</select>
+<a class="related-widget-wrapper-link add-related" id="add_id_groups"
+href="/admin/auth/group/add/?_to_field=id&amp;_popup=1"
+title="Add another group"><img src="/static/admin/img/icon-addlink.svg" alt="Add"></a>
+
+</div>
+            <div class="help">The groups this user belongs to. A user will get all permissions granted to each of their groups. Hold down "Control", or "Command" on a Mac, to select more than one.</div>
+        
+    </div>
+</div>
+<div class="form-row field-user_permissions">
+    <div>
+            <label for="id_user_permissions">User permissions:</label>
+            
+                <div class="related-widget-wrapper">
+<select name="user_permissions" id="id_user_permissions" multiple class="selectfilter" data-field-name="user permissions" data-is-stacked="0">
+<option value="165">admin | log entry | Can add log entry</option>
+
+<option value="166">admin | log entry | Can change log entry</option>
+
+<option value="167">admin | log entry | Can delete log entry</option>
+</select>
+</div>
+</div>
+</div>

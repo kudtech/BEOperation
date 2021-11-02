@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+{%load static%}
+
+<style>
+    a:hover {
+        cursor: pointer;
+    }
+</style>
+<div class="container">
+    <form method="GET">
+        <div class="row form-group">
+            <div class="col-sm-6">
+                <label class="font-weight-bold" style="padding-left: 190px;">Team Leader: </label>
+            </div>
+            <div class="col-sm-6">
+                <input type="text" class="form-control " required id="" name="" value="{{team_leader}}" readonly />
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-6">
+                <label class="font-weight-bold" style="padding-left: 190px;">Specialisation: </label>
+            </div>
+            <div class="col-sm-6">
+                <input type="text" class="form-control " required id="" name="" value="{{specialisation}}" readonly />
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-6">
+                <label class="font-weight-bold" style="padding-left: 190px;">Team Members: </label>
+            </div>
+            <div class="col-sm-6">
+                {% for member in team_list %}
+                <a>
+                    <span class="fa fa-user" style="font-size:1.2rem;margin:10px;" readonly>
+                        {{member.team_members}}
+                    </span>
+                </a>
+                <br />
+                {% endfor %}
+            </div>
+            <!-- <div class="col-sm-2">
+            <button id="b1" class="btn add-member form control" type="button">DELETE</button>
+        </div> -->
+        </div>
+        <div class="row form-group">
+            <div class="col-md-6">
+            </div>
+            <div class=" col-md-3">
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:view_teams' %}">
+                    <input type="button" class="btn btn-sm  btn-block " value="BACK" />
+                </a>
+            </div>
+            <!-- <div class="col-md-3">
+            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                <input type="button" class="btn btn-sm  btn-block" id="save_member" value="SAVE" />
+            </a>
+        </div> -->
+        </div>
+
+    </form>
+</div>
+<script>
+    $(document).ready(function () {
+        var next = 1;
+        $(".add-member").click(function (e) {
+
+
+
+        });
+
+</script>
+{% endif %} {% endblock %}

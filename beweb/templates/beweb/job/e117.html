@@ -1,0 +1,1771 @@
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+
+{% load staticfiles %}
+
+<style>
+    .tabs-wrap {
+        margin-top: 40px;
+    }
+
+    .tab-content .tab-pane {
+        padding: 20px 0;
+    }
+
+    @media (min-width:768px) {
+        .modal-xl {
+            width: 90%;
+            max-width: 1120px;
+        }
+    }
+
+    .truncate {
+        max-width: 150px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .btnn {
+        background-color: #2B59A2;
+        border: solid;
+        color: white;
+        padding: 10px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 12px;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+</style>
+
+<!-- Modal -->
+<div class="modal fade" id="reject_modal" tabindex="-1" role="dialog" aria-labelledby="modal_centre_title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label class="font-weight-bold col-xs-3 col-form-label text-center" style="padding-left: 50px;">REASON
+                    FOR REJECTING
+                </label>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for e60 in e60_general %}
+                    <input type="hidden" value="{{e60.job}}" name="job_id" />
+                    {% endfor %}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <textarea class="form-control" name="reject_reason" id="reject_reason"></textarea>
+                        </div>
+                    </div>
+                    <div class="row form-group" style="border-radius:15px;padding-bottom:40px;">
+                        <div class="col-sm-4"></div>
+                        <div class="col-sm-2">
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                                <input type="button" class="btn  btn-sm  btn-block " value="Cancel" data-dismiss="modal"
+                                    id="cancel_btn" />
+                            </a>
+                        </div>
+                        <div class="col-sm-2">
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                                <input type="submit" class="btn  btn-sm  btn-block" value="Send" name="send"
+                                    formaction="/beweb/approve" />
+                            </a>
+                        </div>
+                        <div class="col-sm-4"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+<!---->
+<div class="container">
+    <h2 class="text-center font-weight-bold">INSTALLATION INSPECTION REPORT (E117)</h2>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START DATE AND TIME:</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e117.created_on}}" readonly />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">END DATE AND TIME:</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e117.datetime_completed}}" readonly />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">INSPECTED BY:</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e117.completed_by}}" readonly />
+                </div>
+                <div class="col-sm-3">
+                    <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">INSPECTION TYPE</label>
+                </div>
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" value="{{e117.client_inspection_type}}" readonly />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!---->
+    <ul class="nav nav-tabs container" role="tablist" style="background-color:#FDF2E5;margin-top:5px">
+        <li class="nav-item">
+            <a class="nav-link active" href="#customerdetails" role="tab" data-toggle="tab" id="custodetails_id"
+                style="color:black;">CUSTOMER DETAILS
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#sizeofinstallation" role="tab" data-toggle="tab" id="sizeofinstall_id" style="color:black">SIZE OF INSTALLATIONS
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#installationdescription" role="tab" data-toggle="tab" id="installationdesc_id"
+                style="color:black">INSTALLATION DESCRIPTION
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#installationtest" role="tab" data-toggle="tab" id="installationtest_id"
+                style="color:black">INSTALLATION TEST
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#conduits" role="tab" data-toggle="tab" id="conduits_id"
+                style="color:black"> CONDUITS
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#lightandplugs" role="tab" data-toggle="tab" id="lightandplugs_id"
+                style="color:black">LIGHTING AND PLUGS
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#appliances" role="tab" data-toggle="tab" id="appliances_id"
+                style="color:black">APPLIANCES
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#overheadlines" role="tab" data-toggle="tab" id="overheadlines_id"
+                style="color:black">OVERHEAD LINES
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#deffects" role="tab" data-toggle="tab" id="deffects_id"
+                style="color:black">DEFFECTS
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#general" role="tab" data-toggle="tab" id="general_id"
+                style="color:black">GENERAL
+                
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#boq" role="tab" data-toggle="tab" id="boq_id" style="color:black">BOQ
+            </a>
+        </li>
+    </ul>
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane" id="customerdetails">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+            <h4 class="text-center font-weight-bold">CUSTOMER DETAILS</h4>
+                <table class="w3-table thead-dark  table " data-ajax="" data-server-side="false" id="customerdetails_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+
+
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">CUSTOMER NAME:</th>
+                          <td>{{client.client_name}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">CUSTOMER PHONE:</th>
+                          <td>{{client.client_phone}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">PROPERTY ADDRESS:</th>
+                          <td>{{client.property_address}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">PROPERTY OWNER'S NAME</th>
+                            <td>{{client.owner_name}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">PROPERTY OWNER'S ADDRESS</th>
+                            <td>{{client.owner_address}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONTRACTOR'S NAME</th>
+                            <td>{{contractor.contractor_name}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONTRACTOR'S ADDRESS</th>
+                            <td>{{contractor.contractor_address}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONTRACTOR'S PHONE</th>
+                            <td>{{contractor.contractor_phone}}</td>
+                          </tr>
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-5">
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next" id="customerdetails_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-5"></div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="sizeofinstallation">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+            <h4 class="text-center font-weight-bold">SIZE OF INSTALLATION</h4>
+                <table class="table" id="sizeofinstallation_table" style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">SIZE OF MAINS CONDUIT</th>
+                          <td>{{e117.soi_conduit}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">CUSTOMER MAIN SWITCH TYPE</th>
+                            <td>{{e117.soi_switch_type}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">CUSTOMER MAIN SWITCH CAPACITY</th>
+                            <td>{{e117.soi_switch_capacity}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CUSTOMER MAIN SWITCH SETTING</th>
+                            <td>{{e117.soi_switch_setting}}</td>
+                          </tr>
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous" id="sizeofinstall_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next" id="sizeofinstall_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="installationdescription">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+            <h4 class="text-center font-weight-bold">INSTALLATION DESCRIPITION</h4>
+                <table class="w3-table thead-dark  table" id="installationdescription_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">NEUTRALS FUSED</th>
+                         
+                          {% if insd_neutrals_fused %}
+                            <td>
+                                <div class="col-sm-3">
+                                <div class="accordion" id="insd_neutrals_fused">
+                                <div class="card">
+                                    <div class="card-header" id="headingOne">                    
+                                    <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                            {{e117.insd_neutrals_fused}}<sup>*</sup>
+                                    </button>                  
+                                </div>  
+                                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#insd_neutrals_fused">
+                                    <div class="card-body">
+                                            {{e117.insd_neutrals_fused_cmt}}
+                                    </div>
+                                </div>
+                                </div>  
+                                </div>
+                                </div>
+
+                                {% else %}
+                                <div class="col-sm-3">
+                                <input type="text" class="form-control"  readonly value="{{e117.insd_neutrals_fused}}"  />
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">NEUTRALS BLOCK FITTED</th>
+                                            <td>
+                                            {% if insd_block_fitted %}
+                                <div class="col-sm-3">
+                                        <div class="accordion" >
+                                            <div class="card">
+                                                <div class="card-header" id="insd_block_fitted">
+                                                    <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                                            {{e117.insd_block_fitted}}<sup>*</sup>
+                                                    </button>
+                                                
+                                                </div>
+                                                <div id="collapseTwo" class="collapse" aria-labelledby="insd_block_fitted" data-parent="#accordionExample">
+                                                    <div class="card-body">
+                                                            {{e117.insd_block_fitted_cmt}}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </div>
+                                    </div>
+                                {% else %}
+                                <div class="col-sm-3">
+                                        <input type="text" class="form-control"  value="{{e117.insd_block_fitted}}" readonly/>
+                                        </div>
+                                {% endif %}
+                                </div>
+                            </td>
+                          </tr>
+                          <tr>
+                                <th scope="row" style="color:black;font-weight: bold">CUSTOMER'S ELECTRODE INSTALLED</th>
+                                <td>
+                                {% if insd_electrode_installed %}
+
+                                    <div class="col-sm-3">
+                                            <div class="accordion" >
+                                                <div class="card">
+                                                    <div class="card-header" id="insd_electrode_installed">
+                                                        <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                                                {{e117.insd_electrode_installed}}<sup>*</sup>
+                                                        </button>
+                                                    
+                                                    </div>
+                                                    <div id="collapseThree" class="collapse" aria-labelledby="insd_electrode_installed" data-parent="#accordionExample">
+                                                        <div class="card-body">
+                                                                {{e117.insd_electrode_installed_cmt}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                        </div>
+
+                                {% else %}
+                                <div class="col-sm-3">
+                                <input type="text" class="form-control"  value="{{e117.insd_electrode_installed}}" readonly/>
+                                </div>
+                                {% endif %}
+                                            </td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CUSTOMER ELECTRODE TYPE</th>
+                            <td>{{e117.insd_electrode_type}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">STATE ANY INCORRECT POLARITY OF SWITCHES</th>
+                            <td>{{e117.insd_polarity_switches}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">EARTHING PIN OF SOCKET OUTLETS EARTHED</th>
+                                <td>
+                                {% if insd_outlets_earthed %}
+                                    <div class="col-sm-3">
+                                            <div class="accordion" >
+                                                <div class="card">
+                                                    <div class="card-header" id="insd_outlets_earthed">
+                                                        <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                                                {{e117.insd_outlets_earthed}}<sup>*</sup>
+                                                        </button>                  
+                                                    </div>
+                                                    <div id="collapseFive" class="collapse" aria-labelledby="insd_outlets_earthed" data-parent="#accordionExample">
+                                                        <div class="card-body">
+                                                                {{e117.insd_outlets_earthed_cmt}}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                        </div>
+                                    {% else %}
+                                    <div class="col-sm-3">
+                                    <input type="text" class="form-control"  value="{{e117.insd_outlets_earthed}}" readonly/>
+                                    </div>
+                                    {% endif %}
+                                </td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">TYPE OF SOCKET OUTLETS</th>
+                            <td>{{e117.insd_socket_outlets}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">TYPE OF WIRING</th>
+                            <td>{{e117.insd_type_wiring}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CIRCUIT CONDUCTORS OF CORRECT SIZE</th>
+                            <td>
+                            {% if insd_conductors_size %}
+                                <div class="col-sm-3">
+                                    <div class="accordion" >
+                                        <div class="card">
+                                            <div class="card-header" id="insd_conductors_size">
+                                                <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseSix" aria-expanded="false" aria-controls="collapseSix">
+                                                        {{e117.insd_conductors_size}}<sup>*</sup>
+                                                </button>                  
+                                            </div>
+                                            <div id="collapseSix" class="collapse" aria-labelledby="insd_conductors_size" data-parent="#accordionExample">
+                                                <div class="card-body">
+                                                        {{e117.insd_conductors_size_cmt}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                </div>
+                            {% else %}
+                                <div class="col-sm-3">
+                                <input type="text" class="form-control"  value="{{e117.insd_conductors_size}}" readonly/>
+                                </div>
+                                {% endif %}
+                                </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONDITION OF WIRING(CLEATS,INSULATION,ETC)</th>
+                            <td>
+                            {% if insd_condition_wiring %}
+                                <div class="col-sm-3">
+                                    <div class="accordion" >
+                                        <div class="card">
+                                            <div class="card-header" id="insd_condition_wiring">
+                                                <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseSeven" aria-expanded="false" aria-controls="collapseSeven">
+                                                        {{e117.insd_condition_wiring}}<sup>*</sup>
+                                                </button>                  
+                                            </div>
+                                            <div id="collapseSeven" class="collapse" aria-labelledby="insd_condition_wiring" data-parent="#accordionExample">
+                                                <div class="card-body">
+                                                        {{e117.insd_condition_wiring_cmt}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="col-sm-3">
+                                    <input type="text" class="form-control"  value="{{e117.insd_condition_wiring}}" readonly/>
+                                    </div>
+                        {% endif %}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">ANY FLEXIBLE CORD IN PROHIBITED POSITIONS?</th>
+                            <td>{{e117.insd_cord_positions}}</td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">BATHROOM SWITCH ACCESSIBLE FROM BATH</th>
+                            <td>
+                            {% if insd_bathroom_switch %}
+                                <div class="col-sm-3">
+                                    <div class="accordion" >
+                                        <div class="card">
+                                            <div class="card-header" id="insd_bathroom_switch">
+                                                <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseEight" aria-expanded="false" aria-controls="collapseEight">
+                                                        {{e117.insd_bathroom_switch}}<sup>*</sup>
+                                                </button>                  
+                                            </div>
+                                            <div id="collapseEight" class="collapse" aria-labelledby="insd_bathroom_switch" data-parent="#accordionExample">
+                                                <div class="card-body">
+                                                        {{e117.insd_bathroom_switch_cmt}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                </div>
+                                {% else %}
+                                <div class="col-sm-3">
+                                <input type="text" class="form-control"  value="{{e117.insd_bathroom_switch}}" readonly/>
+                                </div>
+                                {% endif %}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">STATE ANY UNEARTHED METALCLAD SWITCHES</th>
+                            <td>{{e117.insd_unearthed_metalclad}}</td>
+                          </tr>
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="installdesc_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next" id="installdesc_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="installationtest">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+            <h4 class="text-center font-weight-bold">INSTALLATION TEST</h4>
+                <table class="w3-table thead-dark  table" id="installationtest_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">MEGGER (L-N) MOHMS</th>
+                          <td>{{e117.inst_megger_ln}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">MEGGER (L-E) MOHMS</th>
+                          <td>{{e117.inst_megger_le}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">MEGGER (N-E) MOHMS</th>
+                          <td>{{e117.inst_megger_ne}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">EARTH CONTINUITY RESISTANCE</th>
+                            <td>{{e117.inst_continuity_resistance}}</td>
+                        </tr>
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="installtest_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="installtest_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+        <div role="tabpanel" class="tab-pane fade" id="conduits">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+            <h4 class="text-center font-weight-bold">CONDUITS</h4>
+                <table class="w3-table thead-dark  table" id="conduits_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold"></th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th style="color:black;font-weight: bold">ARE CONDUITS BUSHED</th>
+                          <td>
+                          {% if conduits_conduits_bushed %}
+                                <div class="col-sm-3">
+                                    <div class="accordion" >
+                                        <div class="card">
+                                            <div class="card-header" id="conduits_conduits_bushed">
+                                                <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseNine" aria-expanded="false" aria-controls="collapseNine">
+                                                        {{e117.conduits_conduits_bushed}}<sup>*</sup>
+                                                </button>                  
+                                            </div>
+                                            <div id="collapseNine" class="collapse" aria-labelledby="conduits_conduits_bushed" data-parent="#accordionExample">
+                                                <div class="card-body">
+                                                        {{e117.conduits_conduits_bushed_cmt}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                </div>
+                            {% else %}
+                                <div class="col-sm-3">
+                                <input type="text" class="form-control"  value="{{e117.conduits_conduits_bushed}}" readonly/>
+                                </div>
+                            {% endif %}
+                        </td>
+                        </tr>
+                        <tr>
+                          <th style="color:black;font-weight: bold">ARE CONDUITS BONDED TO EARTH</th>
+                                                <td>
+                                                {% if conduits_bonded %}
+                                <div class="col-sm-3">
+                                    <div class="accordion" >
+                                        <div class="card">
+                                            <div class="card-header" id="conduits_bonded">
+                                                <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseTen" aria-expanded="false" aria-controls="collapseTen">
+                                                        {{e117.conduits_bonded}}<sup>*</sup>
+                                                </button>                  
+                                            </div>
+                                            <div id="collapseTen" class="collapse" aria-labelledby="conduits_bonded" data-parent="#accordionExample">
+                                                <div class="card-body">
+                                                        {{e117.conduits_bonded_cmt}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                </div>
+                                {% else %}
+                                    <div class="col-sm-3">
+                                    <input type="text" class="form-control"  value="{{e117.conduits_bonded}}" readonly/>
+                                    </div>
+                                {% endif %}
+                                </div>
+                          </td>
+                        </tr>
+                        <tr>
+                          <th style="color:black;font-weight: bold">ARE CONDUITS OF CORRECT SIZE</th>
+                          <td>
+                          {% if conduits_correct_size %}
+                                <div class="col-sm-3">
+                                    <div class="accordion" >
+                                        <div class="card">
+                                            <div class="card-header" id="conduits_correct_size">
+                                                <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseEleven" aria-expanded="false" aria-controls="collapseEleven">
+                                                        {{e117.conduits_correct_size}}<sup>*</sup>
+                                                </button>                  
+                                            </div>
+                                            <div id="collapseEleven" class="collapse" aria-labelledby="conduits_correct_size" data-parent="#accordionExample">
+                                                <div class="card-body">
+                                                        {{e117.conduits_correct_size_cmt}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                     </div>
+                                </div>
+                        {% else %}
+                            <div class="col-sm-3">
+                            <input type="text" class="form-control"  value="{{e117.conduits_correct_size}}" readonly/>
+                            </div>
+                        {% endif %}
+                          </td>
+                        </tr>
+                        <tr>
+                            <th style="color:black;font-weight: bold">ARE CONDUITS ADEQUATELY SUPPORTED</th>
+                            <td>
+                            {% if conduits_adequately_supported %}
+                            <div class="col-sm-3">
+                                <div class="accordion" >
+                                    <div class="card">
+                                        <div class="card-header" id="conduits_adequately_supported">
+                                            <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseTwelve" aria-expanded="false" aria-controls="collapseTwelve">
+                                                    {{e117.conduits_adequately_supported}}<sup>*</sup>
+                                            </button>                  
+                                        </div>
+                                        <div id="collapseTwelve" class="collapse" aria-labelledby="conduits_adequately_supported" data-parent="#accordionExample">
+                                            <div class="card-body">
+                                                    {{e117.conduits_adequately_supported_cmt}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                            </div>
+                            {% else %}
+                                <div class="col-sm-3">
+                                <input type="text" class="form-control"  value="{{e117.conduits_adequately_supported}}" readonly/>
+                                </div>
+                            {% endif %}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th style="color:black;font-weight: bold">ARE CONDUITS OF SUITABLE </th>
+                            <td>
+                            {% if conduits_suitable_type %}
+                            <div class="col-sm-3">
+                                <div class="accordion" >
+                                    <div class="card">
+                                        <div class="card-header" id="conduits_suitable_type">
+                                            <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseThirteen" aria-expanded="false" aria-controls="collapseThirteen">
+                                                    {{e117.conduits_suitable_type}}<sup>*</sup>
+                                            </button>                  
+                                        </div>
+                                        <div id="collapseThirteen" class="collapse" aria-labelledby="conduits_suitable_type" data-parent="#accordionExample">
+                                            <div class="card-body">
+                                                    {{e117.conduits_suitable_type_cmt}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                            </div>
+                            {% else %}
+                            <div class="col-sm-3">
+                            <input type="text" class="form-control"  value="{{e117.conduits_suitable_type}}" readonly/>
+                            </div>
+                            {% endif %}
+                            </div>
+                            </td>
+                          </tr>
+                          
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="conduits_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="conduits_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div role="tabpanel" class="tab-pane fade" id="lightandplugs">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+            <h4 class="text-center font-weight-bold">LIGHTING AND PLUGS</h4>
+                <table class="w3-table thead-dark  table" id="lightandplugs_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">NUMBER OF LIGHTING POINTS</th>
+                          <td>{{e117.lighting_lighting_points}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">MAXIMUM LIGHTING POINTS PER CIRCUIT</th>
+                          <td>{{e117.lighting_maximum_lighting_points}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">NUMBER OF PLUG POINTS</th>
+                          <td>{{e117.plugs_plug_points}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">MAXIMUM PLUG POINTS PER CIRCUIT</th>
+                            <td>{{e117.plugs_maximum_plug_points}}</td>
+                          </tr>
+                          
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="lightandplug_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="lightandplug_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div role="tabpanel" class="tab-pane fade" id="appliances">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+            <h4 class="text-center font-weight-bold">APPLIANCES</h4>
+
+                {% if any_equipment %}
+                                        
+                        <div>
+                        <div class="jumbotron" style="width:100%">
+                        <h4 class="text-center font-weight-bold m-4">EQUIPMENT</h4>
+                        <table id="equipment" class="table table-striped table-bordered table-responsive-md"
+                                style="background-color:#f4f4f4;border-radius:5px;width:100%" data-server-side="false">
+                                <thead>
+                                    <tr>
+                                        <th style="color:black">No.</th>
+                                        <th style="color:black">Description</th>
+                                        <th style="color:black">Wattage</th>
+                                        <th style="color:black">Created On</th>
+                                        <th style="color:black">Created By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in equipment %}
+                                    <tr>
+                                        <td>{{record.equipment_id}}</td>
+                                        <td>{{record.description}}</td>
+                                        <td>{{record.wattage}}</td>
+                                        <td>{{record.created_on}}</td>
+                                        <td>{{record.created_by}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>            
+                            </div>
+                            {% else %}
+                            {% endif %}
+                        </table>
+                        </div>
+                <table class="w3-table thead-dark  table" id="appliances_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">NUMBER OF MOTORS</th>
+                            <td>{{e117.appliances_number_motors}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">SIZE OF MOTORS</th>
+                            <td>{{e117.appliances_size_motors}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">MOTOR INSTALLATION SUITABLY PROTECTED</th>
+                                                <td>
+                                                {% if appliances_motor_installation %}
+                                <div class="col-sm-3">
+                                    <div class="accordion" >
+                                        <div class="card">
+                                            <div class="card-header" id="appliances_motor_installation">
+                                                <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseFourteen" aria-expanded="false" aria-controls="collapseFourteen">
+                                                        {{e117.appliances_motor_installation}}<sup>*</sup>
+                                                </button>                  
+                                            </div>
+                                            <div id="collapseFourteen" class="collapse" aria-labelledby="appliances_motor_installation" data-parent="#accordionExample">
+                                                <div class="card-body">
+                                                        {{e117.appliances_motor_installation_cmt}}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        </div>
+                                </div>
+                        {% else %}
+                            <div class="col-sm-3">
+                            <input type="text" class="form-control"  value="{{e117.appliances_motor_installation}}" readonly/>
+                            </div>
+                        {% endif %}
+                        </td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">OUTBUILDINGS PROTECTED BY MAIN SWITCHES</th>
+                            <td>{% if appliances_outbuildings_switches %}
+                        <div class="col-sm-3">
+                            <div class="accordion" >
+                                <div class="card">
+                                    <div class="card-header" id="appliances_outbuildings_switches">
+                                        <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseFifteen" aria-expanded="false" aria-controls="collapseFifteen">
+                                                {{e117.appliances_outbuildings_switches}}<sup>*</sup>
+                                        </button>                  
+                                    </div>
+                                    <div id="collapseFifteen" class="collapse" aria-labelledby="appliances_outbuildings_switches" data-parent="#accordionExample">
+                                        <div class="card-body">
+                                                {{e117.appliances_outbuildings_switches_cmt}}
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                        </div>
+                        {% else %}
+                        <div class="col-sm-3">
+                        <input type="text" class="form-control"  value="{{e117.appliances_outbuildings_switches}}" readonly/>
+                        </div>
+                        {% endif %}
+                        </td>
+                          </tr>
+                          
+                      </tbody>
+                </table>
+                </div>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="appliances_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="appliances_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+        </div>
+                </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="overheadlines">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+            <h4 class="text-center font-weight-bold">OVERHEAD LINES</h4>
+                <table class="w3-table thead-dark  table" id="overheadlines_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">HEIGHT SATISFACTORY</th>
+                          <td>{% if oh_height_satisfactory %}
+                        <div class="col-sm-3">
+                            <div class="accordion" >
+                                <div class="card">
+                                    <div class="card-header" id="oh_height_satisfactory">
+                                        <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseSixteen" aria-expanded="false" aria-controls="collapseSixteen">
+                                                {{e117.oh_height_satisfactory}}<sup>*</sup>
+                                        </button>                  
+                                    </div>
+                                    <div id="collapseSixteen" class="collapse" aria-labelledby="oh_height_satisfactory" data-parent="#accordionExample">
+                                        <div class="card-body">
+                                                {{e117.oh_height_satisfactory_cmt}}
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                        </div>
+                        {% else %}
+                            <div class="col-sm-3">
+                            <input type="text" class="form-control"  value="{{e117.oh_height_satisfactory}}" readonly/>
+                            </div>
+                        {% endif %}
+                        </td>
+                        </tr>
+                        <tr>
+                           <th scope="row" style="color:black;font-weight: bold">SUPPORT SATISFACTORY</th>
+                          <td>{% if oh_support_satisfactory %}
+                        <div class="col-sm-3">
+                            <div class="accordion" >
+                                <div class="card">
+                                    <div class="card-header" id="oh_support_satisfactory">
+                                        <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseSeventeen" aria-expanded="false" aria-controls="collapseSeventeen">
+                                                {{e117.oh_support_satisfactory}}<sup>*</sup>
+                                        </button>                  
+                                    </div>
+                                    <div id="collapseSeventeen" class="collapse" aria-labelledby="oh_support_satisfactory" data-parent="#accordionExample">
+                                        <div class="card-body">
+                                                {{e117.oh_support_satisfactory_cmt}}
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                        </div>
+                        {% else %}
+                        <div class="col-sm-3">
+                        <input type="text" class="form-control"  value="{{e117.oh_support_satisfactory}}" readonly/>
+                        </div>
+                        {% endif %}
+                        </td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">CONDUCTOR SIZE</th>
+                          <td>{{e117.oh_conductor_size}}</td>
+                        </tr>
+                        <tr>
+                            <th scope="row" style="color:black;font-weight: bold">CONDITION OF LINE</th>
+                            <td>{% if oh_condition_line %}
+                            <div class="col-sm-3">
+                                <div class="accordion" >
+                                    <div class="card">
+                                        <div class="card-header" id="oh_condition_line">
+                                            <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseEighteen" aria-expanded="false" aria-controls="collapseEighteen">
+                                                    {{e117.oh_condition_line}}<sup>*</sup>
+                                            </button>                  
+                                        </div>
+                                        <div id="collapseEighteen" class="collapse" aria-labelledby="oh_condition_line" data-parent="#accordionExample">
+                                            <div class="card-body">
+                                                    {{e117.oh_condition_line_cmt}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    </div>
+                            </div>
+                            {% else %}
+                            <div class="col-sm-3">
+                            <input type="text" class="form-control"  value="{{e117.oh_condition_line}}" readonly/>
+                            </div>
+                            {% endif %}
+                            </td>
+                          </tr>
+                          <tr>
+                            <th scope="row" style="color:black;font-weight: bold">EARTHWIRES FITTED TO LINES</th>
+                            <td>{% if oh_earthwires_fitted %}
+                        <div class="col-sm-3">
+                            <div class="accordion" >
+                                <div class="card">
+                                    <div class="card-header" id="oh_earthwires_fitted">
+                                        <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseNineteen" aria-expanded="false" aria-controls="collapseNineteen">
+                                                {{e117.oh_earthwires_fitted}}<sup>*</sup>
+                                        </button>                  
+                                    </div>
+                                    <div id="collapseNineteen" class="collapse" aria-labelledby="oh_earthwires_fitted" data-parent="#accordionExample">
+                                        <div class="card-body">
+                                                {{e117.oh_earthwires_fitted_cmt}}
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                        </div>
+                        {% else %}
+                        <div class="col-sm-3">
+                        <input type="text" class="form-control"  value="{{e117.oh_earthwires_fitted}}" readonly/>
+                        </div>
+                        {% endif %}</td>
+                          </tr>                          
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="overheadlines_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="overheadlines_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div role="tabpanel" class="tab-pane fade" id="deffects">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+            <h4 class="text-center font-weight-bold">DEFFECTS</h4>
+                <table class="w3-table thead-dark  table" id="deffects_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">FEATURES OF INSTALLATION REQUIRING ATTENTION</th>
+                          <td>{{e117.defects_installation}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">CONTRACTOR NOTIFIED OF DEFECTS</th>
+                          <td>{% if defects_contractor %}
+                        <div class="col-sm-3">
+                            <div class="accordion" >
+                                <div class="card">
+                                    <div class="card-header" id="defects_contractor">
+                                        <button class="btn-link border-0 btn-light font-weight-bold" type="button" data-toggle="collapse" data-target="#collapseTwenty" aria-expanded="false" aria-controls="collapseTwenty">
+                                                {{e117.defects_contractor}}<sup>*</sup>
+                                        </button>                  
+                                    </div>
+                                    <div id="collapseTwenty" class="collapse" aria-labelledby="defects_contractor" data-parent="#accordionExample">
+                                        <div class="card-body">
+                                                {{e117.defects_contractor_cmt}}
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                        </div>
+                        {% else %}
+                        <div class="col-sm-3">
+                        <input type="text" class="form-control"  value="{{e117.defects_contractor}}" readonly/>
+                        </div>
+                        {% endif %}</td>
+                        </tr>
+                      </tbody>
+                </table>
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="deffects_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="deffects_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="general">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+            <h4 class="text-center font-weight-bold">GENERAL</h4>
+                <table class="w3-table thead-dark  table" id="general_table"
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th  style="color:black;font-weight: bold"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                           <th scope="row" style="color:black;font-weight: bold">ZESA SWITCH DETAILS</th>
+                          <td>{{e117.general_switch_details}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">SUPPLY STATUS</th>
+                          <td>{{e117.general_installation_status}}</td>
+                        </tr>
+                        <tr>
+                          <th scope="row" style="color:black;font-weight: bold">INSTALLATION STATUS</th>
+                          <td>{{e117.general_installation_status}}</td>
+                        </tr>
+                      </tbody>
+                </table>
+                
+                <div class="row form-group" style="background-color:#f4f4f4;border-radius:15px;padding-bottom:40px;">
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block " value="Previous"
+                                id="general_back" />
+                        </a>
+                    </div>
+                    <div class="col-sm-2">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                            <input type="button" class="btn  btn-sm  btn-block" value="Next"
+                                id="general_next" />
+                        </a>
+                    </div>
+                    <div class="col-sm-4"></div>
+                </div>
+            </div>
+        </div>
+
+        <div role="tabpanel" class="tab-pane fade" id="boq">
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <h4 class="text-center font-weight-bold">NEW INSTALLATION BOQ</h4>
+                
+
+                    {% if is_quoted %}
+                    <div class="row form-group">
+                        <div class="col-sm-12">
+                            
+                        </div>
+                    </div>
+                    {% else %}
+                    {% endif %}
+
+                    {% if is_material_quoted %}
+                    <div class="jumbotron" style="width:100%">
+                            <h4 class="text-center font-weight-bold">MATERIALS</h4>
+                            <table id="boq_material" class="table table-striped table-bordered table-responsive-md"
+                                style="background-color:#f4f4f4;border-radius: 5px;width:100%;" data-server-side="false">
+                                <thead>
+                                    <tr>
+                                        <th style="color:black">No.</th>
+                                        <th style="color:black">Material Description</th>
+                                        <th style="color:black">Material Quantity</th>
+                                        <th style="color:black">Unit of Measure</th>
+                                    <th style="color:black">Created On</th>
+                                        <th style="color:black">Created By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in materials %}
+                                    <tr>
+                                        <td>{{record.boq_id}}</td>
+                                        <td>{{record.material}}</td>
+                                        <td>{{record.quantity}}</td>
+                                        <td>{{record.unit_of_measure}}</td>
+                                        <td>{{record.created_on}}</td>
+                                        <td>{{record.created_by}}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>            
+                            </table>
+                        </div>
+                            {% else %}
+                            {% endif %}
+  
+
+    
+                        {% if is_labour_quoted %}
+                        <div class="jumbotron" style="width:100%">
+                        <h4 class="text-center font-weight-bold">LABOUR</h4>
+                        <table id="boq_labour" class="table table-striped table-bordered table-responsive-md"
+                            style="background-color:#f4f4f4;border-radius:5px;width:100%" data-server-side="false">
+                            <thead>
+                                <tr>
+                                    <th style="color:black">No.</th>
+                                    <th style="color:black">Labour Class</th>
+                                    <th style="color:black">Number of People</th>
+                                    <th style="color:black">Man Hours</th>
+                                    <th style="color:black">Created On</th>
+                                    <th style="color:black">Created By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in labour %}
+                                <tr>
+                                    <td>{{record.boq_labour_id}}</td>
+                                    <td>{{record.labour_class}}</td>
+                                    <td>{{record.number_of_people}}</td>
+                                    <td>{{record.man_hours}}</td>
+                                    <td>{{record.created_on}}</td>
+                                    <td>{{record.created_by}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>            
+                        </table>
+                    </div>
+                        {% else %}
+                        {% endif %}
+                    
+                        
+                        {% if is_vehicle_quoted %}
+                        <div class="jumbotron" style="width:100%"> 
+                        <h4 class="text-center font-weight-bold">VEHICLES</h4>      
+                        <table id="boq_vehicles" class="table table-striped table-bordered table-responsive-md"
+                            style="background-color:#f4f4f4;border-radius:5px;width:100%" data-server-side="false">
+                            <thead>
+                                <tr>
+                                    <th style="color:black">No.</th>
+                                    <th style="color:black">Vehicle Type</th>
+                                    <th style="color:black">Number of Vehicles</th>
+                                    <th style="color:black">Distance</th>
+                                    <th style="color:black">Created On</th>
+                                    <th style="color:black">Created By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for record in vehicles %}
+                                <tr>
+                                    <td>{{record.boq_vehicle_id}}</td>
+                                    <td>{{record.vehicle_type}}</td>
+                                    <td>{{record.no_of_vehicles}}</td>
+                                    <td>{{record.distance}}</td>
+                                    <td>{{record.created_on}}</td>
+                                    <td>{{record.created_by}}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>            
+                        </table>
+                    </div>
+                        {% else %}
+                        {% endif %}
+                                    
+                                </table>
+               <!-- <table class="w3-table thead-dark  table" id=""
+                    style="background-color:#f4f4f4;border-radius: 5px;width:100%;">
+                    <thead>
+                        <tr>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                            <th style="visibility: hidden"></th>
+                        </tr>
+                    </thead>
+                    <div class="col-6">
+                        <label class="font-weight-bold col-xs-3 col-form-label text-center">REMARKS</label>
+                        
+                    </div>
+                    <div class="col-6">
+                        <textarea class="form-control" readonly>{{e60.remarks}}</textarea>
+                    </div>
+                </table>-->
+        
+        </div>
+    </div>
+
+
+
+<div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center">
+<div class="col-md-3">
+<a class="navbar-brand  col-sm-8 pt-sm-0">
+<input type="button" class="btn  btn-sm  btn-block " value="Reject" name="reject" id="" data-toggle="modal" data-target="#exampleModal" />
+</a>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel"></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+        <div class="modal-body">
+          Why are you rejecting this Job?
+
+          <br>
+          <textarea class="form-control" name="comments" required>
+
+          </textarea>
+    
+        </div>
+        
+        <div class="modal-footer">
+            <div class="align-self-start mr-auto">
+                <a class="col-sm-8 pt-sm-0" href="#">
+                    <input class="btnn btn-primary btn-sm" type="submit" id="redo_button" value="REDO" formaction="/beweb/reject/{{job_id}}/" name="redo_button" onclick="return confirm('Are you sure you want to reject and redo this job?');"/>
+                </a>
+            </div>
+            <div class="align-self-center mx-auto">
+                <input type="hidden" name="job" value="{{e117.job}}" />
+                <a class="col-sm-8 pt-sm-0" href="#">
+                    <input class="btnn btn-primary btn-sm" id="reassign_button" name="reassign_button" value="RE-ASSIGN" formaction="/beweb/reject/{{job_id}}/" type="submit" onclick="return confirm('Are you sure you want to reject and reassign this job?');"/>
+                </a>
+            </div>
+            <div class="align-self-end ml-auto">
+                <a class="btnn btn-primary" href="#" data-dismiss="modal" role="button">CLOSE</a>
+            </div>
+        </div>
+    </form>
+      </div>
+    </div>
+  </div>
+  <!-- End Modal-->
+        {% if installation_passed %}
+        <div class=" col-md-3">
+            <a class="navbar-brand  col-sm-8 pt-sm-0"
+            href=""> 
+            
+            <input type="button" class="btn btn-sm  btn-block "
+            value="Check" name="check_button" id="check_button" onclick="return confirm('Are you sure you want to check this job?');" />
+            </a>
+        </div>
+        {% else %}
+        <div class=" col-md-3">
+            <a class="navbar-brand  col-sm-8 pt-sm-0"
+            href="{% url 'beweb:e1' e117_id %}"> 
+            <input type="button" class="btn btn-sm  btn-block "
+            value="Check" name="exit" onclick="return confirm('Are you sure you want to check this job?');" />
+            </a>
+
+            <!--
+
+                href="{% url 'beweb:e1' e117_id %}"
+            -->
+        </div>
+        {% endif %}
+        </div>
+        </form>
+
+
+
+
+
+<script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+<script>
+    $(document).ready(function () {
+        var type_of_page = sessionStorage.getItem('type_of_page');
+        if (type_of_page === "reports"){
+            $("#reject_button").hide()
+            $('#check_button').hide()
+        }
+        else{
+            sessionStorage.removeItem('type_of_page');
+            $("#reject_button").show()
+            $('#check_button').show()
+        }
+        
+
+        var table = $('#boq_material').DataTable({})
+        var table1 = $('#boq_labour').DataTable({})
+        var table2 = $('#boq_vehicles').DataTable({})
+        var table3 = $('#equipment').DataTable({})
+
+
+        var kk = $('input[type=radio]').click(function() {
+            alert(kk)
+        });
+        
+        
+    })
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#customerdetails').show()
+        var tx_table = $('#customerdetails_table').DataTable({
+            columnDefs: [
+                {
+                    targets: [1],
+                    className: "truncate"
+                }
+            ],
+            createdRow: function (row) {
+                var td = $(row).find(".truncate");
+                td.attr("title", td.html());
+            },
+            "paging": false,
+            "pageLength": 14,
+            "destroy": true,
+            "lengthMenu": [14],
+            "scrollY": 380, //350 
+            "scrollX": true, //enables scrolling horizontally
+            "bSort": false, //disables sorting
+            "bFilter": false, // Removes search button
+            "lengthChange": false, // Remove show entries dropdown
+            "bInfo": false//Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+
+        });
+
+        $('#custodetails_id').click(function () {
+            $('#customerdetails').show()
+            var table = $('#customerdetails_table').DataTable({
+                "paging": false,
+                "pageLength": 14,
+                "destroy": true,
+                "lengthMenu": [14],
+                "scrollY": 380, //350 
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+        $('#sizeofinstall_id').click(function () {
+            $('#customerdetails').hide()
+            var table = $('#sizeofinstallation_table').DataTable({
+                "paging": false,
+                "destroy": true,
+                "lengthMenu": [14],
+                "scrollY": 380,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+        $('#installationdesc_id').click(function () {
+            $('#customerdetails').hide()
+            var table = $('#installationdescription_table').DataTable({
+                "paging": false,
+                "pageLength": 14,
+                "destroy": true,
+                "lengthMenu": [14],
+                "scrollY": 380,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+        $('#installationtest_id').click(function () {
+            $('#customerdetails').hide()
+            var table = $('#installationtest_table').DataTable({
+                "paging": false,
+                "pageLength": 14,
+                "destroy": true,
+                "lengthMenu": [14],
+                "scrollY": 380,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+        $('#conduits_id').click(function () {
+            $('#customerdetails').hide()
+            var table = $('#conduits_table').DataTable({
+                "paging": false,//remove pagination
+                "pageLength": 7,
+                "destroy": true,
+                "lengthMenu": [7],
+                "scrollY": 380,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+        $('#lightandplugs_id').click(function () {
+            $('#customerdetails').hide()
+            var table = $('#lightandplugs_table').DataTable({
+                "paging": false,//remove pagination
+                "pageLength": 14,
+                "destroy": true,
+                "lengthMenu": [14],
+                "scrollY": 380,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+        $('#appliances_id').click(function () {
+            $('#customerdetails').hide()
+            var table = $('#appliances_table').DataTable({
+                "paging": false,//remove pagination
+                "pageLength": 14,
+                "destroy": true,
+                "lengthMenu": [3],
+                "scrollY": 380,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+        $('#overheadlines_id').click(function () {
+            $('#customerdetails').hide()
+            var table = $('#overheadlines_table').DataTable({
+                "paging": false,//remove pagination
+                "pageLength": 14,
+                "destroy": true,
+                "lengthMenu": [14],
+                "scrollY": 380,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+        $('#deffects_id').click(function () {
+            $('#customerdetails').hide()
+            var table = $('#deffects_table').DataTable({
+                "paging": false,//remove pagination
+                "pageLength": 14,
+                "destroy": true,
+                "lengthMenu": [14],
+                "scrollY": 380,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+        $('#general_id').click(function () {
+            $('#customerdetails').hide()
+            var table = $('#general_table').DataTable({
+                "paging": false,//remove pagination
+                "pageLength": 14,
+                "destroy": true,
+                "lengthMenu": [14],
+                "scrollY": 380,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+        $('#boq_id').click(function () {
+            $('#customerdetails').hide()
+            var table = $('#boq_table').DataTable({
+                columnDefs: [
+                    {
+                        targets: [3],
+                        className: "truncate"
+                    }
+                ],
+                createdRow: function (row) {
+                    var td = $(row).find(".truncate");
+                    td.attr("title", td.html());
+                },
+                "paging": false,//remove pagination
+                "pageLength": 5,
+                "destroy": true,
+                "lengthMenu": [5],
+                "scrollY": 180,
+                "scrollX": true, //enables scrolling horizontally
+                "bSort": false, //disables sorting
+                "bFilter": false, // Removes search button
+                "lengthChange": false, // Remove show entries dropdown
+                "bInfo": false //Removes Showing 0 to 0 of 0 entries message on the bottom left corner
+            });
+        })
+
+
+
+
+        //Next and Back Button Navigation
+        $('#customerdetails_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#sizeofinstallation"]').click()
+        })
+        $('#sizeofinstall_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#customerdetails"]').click()
+        })
+
+        $('#sizeofinstall_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#installationdescription"]').click()
+        })
+        $('#installdesc_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#installationtest"]').click()
+        })
+
+        $('#installdesc_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#sizeofinstallation"]').click()
+        })
+
+        $('#installtest_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#conduits"]').click()
+        })
+
+        $('#installtest_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#installationdescription"]').click()
+        })
+        $('#conduits_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#lightandplugs"]').click()
+        })
+
+        $('#conduits_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#installationtest"]').click()
+        })
+        $('#lightandplug_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#appliances"]').click()
+        })
+
+        $('#lightandplug_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#conduits"]').click()
+        })
+       /* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
+       $('#appliances_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#overheadlines"]').click()
+        })
+
+        $('#appliances_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#lightandplugs"]').click()
+        })
+        $('#overheadlines_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#deffects"]').click()
+        })
+
+        $('#overheadlines_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#appliances"]').click()
+        })
+        $('#deffects_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#general"]').click()
+        })
+
+        $('#deffects_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#overheadlines"]').click()
+        })
+        $('#general_next').click(function (e) {
+            e.preventDefault()
+            $('a[href="#boq"]').click()
+        })
+
+        $('#general_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#deffects"]').click()
+        })
+
+
+        $('#boq_back').click(function (e) {
+            e.preventDefault()
+            $('a[href="#general"]').click()
+        })
+
+        // Autofocus on modal textarea when modal is shown
+        $('#reject_modal').on('shown.bs.modal', function () {
+            $('#reject_reason').focus()
+            $('#reject_reason').attr('required', 'required')
+        })
+
+        // Clear reject reason when user cancels the action 
+        $('#cancel_btn').click(function () {
+            $('#reject_reason').val('')
+        })
+    })
+
+
+</script>
+
+{% endif %} {% endblock %}

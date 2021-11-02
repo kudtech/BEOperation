@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+{%load static%}
+
+
+    
+
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <div class="col-md-3">
+                    <a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:newteam' %}">
+                        <input type="button" class="btn  btn-sm btn-block " value="Create Team" />
+                    </a>
+                </div>
+                <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    
+                </div>
+                <br>
+                <h3 class="text-center font-weight-bold">Teams</h3>
+                <table class="thead-dark table table-striped table-bordered display"
+                     data-server-side="false"
+                    id="teams" style="background-color:#f4f4f4;border-radius: 5px">
+                    <thead>
+                        <tr>
+                            <th style="color:black" >Team Leader</th>
+                            <th style="color:black" >Specialisation</th>
+                            <th style="color:black" >Members</th>
+                            <th style="color:black"></th>
+                        </tr>                        
+                    </thead>
+                    <tbody>
+                        {% for leader in leaders %}
+                        <tr>
+                            <td>{{leader.fullname}}</td>
+                            <td>{{leader.specialisation}}</td>
+                            <td>{{leader.members}}</td>
+                            <td><a href="/beweb/team/{{leader.ec_number}}" class="">View</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+            </div>
+
+    <script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}"/>
+
+    <script>
+    var table = $('#teams').DataTable({});       
+        
+
+    
+    </script>
+{% endif %} {% endblock %}

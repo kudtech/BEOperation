@@ -1,0 +1,41 @@
+{% extends "beweb/layout.html" %} {% block content %} {% if user.is_authenticated %}
+<<title>Job</title>
+<div class="container">
+ {% for artisan in team %}<table  class="table table-striped">
+    <thead >
+    <h3 class="nav justify-content-center text-white bg-dark">{{artisan}} Jobs</h3>
+    <tr>
+    <th>Description </th>
+    <th>Assignee </th>
+    <th>Asset name </th>
+    <th>Work order id</th>
+    </tr>
+
+    </thead>
+    <tbody  > 
+    {% for field in job %} 
+    
+  
+    {% if artisan.team_leader == field.assignee %}
+      
+
+    <tr>
+      <td class="text-muted Muted link">  {{field.description}}</td>
+      <td class="text-muted Muted link">   {{field.assignee}}</td>
+     <td class="text-muted Muted link">   {{field.asset_name}}</td>
+     <td class="text-muted Muted link">   {{field.work_order}}</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+   
+
+    </tbody>
+    <tfoot>
+    <tr>
+
+    </tr>
+    </tfoot>   
+  </table>
+ {% endfor %}
+</div>
+{% endif %} {% endblock %}

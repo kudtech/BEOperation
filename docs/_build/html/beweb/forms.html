@@ -1,0 +1,299 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Web Forms &#8212; BEOperations 0.1 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Web Models" href="models.html" />
+    <link rel="prev" title="Web Choices" href="choices.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-beweb.forms">
+<span id="web-forms"></span><h1>Web Forms<a class="headerlink" href="#module-beweb.forms" title="Permalink to this headline">¶</a></h1>
+<p>Definition of forms.</p>
+<dl class="class">
+<dt id="beweb.forms.BootstrapAuthenticationForm">
+<em class="property">class </em><code class="sig-prename descclassname">beweb.forms.</code><code class="sig-name descname">BootstrapAuthenticationForm</code><span class="sig-paren">(</span><em class="sig-param">request=None</em>, <em class="sig-param">*args</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/beweb/forms.html#BootstrapAuthenticationForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#beweb.forms.BootstrapAuthenticationForm" title="Permalink to this definition">¶</a></dt>
+<dd><p>Authentication form which uses boostrap CSS.</p>
+<dl class="attribute">
+<dt id="beweb.forms.BootstrapAuthenticationForm.base_fields">
+<code class="sig-name descname">base_fields</code><em class="property"> = {'password': &lt;django.forms.fields.CharField object&gt;, 'username': &lt;django.forms.fields.CharField object&gt;}</em><a class="headerlink" href="#beweb.forms.BootstrapAuthenticationForm.base_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.BootstrapAuthenticationForm.declared_fields">
+<code class="sig-name descname">declared_fields</code><em class="property"> = {'password': &lt;django.forms.fields.CharField object&gt;, 'username': &lt;django.forms.fields.CharField object&gt;}</em><a class="headerlink" href="#beweb.forms.BootstrapAuthenticationForm.declared_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="beweb.forms.BootstrapAuthenticationForm.media">
+<em class="property">property </em><code class="sig-name descname">media</code><a class="headerlink" href="#beweb.forms.BootstrapAuthenticationForm.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="beweb.forms.E84Form">
+<em class="property">class </em><code class="sig-prename descclassname">beweb.forms.</code><code class="sig-name descname">E84Form</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">field_order=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/beweb/forms.html#E84Form"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#beweb.forms.E84Form" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="beweb.forms.E84Form.base_fields">
+<code class="sig-name descname">base_fields</code><em class="property"> = {'your_name': &lt;django.forms.fields.CharField object&gt;}</em><a class="headerlink" href="#beweb.forms.E84Form.base_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.E84Form.declared_fields">
+<code class="sig-name descname">declared_fields</code><em class="property"> = {'your_name': &lt;django.forms.fields.CharField object&gt;}</em><a class="headerlink" href="#beweb.forms.E84Form.declared_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="beweb.forms.E84Form.media">
+<em class="property">property </em><code class="sig-name descname">media</code><a class="headerlink" href="#beweb.forms.E84Form.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="beweb.forms.GeneralForm">
+<em class="property">class </em><code class="sig-prename descclassname">beweb.forms.</code><code class="sig-name descname">GeneralForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">field_order=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/beweb/forms.html#GeneralForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#beweb.forms.GeneralForm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="beweb.forms.GeneralForm.base_fields">
+<code class="sig-name descname">base_fields</code><em class="property"> = {'closed_by': &lt;django.forms.fields.CharField object&gt;, 'closed_dt': &lt;django.forms.fields.DateTimeField object&gt;, 'comments': &lt;django.forms.fields.CharField object&gt;, 'created_by': &lt;django.forms.fields.CharField object&gt;, 'created_on': &lt;django.forms.fields.DateTimeField object&gt;, 'modified_by': &lt;django.forms.fields.CharField object&gt;, 'modified_on': &lt;django.forms.fields.DateTimeField object&gt;}</em><a class="headerlink" href="#beweb.forms.GeneralForm.base_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.GeneralForm.declared_fields">
+<code class="sig-name descname">declared_fields</code><em class="property"> = {'closed_by': &lt;django.forms.fields.CharField object&gt;, 'closed_dt': &lt;django.forms.fields.DateTimeField object&gt;, 'comments': &lt;django.forms.fields.CharField object&gt;, 'created_by': &lt;django.forms.fields.CharField object&gt;, 'created_on': &lt;django.forms.fields.DateTimeField object&gt;, 'modified_by': &lt;django.forms.fields.CharField object&gt;, 'modified_on': &lt;django.forms.fields.DateTimeField object&gt;}</em><a class="headerlink" href="#beweb.forms.GeneralForm.declared_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="beweb.forms.GeneralForm.media">
+<em class="property">property </em><code class="sig-name descname">media</code><a class="headerlink" href="#beweb.forms.GeneralForm.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="beweb.forms.JobForm">
+<em class="property">class </em><code class="sig-prename descclassname">beweb.forms.</code><code class="sig-name descname">JobForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">field_order=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/beweb/forms.html#JobForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#beweb.forms.JobForm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="beweb.forms.JobForm.Job_Choice">
+<code class="sig-name descname">Job_Choice</code><em class="property"> = (('inspection', 'Inspection'), ('Mantainance', 'Mantainance'), ('OverHaul', 'OverHaul'))</em><a class="headerlink" href="#beweb.forms.JobForm.Job_Choice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.JobForm.Team_leader">
+<code class="sig-name descname">Team_leader</code><em class="property"> = (('ze900536', 'Magaya'), ('ze87645', 'Chinaka'), ('ze073589', 'Mav'))</em><a class="headerlink" href="#beweb.forms.JobForm.Team_leader" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.JobForm.base_fields">
+<code class="sig-name descname">base_fields</code><em class="property"> = {'assignee': &lt;django.forms.fields.ChoiceField object&gt;, 'description': &lt;django.forms.fields.CharField object&gt;, 'type': &lt;django.forms.fields.ChoiceField object&gt;, 'workflow_id': &lt;django.forms.fields.ChoiceField object&gt;}</em><a class="headerlink" href="#beweb.forms.JobForm.base_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.JobForm.declared_fields">
+<code class="sig-name descname">declared_fields</code><em class="property"> = {'assignee': &lt;django.forms.fields.ChoiceField object&gt;, 'description': &lt;django.forms.fields.CharField object&gt;, 'type': &lt;django.forms.fields.ChoiceField object&gt;, 'workflow_id': &lt;django.forms.fields.ChoiceField object&gt;}</em><a class="headerlink" href="#beweb.forms.JobForm.declared_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="beweb.forms.JobForm.media">
+<em class="property">property </em><code class="sig-name descname">media</code><a class="headerlink" href="#beweb.forms.JobForm.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="beweb.forms.NameForm">
+<em class="property">class </em><code class="sig-prename descclassname">beweb.forms.</code><code class="sig-name descname">NameForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">field_order=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/beweb/forms.html#NameForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#beweb.forms.NameForm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="beweb.forms.NameForm.base_fields">
+<code class="sig-name descname">base_fields</code><em class="property"> = {'your_name': &lt;django.forms.fields.CharField object&gt;}</em><a class="headerlink" href="#beweb.forms.NameForm.base_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.NameForm.declared_fields">
+<code class="sig-name descname">declared_fields</code><em class="property"> = {'your_name': &lt;django.forms.fields.CharField object&gt;}</em><a class="headerlink" href="#beweb.forms.NameForm.declared_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="beweb.forms.NameForm.media">
+<em class="property">property </em><code class="sig-name descname">media</code><a class="headerlink" href="#beweb.forms.NameForm.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="beweb.forms.TeamForm">
+<em class="property">class </em><code class="sig-prename descclassname">beweb.forms.</code><code class="sig-name descname">TeamForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">field_order=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/beweb/forms.html#TeamForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#beweb.forms.TeamForm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="beweb.forms.TeamForm.base_fields">
+<code class="sig-name descname">base_fields</code><em class="property"> = {'Team': &lt;django.forms.fields.CharField object&gt;}</em><a class="headerlink" href="#beweb.forms.TeamForm.base_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.TeamForm.declared_fields">
+<code class="sig-name descname">declared_fields</code><em class="property"> = {'Team': &lt;django.forms.fields.CharField object&gt;}</em><a class="headerlink" href="#beweb.forms.TeamForm.declared_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="beweb.forms.TeamForm.media">
+<em class="property">property </em><code class="sig-name descname">media</code><a class="headerlink" href="#beweb.forms.TeamForm.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="beweb.forms.WorkOrderForm">
+<em class="property">class </em><code class="sig-prename descclassname">beweb.forms.</code><code class="sig-name descname">WorkOrderForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">field_order=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/beweb/forms.html#WorkOrderForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#beweb.forms.WorkOrderForm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="beweb.forms.WorkOrderForm.base_fields">
+<code class="sig-name descname">base_fields</code><em class="property"> = {'description': &lt;django.forms.fields.CharField object&gt;, 'status': &lt;django.forms.fields.ChoiceField object&gt;}</em><a class="headerlink" href="#beweb.forms.WorkOrderForm.base_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.WorkOrderForm.declared_fields">
+<code class="sig-name descname">declared_fields</code><em class="property"> = {'description': &lt;django.forms.fields.CharField object&gt;, 'status': &lt;django.forms.fields.ChoiceField object&gt;}</em><a class="headerlink" href="#beweb.forms.WorkOrderForm.declared_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="beweb.forms.WorkOrderForm.media">
+<em class="property">property </em><code class="sig-name descname">media</code><a class="headerlink" href="#beweb.forms.WorkOrderForm.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="beweb.forms.assetForm">
+<em class="property">class </em><code class="sig-prename descclassname">beweb.forms.</code><code class="sig-name descname">assetForm</code><span class="sig-paren">(</span><em class="sig-param">data=None</em>, <em class="sig-param">files=None</em>, <em class="sig-param">auto_id='id_%s'</em>, <em class="sig-param">prefix=None</em>, <em class="sig-param">initial=None</em>, <em class="sig-param">error_class=&lt;class 'django.forms.utils.ErrorList'&gt;</em>, <em class="sig-param">label_suffix=None</em>, <em class="sig-param">empty_permitted=False</em>, <em class="sig-param">field_order=None</em>, <em class="sig-param">use_required_attribute=None</em>, <em class="sig-param">renderer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/beweb/forms.html#assetForm"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#beweb.forms.assetForm" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="beweb.forms.assetForm.Team_Choice">
+<code class="sig-name descname">Team_Choice</code><em class="property"> = (('ze900536', 'Magaya'), ('ze87645', 'Chinaka'), ('ze073589', 'Mav'))</em><a class="headerlink" href="#beweb.forms.assetForm.Team_Choice" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.assetForm.base_fields">
+<code class="sig-name descname">base_fields</code><em class="property"> = {'asset_id': &lt;django.forms.fields.CharField object&gt;, 'asset_name': &lt;django.forms.fields.CharField object&gt;, 'asset_number': &lt;django.forms.fields.CharField object&gt;, 'asset_serial': &lt;django.forms.fields.CharField object&gt;, 'asset_type': &lt;django.forms.fields.ChoiceField object&gt;, 'expected_end_dt': &lt;django.forms.fields.DateTimeField object&gt;, 'geom': &lt;django.forms.fields.CharField object&gt;, 'reference_no': &lt;django.forms.fields.CharField object&gt;, 'team': &lt;django.forms.fields.MultipleChoiceField object&gt;}</em><a class="headerlink" href="#beweb.forms.assetForm.base_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.assetForm.declared_fields">
+<code class="sig-name descname">declared_fields</code><em class="property"> = {'asset_id': &lt;django.forms.fields.CharField object&gt;, 'asset_name': &lt;django.forms.fields.CharField object&gt;, 'asset_number': &lt;django.forms.fields.CharField object&gt;, 'asset_serial': &lt;django.forms.fields.CharField object&gt;, 'asset_type': &lt;django.forms.fields.ChoiceField object&gt;, 'expected_end_dt': &lt;django.forms.fields.DateTimeField object&gt;, 'geom': &lt;django.forms.fields.CharField object&gt;, 'reference_no': &lt;django.forms.fields.CharField object&gt;, 'team': &lt;django.forms.fields.MultipleChoiceField object&gt;}</em><a class="headerlink" href="#beweb.forms.assetForm.declared_fields" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="beweb.forms.assetForm.media">
+<em class="property">property </em><code class="sig-name descname">media</code><a class="headerlink" href="#beweb.forms.assetForm.media" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="beweb.forms.assetForm.user_center">
+<code class="sig-name descname">user_center</code><em class="property"> = (('Dangamvura', 'Dangamvura'), ('Urburn', 'Urburn'), ('Manicaland', 'Manicaland'))</em><a class="headerlink" href="#beweb.forms.assetForm.user_center" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">BEOperations</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../beapi/models.html">API Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../beapi/serializers.html">Serializers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../beapi/admin.html">API Admin Model Registration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../beapi/urls.html">API Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../beapi/views.html">API Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="choices.html">Web Choices</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Web Forms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Web Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="urls.html">Web urls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="views.html">Web Views</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="choices.html" title="previous chapter">Web Choices</a></li>
+      <li>Next: <a href="models.html" title="next chapter">Web Models</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, BE Dev.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/beweb/forms.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

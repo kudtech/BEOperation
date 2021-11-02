@@ -1,0 +1,31 @@
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+
+<div class="container"><table  class="table table-striped">
+    <thead>
+    <h3 class="nav justify-content-center text-white bg-dark">Workorder</h3>
+    <tr>
+    <th>Description </th>
+    <th>Centre </th>
+    <th>Work order id</th>
+    </tr>
+
+    </thead>
+    <tbody  >
+    {% for field in wodr %} 
+    <tr>
+      <td class="text-muted Muted link">   {{field.description}}</td>
+      <td class="text-muted Muted link">   {{field.centre}}</td>
+      <td class="text-muted Muted link">   {{field.work_order_id}}</td>
+    </tr>
+    {% endfor %}
+
+    </tbody>
+    <tfoot>
+    <tr>
+
+    </tr>
+    </tfoot>   
+  </table>
+
+</div>
+{% endif %} {% endblock %}

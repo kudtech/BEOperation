@@ -1,0 +1,12 @@
+{% if user.is_authenticated %}
+<form id="logoutForm" action="/logout/" method="post" class="form-inline">
+    {% csrf_token %}
+    <a href="javascript:document.getElementById('logoutForm').submit()"></a>
+
+</form>
+{% else %}
+<div class="form-inline">
+    <a href="{% url 'login' %}">Log in</a>
+</div>
+{% endif %}
+<!--<a class=" mr-sm-2">{{ user.username }}</a> -->

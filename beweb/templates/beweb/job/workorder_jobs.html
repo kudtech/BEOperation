@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>Job Edit</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <title>Jobs</title>
+    <meta name="author" content="kk">
+    {% load staticfiles %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/content/style.css'%}" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+    <!-- Navigation(Nav Bar) -->
+    <nav class="navbar navbar-expand-md sticky-top" style="padding:35px">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="{%static 'beweb/img/belogo.png'%}" width="80" height="75">
+            </a>
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'beweb/img/logo.png'%}" width="65" height="65" style="border-radius: 30px;">
+            </a>
+        </div>
+    </nav>
+    <!-- Navigation(Nav Bar End)  -->
+    <div class="bg">
+        <!--Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light sticky-top"
+            style="padding:25px;background-color:#FDF2E5;opacity:0.8">
+            <div class="container-fluid">
+                <div class="dropdown">
+                    <a href="" id="imageDropdown" data-toggle="dropdown">
+                        <img src="{%static 'beweb/img/apps.png'%}" width="40" height="40">
+                    </a>
+                    <div class="dropdown-menu">
+                        <button class="dropdown-item" type="button"><a tabindex='-1' href="#">Strategic
+                                Objectives</a></button>
+                        <button class="dropdown-item" type="button"><a tabindex='-1' href="#">Processes and
+                                Procedures</a></button>
+
+                        <button class="dropdown-item" type="button"><a tabindex='-1'
+                                href="{% url 'beweb:dashboard' %}">Business
+                                Applications</a></button>
+
+                        <button class="dropdown-item" type="button"><a tabindex='-1' href="#">Competence
+                                Building</a></button>
+                        <button class="dropdown-item" type="button"><a tabindex='-1' href="#">Engagement
+                                Forums</a></button>
+                        <button class="dropdown-item" type="button"><a tabindex='-1' href="#">Knowledge
+                                Centre</a></button>
+                        <button class="dropdown-item" type="button"><a tabindex='-1'
+                                href="{% url 'beweb:landing' %}">Dashboard</a></button>
+                    </div>
+                </div>
+                <ul class="navbar-nav mr-auto nav-tabs">
+                    <li class="nav-item active">
+                        <a class="nav-link navbar-brand font-weight-bold" href="{% url 'beweb:dashboard' %}">WORK
+                            ORDERS</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link navbar-brand font-weight-bold" href="{% url 'beweb:listjobs' %}">JOBS</a>
+                    </li>
+
+                    <li class="nav-item active">
+                        <a class="nav-link nav-brand font-weight-bold" href="{% url 'beweb:newteam' %}">TEAMS</a>
+                    </li>
+                    <li class="nav-item active">
+                        <a class="nav-link nav-brand font-weight-bold" href="#">REPORTS</a>
+                    </li>
+                </ul>
+                <div class="collapse navbar-collapse w-100 order-3 dual-collapse2 " id="navbarTogglerDemo01">
+                    <a class="nav-link disabled">{% include 'beweb/loginpartial.html' %}</a>
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item dropdown">
+                            <img src="{% static 'beweb/img/user.png'%}" style="margin-right:  10px">
+                            <a class=" mr-sm-2 dropdown-toggle" data-toggle="dropdown">{{ user.username }}<b
+                                    class="caret"></b></a>
+                            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                            <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                                <a class="dropdown-item" href="#">View Profile</a>
+                                <a class="dropdown-item" href="{% url 'password_reset' %}">Change Password</a>
+                                <a class="dropdown-item"
+                                    href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+                            </ul>
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+        </nav>
+        <!--/.Navbar -->
+
+        <body>
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;">
+                <br>
+                <h3 class="text-center font-weight-bold">JOBS</h3>
+
+                <table id="orders" class="table table-striped table-bordered table-responsive-md"
+                    style="background-color:#f4f4f4;border-radius: 5px" data-server-side="false">
+                    <thead>
+                        <tr>
+                            <th style="color:black">Job Number</th>
+                            <th style="color:black">Description</th>
+                            <th style="color:black"> Date Created</th>
+                            <th style="color:black">Status</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in jobs %}
+                        <tr>
+                            <td><a href='/beweb/job/?q={{job.job_id}}'>{{job.job_id }}</a></td>
+                            <td>{{job.description }}</td>
+                            <td>{{job.created_on }}</td>
+                            <td>{{job.status }}</td>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+            <link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+            <script>
+                $(document).ready(function () {
+                    var table = $(' #orders').DataTable({});
+                }); </script>
+        </body>
+
+</html>

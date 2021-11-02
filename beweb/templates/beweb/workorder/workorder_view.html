@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %}
+<html>
+
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	{%load staticfiles %}
+	<title>Workorder View</title>
+	<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" rel="stylesheet" />
+	<link rel="stylesheet" type="text/css" href="{%static 'beweb/content/style.css'%}" />
+	<style>
+		/* Set a style for the submit button */
+		.btn {
+			background-color: #2B59A2;
+			color: white;
+			padding: 10px;
+			border: none;
+			cursor: pointer;
+			width: 70%;
+			opacity: 0.8;
+			position: absolute;
+			margin-left: 15px;
+			margin-right: 15px;
+
+		}
+
+		.btn:hover {
+			opacity: 1;
+			color: #ffffff;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- {% comment %} {% extends "beweb/dashboard.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %} {% endcomment %} -->
+
+
+
+
+	<!-- {% for field in form %} {{field.error}} {% endfor %} -->
+	<div class="container">
+		<form action="{% url 'beweb:getwoid' %}" method="GET">
+			{% csrf_token %}
+
+			<h3 class="text-center">WORK ORDER</h3>
+			<div class="form-group row">
+				<label class="col-sm-4 col-form-label font-weight-bold" align="center">WORK ORDER NUMBER</label>
+				<div class="col">
+					<input type="text" class="form-control" id="" readonly name="centre" placeholder=""
+						value="{{workorder.work_order_id}}">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label for="" class="col-sm-4 col-form-label font-weight-bold" align="center">CREATOR</label>
+				<div class="col">
+					<input type="text" class="form-control" id="staticCreator" name="supervisor" readonly
+						placeholder="Full name" value="{{fullname}}">
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-4 col-form-label font-weight-bold" align="center">CENTRE</label>
+				<div class="col">
+					<input type="text" name="" value="{{workorder.centre}}" class="form-control" readonly>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-4 col-form-label font-weight-bold" align="center">DESCRIPTION</label>
+				<div class="col">
+					<textarea class="form-control" id="" name="description" placeholder="Description"
+						readonly>{{workorder.description}}</textarea>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-sm-4 col-form-label font-weight-bold" align="center">DATE CREATED</label>
+				<div class="col">
+					<input name="expected_end_dt" type="text" class="form-control" value="{{workorder.created_on}}"
+						readonly>
+				</div>
+			</div>
+
+			<div class="form-group row">
+				<label class="col-sm-4 col-form-label font-weight-bold" align="center">JOBS</label>
+				<div class="col">
+					<a href="{% url 'beweb:workorder-jobs' workorder.work_order_id %}">{{number_of_jobs}}</a>
+				</div>
+			</div>
+			<div class="form-group row">
+				<label class="col-sm-4 col-form-label font-weight-bold" align="center">PROGRESS</label>
+				<div class="col">
+					<input type="text" name="" value="" class="form-control" readonly>
+				</div>
+			</div>
+			<div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center ">
+				<div class="col-md-3"></div>
+
+				<div class=" col-md-3">
+					<a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:home' %}">
+						<input type="button" class="btn btn-sm  btn-block " value="EXIT" />
+					</a>
+				</div>
+				<div class=" col-md-3">
+					<a class="navbar-brand  col-sm-8 pt-sm-0" href="">
+						<input type="submit" class="btn  btn-sm  btn-block " value="EDIT"
+							formaction='/beweb/editwork/?q={{workorder.work_order_id}}' />
+					</a>
+				</div>
+				<div class=" col-md-3">
+					<a class="navbar-brand  col-sm-8 pt-sm-0" href="/beweb/addjob/?q={{workorder.work_order_id}}">
+						<input type="button" class="btn btn-sm  btn-block " value="ADD JOB" />
+					</a>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>
+
+</html>
+{%endblock%}

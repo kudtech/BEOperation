@@ -1,0 +1,497 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>beapi.serializers &#8212; BEOperations 0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for beapi.serializers</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.models</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">rest_framework</span> <span class="k">import</span> <span class="n">serializers</span>
+<span class="kn">from</span> <span class="nn">rest_framework.serializers</span> <span class="k">import</span> <span class="n">ModelSerializer</span>
+
+
+<div class="viewcode-block" id="AppflowSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.AppflowSerializers">[docs]</a><span class="k">class</span> <span class="nc">AppflowSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="AppflowSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.AppflowSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Appflow</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<span class="c1"># class WorkordersSerializers(serializers.ModelSerializer):</span>
+<span class="c1">#     class Meta:</span>
+<span class="c1">#         model = Workorder</span>
+<span class="c1">#         fields = &#39;__all__&#39;</span>
+
+
+<div class="viewcode-block" id="WorkorderSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.WorkorderSerializers">[docs]</a><span class="k">class</span> <span class="nc">WorkorderSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">jobs</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">StringRelatedField</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WorkorderSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.WorkorderSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Workorder</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="WorkorderJobsSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.WorkorderJobsSerializers">[docs]</a><span class="k">class</span> <span class="nc">WorkorderJobsSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">jobs</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">StringRelatedField</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="WorkorderJobsSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.WorkorderJobsSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Workorder</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;work_order_id&#39;</span><span class="p">,</span><span class="s1">&#39;jobs&#39;</span><span class="p">]</span></div></div>
+
+<span class="c1"># the following serializers were done by tsitsi</span>
+
+
+<div class="viewcode-block" id="JobprogressSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobprogressSerializers">[docs]</a><span class="k">class</span> <span class="nc">JobprogressSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">jobteam_members</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">StringRelatedField</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="JobprogressSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobprogressSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Jobprogress</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="JobteamSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobteamSerializers">[docs]</a><span class="k">class</span> <span class="nc">JobteamSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="JobteamSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobteamSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Jobteam</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="JobsyncSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobsyncSerializers">[docs]</a><span class="k">class</span> <span class="nc">JobsyncSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="JobsyncSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobsyncSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Jobsync</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="JobattachmentSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobattachmentSerializers">[docs]</a><span class="k">class</span> <span class="nc">JobattachmentSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="JobattachmentSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobattachmentSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Jobattachment</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E84LineinspectionSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E84LineinspectionSerializers">[docs]</a><span class="k">class</span> <span class="nc">E84LineinspectionSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="E84LineinspectionSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E84LineinspectionSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E84Lineinspection</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E84GeneralSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E84GeneralSerializers">[docs]</a><span class="k">class</span> <span class="nc">E84GeneralSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="E84GeneralSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E84GeneralSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E84General</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E60TransformerSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60TransformerSerializers">[docs]</a><span class="k">class</span> <span class="nc">E60TransformerSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="E60TransformerSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60TransformerSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E60Transformer</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E60SwitchgearSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60SwitchgearSerializers">[docs]</a><span class="k">class</span> <span class="nc">E60SwitchgearSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="E60SwitchgearSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60SwitchgearSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E60Switchgear</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E60SubstationgeneralSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60SubstationgeneralSerializers">[docs]</a><span class="k">class</span> <span class="nc">E60SubstationgeneralSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="E60SubstationgeneralSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60SubstationgeneralSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E60Substationgeneral</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E60MeterswitchgearhousingSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60MeterswitchgearhousingSerializers">[docs]</a><span class="k">class</span> <span class="nc">E60MeterswitchgearhousingSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="E60MeterswitchgearhousingSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60MeterswitchgearhousingSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E60Meterswitchgearhousing</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E60MeterSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60MeterSerializers">[docs]</a><span class="k">class</span> <span class="nc">E60MeterSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+
+<div class="viewcode-block" id="E60MeterSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60MeterSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E60Meter</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">E60LightningarresterSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E60Lightningarrester</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">E60DfusesSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E60Dfuses</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">E50SwitchgearSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Switchgear</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">E50ProtectioncubicleSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Protectioncubicle</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">E50GeneralSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50General</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">E50FeederSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Feeder</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">E50ControlcubicleSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Controlcubicle</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">E50AutodisconnectSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Autodisconnect</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+
+<span class="k">class</span> <span class="nc">CommonSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Common</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+
+<div class="viewcode-block" id="ClientSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.ClientSerializers">[docs]</a><span class="k">class</span> <span class="nc">ClientSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="ClientSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.ClientSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Client</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E60LightningarresterSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60LightningarresterSerializers">[docs]</a><span class="k">class</span> <span class="nc">E60LightningarresterSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="E60LightningarresterSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60LightningarresterSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E60Lightningarrester</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E60DfusesSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60DfusesSerializers">[docs]</a><span class="k">class</span> <span class="nc">E60DfusesSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="E60DfusesSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E60DfusesSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E60Dfuses</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E50SwitchgearSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50SwitchgearSerializers">[docs]</a><span class="k">class</span> <span class="nc">E50SwitchgearSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="E50SwitchgearSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50SwitchgearSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Switchgear</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E50ProtectioncubicleSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50ProtectioncubicleSerializers">[docs]</a><span class="k">class</span> <span class="nc">E50ProtectioncubicleSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="E50ProtectioncubicleSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50ProtectioncubicleSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Protectioncubicle</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E50GeneralSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50GeneralSerializers">[docs]</a><span class="k">class</span> <span class="nc">E50GeneralSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="E50GeneralSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50GeneralSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50General</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">E50FeederSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Feeder</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span>
+
+
+<div class="viewcode-block" id="E50ControlcubicleSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50ControlcubicleSerializers">[docs]</a><span class="k">class</span> <span class="nc">E50ControlcubicleSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="E50ControlcubicleSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50ControlcubicleSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Controlcubicle</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E50AutodisconnectSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50AutodisconnectSerializers">[docs]</a><span class="k">class</span> <span class="nc">E50AutodisconnectSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="E50AutodisconnectSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50AutodisconnectSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Autodisconnect</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="CommonSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.CommonSerializers">[docs]</a><span class="k">class</span> <span class="nc">CommonSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="CommonSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.CommonSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Common</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="E50FeederSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50FeederSerializers">[docs]</a><span class="k">class</span> <span class="nc">E50FeederSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="E50FeederSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.E50FeederSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">E50Feeder</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="PermissionSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.PermissionSerializers">[docs]</a><span class="k">class</span> <span class="nc">PermissionSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="PermissionSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.PermissionSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Permission</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="OfficeSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.OfficeSerializers">[docs]</a><span class="k">class</span> <span class="nc">OfficeSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="OfficeSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.OfficeSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Office</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="JobworkflowSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobworkflowSerializers">[docs]</a><span class="k">class</span> <span class="nc">JobworkflowSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="JobworkflowSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobworkflowSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Jobworkflow</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="UserroletrailSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.UserroletrailSerializers">[docs]</a><span class="k">class</span> <span class="nc">UserroletrailSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="UserroletrailSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.UserroletrailSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Userroletrail</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="TeamSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.TeamSerializer">[docs]</a><span class="k">class</span> <span class="nc">TeamSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">members</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">StringRelatedField</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TeamSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.TeamSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TeamLeader</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="TeamLeaderSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.TeamLeaderSerializer">[docs]</a><span class="k">class</span> <span class="nc">TeamLeaderSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="TeamLeaderSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.TeamLeaderSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TeamLeader</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;team_leader&#39;</span><span class="p">,</span> <span class="s1">&#39;specialisation&#39;</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="RolePermissionSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.RolePermissionSerializers">[docs]</a><span class="k">class</span> <span class="nc">RolePermissionSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="RolePermissionSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.RolePermissionSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Rolepermission</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="RoleSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.RoleSerializers">[docs]</a><span class="k">class</span> <span class="nc">RoleSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="RoleSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.RoleSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Role</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="PoleSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.PoleSerializers">[docs]</a><span class="k">class</span> <span class="nc">PoleSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="PoleSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.PoleSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Pole</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="UserroleSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.UserroleSerializers">[docs]</a><span class="k">class</span> <span class="nc">UserroleSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="UserroleSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.UserroleSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Userrole</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="JobSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobSerializer">[docs]</a><span class="k">class</span> <span class="nc">JobSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+    <span class="n">job_progress</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">StringRelatedField</span><span class="p">(</span><span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<div class="viewcode-block" id="JobSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Job</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="FeederSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.FeederSerializer">[docs]</a><span class="k">class</span> <span class="nc">FeederSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="FeederSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.FeederSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Feeder</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="LightningArresterSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.LightningArresterSerializer">[docs]</a><span class="k">class</span> <span class="nc">LightningArresterSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="LightningArresterSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.LightningArresterSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Lightningarrester</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="SubstationMeterSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.SubstationMeterSerializer">[docs]</a><span class="k">class</span> <span class="nc">SubstationMeterSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="SubstationMeterSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.SubstationMeterSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Substationmeter</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="SwitchgearSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.SwitchgearSerializer">[docs]</a><span class="k">class</span> <span class="nc">SwitchgearSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="SwitchgearSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.SwitchgearSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Switchgear</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="TransformerSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.TransformerSerializer">[docs]</a><span class="k">class</span> <span class="nc">TransformerSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="TransformerSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.TransformerSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Transformer</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="BoqLabourSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.BoqLabourSerializer">[docs]</a><span class="k">class</span> <span class="nc">BoqLabourSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="BoqLabourSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.BoqLabourSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Boqlabour</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="BoqMaterialSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.BoqMaterialSerializer">[docs]</a><span class="k">class</span> <span class="nc">BoqMaterialSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="BoqMaterialSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.BoqMaterialSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Boqmaterial</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="BoqVehicleSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.BoqVehicleSerializer">[docs]</a><span class="k">class</span> <span class="nc">BoqVehicleSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="BoqVehicleSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.BoqVehicleSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Boqvehicle</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="ClientSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.ClientSerializer">[docs]</a><span class="k">class</span> <span class="nc">ClientSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="ClientSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.ClientSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Client</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="JobstatusSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobstatusSerializers">[docs]</a><span class="k">class</span> <span class="nc">JobstatusSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="JobstatusSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobstatusSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">JobStatus</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="JobtypeSerializers"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobtypeSerializers">[docs]</a><span class="k">class</span> <span class="nc">JobtypeSerializers</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="JobtypeSerializers.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.JobtypeSerializers.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">JobType</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+
+<div class="viewcode-block" id="CentreSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.CentreSerializer">[docs]</a><span class="k">class</span> <span class="nc">CentreSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<div class="viewcode-block" id="CentreSerializer.Meta"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.CentreSerializer.Meta">[docs]</a>    <span class="k">class</span> <span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">Centre</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="s1">&#39;__all__&#39;</span></div></div>
+
+<span class="c1">######################################################################################################</span>
+
+
+<span class="c1"># class ClientDataSerializer(serializers.Serializer):</span>
+<span class="c1">#     class Meta:</span>
+<span class="c1">#         model = ClientData</span>
+<span class="c1">#         fields = &#39;__all__&#39;</span>
+
+
+<div class="viewcode-block" id="ClientDataSerializer"><a class="viewcode-back" href="../../beapi/serializers.html#beapi.serializers.ClientDataSerializer">[docs]</a><span class="k">class</span> <span class="nc">ClientDataSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">Serializer</span><span class="p">):</span>
+    <span class="n">client_username</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">client_message</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">client_socket</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">BEOperations</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../beapi/models.html">API Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beapi/serializers.html">Serializers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beapi/admin.html">API Admin Model Registration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beapi/urls.html">API Endpoints</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beapi/views.html">API Views</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beweb/choices.html">Web Choices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beweb/forms.html">Web Forms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beweb/models.html">Web Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beweb/urls.html">Web urls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../beweb/views.html">Web Views</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, BE Dev.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

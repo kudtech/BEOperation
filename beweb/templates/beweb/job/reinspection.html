@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+<div class="container">
+    <h2 class="text-center font-weight-bold">JOB</h2>
+    <form method="GET">
+        {% csrf_token %}
+        <div class="row form-group">
+            <div class="col-sm-4">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">WORK ORDER
+                    NUMBER</label>
+            </div>
+            <div class="col-sm-4">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">JOB NUMBER</label>
+            </div>
+            <div class="col-sm-4">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">TYPE
+                </label>
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-sm-4">
+                <input type="text" class="form-control " name="workorder_number" value="{{workorder}}" readonly />
+            </div>
+            <div class="col-sm-4">
+                <input type="text" class="form-control" name="job_number" id="job_number" value="{{job_id}}" readonly />
+                <input type="hidden" class="form-control" name="old_job_number"  value="{{old_job_number}}" readonly />
+            </div>
+            <div class="col-sm-4">
+                <select name="jobtype" id="jobtype" type="text" class="form-control" placeholder="Please Select Type"
+                    onclick="replaceContentInContainer('client','descrip')" required>
+                    {% for jptype in jobtp%}
+                    <option value="{{jptype.job_type_id}}" selected>
+                        {{jptype.type}}
+                    </option>
+                    {% endfor%}
+                </select>
+            </div>
+        </div>
+        <!-- E117 -->
+        <div id="e117">
+            <div class="row form-group" >
+                <div class="col-sm-4">
+                </div>
+                <div class="col-sm-4">
+                    <label class="font-weight-bold" style="padding-left: 50px;">INSPECTION TYPE</label>
+                </div>
+                <div class="col-sm-4">
+                </div>
+            </div>
+            <div class="row form-group" >
+                <div class="col-sm-4">
+                </div>
+                <div class="col-sm-4">
+                    <input name="inspection_type" id="inspection_type" type="text" class="form-control" value="{{e117_data.client_inspection_type}}">
+                    <textarea id="e117_tnames" name="e117_tnames" hidden class="form-control" value=""> </textarea>
+
+                </div>
+                <div class="col-sm-4">
+                </div>
+            </div>
+            <!-- RE-INSPECTION -->
+            <div id="re_inspection">
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">SERVICE
+                            NUMBER</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control " name="re_inspection_service_number"
+                            id="re_inspection_service_number" value="{{service_number}}" readonly/>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">RECEIPT
+                            NUMBER
+                        </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control " name="re_inspection_receipt_number"
+                            id="re_inspection_receipt_number" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label"
+                            style="padding-left: 50px;">RE-INSPECTION FEE</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control " name="re_inspection_fee" id="re_inspection_fee" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">DATE
+                            PAID</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="date" class="form-control " name="re_inspection_date_paid"
+                            id="re_inspection_date_paid" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                            NAME</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control " name="re_inspection_customer_name"
+                            id="re_inspection_customer_name" value="{{client_data.client_name}}" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CUSTOMER
+                            PHONE
+                        </label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control " name="re_inspection_customer_phone"
+                            id="re_inspection_customer_phone" value="{{client_data.client_phone}}" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">PROPERTY
+                            ADDRESS</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="re_inspection_property_address" id="re_inspection_property_address"
+                            class="form-control" value="{{client_data.property_address}}"/>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">PROPERTY
+                            OWNER`S NAME</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="re_inspection_property_owner_name" id="re_inspection_property_owner_name"
+                            type="text" class="form-control" value="{{client_data.owner_name}}" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">PROPERTY
+                            OWNER`S ADDRESS</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="re_inspection_property_owner_address" id="re_inspection_property_owner_address"
+                            class="form-control" value="{{client_data.owner_address}}"/>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CONTRACTOR`S
+                            NAME</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="re_inspection_contractor_name" id="re_inspection_contractor_name" type="text"
+                            class="form-control" value="{{contractor_data.contractor_name}}"/>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CONTRACTOR`S
+                            PHONE</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="re_inspection_contractor_phone" id="re_inspection_contractor_phone" type="text"
+                            class="form-control" value="{{contractor_data.contractor_phone}}" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">CONTRACTOR`S
+                            ADDRESS</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="re_inspection_contractor_address" id="re_inspection_contractor_address"
+                            class="form-control" value="{{contractor_data.contractor_address}}"/>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START
+                            DATE</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="re_inspection_start_date" id="re_inspection_start_date" type="date"
+                            class="form-control" value="" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">EXPECTED END
+                            DATE</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input name="re_inspection_expected_end_dt" id="re_inspection_expected_end_dt" type="date"
+                            class="form-control" value="" />
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" name="workorder_description" value="{{workorder_description}}" hidden>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold" style="padding-left: 50px;">TEAM LEADER</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <select id="re_inspection_assignee" name="re_inspection_assignee" onchange="re_inspection()"
+                            class="form-control">
+                            <option value="" disabled selected>Select Team Leader</option>
+                            {% for value in teams.values%}
+                            {% for leader in value%}
+                            {% if leader.firstname  %}
+                            <option value="{{leader.ec_number}}">
+                                {{leader.firstname}} {{leader.lastname}}
+                            </option>
+                            {% endif %}
+                            {% endfor%}
+                            {% endfor%}
+                        </select>
+                    </div>
+                </div>
+                <div class="row form-group" id="">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold" style="padding-left: 50px;">TEAM MEMBERS</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <select class="form-control" multiple="multiple" id="re_inspection_team_members"
+                            name="re_inspection_team_members"></select>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold" style="padding-left: 50px;">SELECTED</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <textarea class="form-control" name="re_inspection_assistants" value=""
+                            id="re_inspection_assistants"></textarea>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-sm-3">
+                        <label class="font-weight-bold" style="padding-left: 50px;">FLEET</label>
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" placeholder="" id="re_inspection_fleet"
+                            name="re_inspection_fleet" value="" />
+                    </div>
+                    <div class="col-sm-3">
+                    </div>
+                    <div class="col-sm-3">
+                    </div>
+                </div>
+                <div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center ">
+                    <div class="col-md-3">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:home' %}">
+                            <input type="button" class="btn  btn-sm btn-block " value="Cancel"
+                                onclick="return confirm('Are you sure you want to cancel the job?');" />
+                        </a>
+                    </div>
+                    <div class=" col-md-3">
+                        <a class="navbar-brand  col-sm-8 pt-sm-0">
+                            <input type="submit" class="btn btn-sm  btn-block" id="re_inspection_create" value="Create"
+                                name="re_inspection_create_submit" formaction="/beweb/save_reinspection/"
+                                onclick=" return confirm('Are you sure you want to create job?');" />
+
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script>
+
+    $(document).ready(function () {});
+    /////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////// E117 RE-INSPECTION /////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+
+    var re_inspection_assistants = document.getElementById("re_inspection_assistants").value || "";
+    var re_assistants = document.getElementById("e117_tnames").value || "";
+
+    $("#re_inspection_team_members").on("click", function (e) {
+        var e = document.getElementById("re_inspection_team_members");
+        if (re_inspection_assistants.indexOf(e.value) === -1) {
+            re_assistants += e.value.substring(0, e.value.indexOf('%')) + ", ";
+            re_inspection_assistants += e.value + ", ";
+            document.getElementById("e117_tnames").value = re_inspection_assistants;
+            document.getElementById("re_inspection_assistants").value = re_assistants;
+        }
+    });
+    $('#re_inspection_team_members').click(function () {
+        $('#re_inspection_team_members option').prop('selected', true);
+    });
+    // A user cannot select an old date
+    // var today = new Date().toISOString().split('T')[0];
+    // document.getElementsByName("start_date")[0].setAttribute('min', today);
+    // document.getElementsByName("expected_end_dt")[0].setAttribute('min', today);
+
+    function re_inspection() {
+        var x = document.getElementById("re_inspection_team_members");
+        x.options.length = 0;
+        var assignee = document.getElementById("re_inspection_assignee").value;
+        var mteam = {{ teams | safe}};
+    for (var key in mteam) {
+        if (mteam.hasOwnProperty(key)) {
+            if (key == assignee) {
+                var members = mteam[key][1];
+                for (var tm in members) {
+                    var option = document.createElement("option");
+                    for (var tmd in members) {
+                        option.value = members[tm]["firstname"] + "  " + members[tm]["lastname"] + "%" + members[tm]["ec_number"];
+                        option.text = members[tm]["firstname"] + "  " + members[tm]["lastname"];
+                        x.add(option);
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+</script>
+{% endif %} {% endblock %}

@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html>
+<title>ViewWorkorderList</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+{%load staticfiles %}
+ <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" rel="stylesheet" />
+ <link rel="stylesheet" type="text/css" href="{%static 'beweb/content/style.css'%}"/>
+<style>
+h6{
+
+  	padding: 0px;
+    color: black;
+    font-weight: bold;
+    display:block;
+}
+
+table{
+	margin-top:60px;
+	border-collapse: collapse;
+}
+
+bg {
+	
+	border: 2px solid black;
+  	background-repeat: no-repeat;
+  	background-size: auto;
+}
+body, html {
+  height: 100%;
+}
+
+</style>
+<body>
+<div class="bg">
+<div class="w3-container">
+  
+  <table class="w3-table thead-dark w3-border table table-bordered">
+    <tr bgcolor="white">
+      <th><h6>WORK ORDER NUMBER</h6></th>
+      <th><h6>DESCRIPTION</h6></th>
+      <th><h6>DATE CREATED</h6></th>
+      <th><h6>JOB(S)</h6></th>
+      <th><h6>STATUS</h6></th>
+    </tr>
+    <tr bgcolor="white" >
+      <td>W19071600100</td>
+      <td>Park Road Cable Fault</td>
+      <td>16/07/2019</td>
+      <td>2</td>
+      <td>Open</td>
+    </tr>
+	 <tr bgcolor="white">
+      <td>W19071600100</td>
+      <td>Park Road Cable Fault</td>
+      <td>16/07/2019</td>
+      <td>2</td>
+      <td>Suspended</td>
+    </tr>
+	 <tr bgcolor="white">
+      <td>W19071600100</td>
+      <td>Park Road Cable Fault</td>
+      <td>16/07/2019</td>
+      <td>2</td>
+      <td>completed</td>
+    </tr>
+	 <tr bgcolor="white">
+      <td>W19071600100</td>
+      <td>Park Road Cable Fault</td>
+      <td>16/07/2019</td>
+      <td>2</td>
+      <td>Open</td>
+    </tr>
+	 <tr bgcolor="white">
+      <td>W19071600100</td>
+      <td>Park Road Cable Fault</td>
+      <td>16/07/2019</td>
+      <td>2</td>
+      <td>Open</td>
+    </tr>
+  </table>
+</div>
+</div>
+</body>
+</html>

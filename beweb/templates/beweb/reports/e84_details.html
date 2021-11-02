@@ -1,0 +1,44 @@
+{% extends "beweb/dashboard.html" %}
+{% block content %}
+ {% if user.is_authenticated %} 
+ {% load render_table from django_tables2 %}
+    <br />
+
+    <div class="container col-md-12">
+    <form action="{% url 'beweb:Aprove' %}" method="get">
+    <div class="row">
+            
+            <div class="col-md-10">
+                <div class="row">
+
+                    <div class="col-md-10">
+                    <br>  <h4 class="bg-dark text-light text-center">
+                            E84 General
+                          </h4>
+                        {% render_table E84_general %}
+                      </div >  <div class="col-md-10">
+                    <br>  <h4 class="bg-dark text-light text-center">
+                            E84 Form
+                        </h4>
+                        {% render_table E84_table %}
+                      </div >
+                    
+                  
+                  
+                  
+                      <br>  <div class="  d-flex justify-content-center col-md-10">
+                          <input class="btn btn-sm btn-dark  btn-round text-success" type="submit" value="Aprove"name="Add Job">
+                          <input class="btn btn-sm btn-dark  btn-round text-danger" type="submit" value="reject"name="Add Job">
+                          <input class="btn btn-sm btn-dark  btn-round text-info" type="submit" value="recomment"name="Add Job">
+                          <input class="btn btn-sm btn-dark  btn-round text-warning" type="submit" value="Suspend"name="Add Job">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+
+    </div>
+
+ {% endif %}
+ {% endblock %}

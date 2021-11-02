@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+<div class="container">
+    <h2 class="text-center font-weight-bold">JOB</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row form-group  p-0 m-0">
+            <div class="col-sm-6 py-0 my-0">
+                <label class="font-weight-bold col-xs-3  col-form-label" style="padding-left: 50px;">WORK ORDER
+                    NUMBER</label>
+            </div>
+            <div class="col-sm-6 py-0 my-0">
+                <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">JOB NUMBER</label>
+            </div>
+           
+        </div>
+        
+
+        <div class="row form-group  p-0 m-0">
+            <div class="col-sm-6  py-0 my-0 ">
+                <input type="text" class="form-control " name="workorder_number" value="{{wo}}" readonly />
+            </div>
+            <div class="col-sm-6  py-0 my-0">
+                <input type="text" class="form-control" name="job_number" id="job_number" value="{{job_id}}" readonly />
+            </div>
+         
+        </div>
+
+        {% block asset %}{% endblock %}
+    </form>
+</div>
+
+
+
+{% endif %} {% endblock %}

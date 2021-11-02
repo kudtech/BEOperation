@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+{%load staticfiles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    .fa-stack {
+        position: relative;
+        color: #2B59A2;
+        /* color: lightgreen; */
+    }
+</style>
+
+<body>
+            <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;" id="job_report">
+                <br>
+                <h3 class="text-center font-weight-bold">Jobs Reports</h3>
+                <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                    data-ajax="/beweb/jobsreport/{{jobtype}}/{{centre_code}}/{{status}}/{{start_date}}/{{end_date}}/?format=datatables" data-server-side="false"
+                    id="jobs" style="background-color:#f4f4f4;border-radius: 5px;width:100%">
+                    <thead>
+                        <tr>
+                            <th style="color:black" id="work_order">Workorder Number</th>
+                            <th style="color:black" id="job_number">Job Number</th>
+                            <th style="color:black" id="description">Description</th>
+                            <th style="color:black" id="date_created"> Date Created</th>
+                            <th style="color:black" id="date_ended"> Date Closed</th>
+                            <th style="color:black" id="status">Status</th>
+                            <th style="color:black" id="forms">Forms</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        <div class="container" style="background-color:#f4f4f4;margin-top:50px;border-radius:15px;" id="workorder_report">
+            <br>
+            <h3 class="text-center font-weight-bold">WORK ORDERS REPORTS</h3>
+            <table class="w3-table thead-dark w3-border table table-striped table-bordered display"
+                data-server-side="false" data-ajax="/beweb/workorders_report/{{centre_code}}/{{status}}/{{start_date}}/{{end_date}}/?format=datatables" id="workord"
+                style="background-color:#f4f4f4;border-radius: 5px">
+                <thead>
+                    <tr>
+                        <th style="color: black;" id="workorder">Work Order Number</th>
+                        <th style="color: black;" id="wo_description">Description</th>
+                        <th style="color: black;" id="wo_date_created">Date Created</th>
+                        <th style="color: black;" id="wo_jobs">Job(s)</th>
+                        <th style="color: black;" id="wo_status">Status</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+
+
+    <script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+    <script>
+        $(document).ready(function () {
+            var reportype= "{{report_type}}"
+            var pagetype = "{{pagetype}}"
+            sessionStorage.setItem("type_of_page", pagetype);
+            alert(pagetype)
+            if (reportype==='jobs'){
+                $('#workorder_report').hide()
+                $('#job_report').show()
+                var table= $('#jobs').DataTable({
+                    "ajax": '/beweb/jobsreport/{{jobtype}}/{{centre}}/{{status}}/{{start_date}}/{{end_date}}/?format=datatables',
+                "serverSide": true,
+                "columns": [
+                    { "data": "work_order_id", "searchable": false },
+                    {
+                        "data": "job_id", "searchable": true,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).html("<a data-toggle='collapse' href='#" + oData.job_id + "' aria-expanded='false' aria-controls='" + oData.job_id + "'>" + oData.job_id + "</a><div class='card card-body collapse' id='" + oData.job_id + "'><a class='row' href='/beweb/job/?q=" + oData.job_id + "'>View</a><a class='row' href='/beweb/editjob/?q=" + oData.job_id + "'>Edit</a></div>");
+                        }
+                    },
+                    { "data": "description", "searchable": true },
+                    { "data": "created_on", "searchable": true },
+                    { "data": "end_dt", "searchable": true },
+                    { "data": "status", "searchable": false },
+                    {
+                        "data": "form_id", "searchable": false,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).html("<a href='/beweb/forms/?job_id=" + oData.job_id + "&type= {{reports}}" + "'>" + oData.number_of_forms + "</a>");
+                        }
+                    }
+                ]
+                });
+            }
+            else if (reportype=="workorder"){
+
+                $('#workorder_report').show()
+                $('#job_report').hide()
+
+                var table1 = $('#workord').DataTable({
+                    "ajax": '/beweb/workorders_report/{{centre_code}}/{{status}}/{{start_date}}/{{end_date}}/?format=datatables',
+                "serverSide": true,
+                "columns": [
+                    {
+                        "data": "work_order_id", "searchable": true,
+                        "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
+                            $(nTd).html("<a data-toggle='collapse' href='#" + oData.work_order_id + "' aria-expanded='false' aria-controls='" + oData.work_order_id + "'>" + oData.work_order_id + "</a><div class='card card-body collapse' id='" + oData.work_order_id + "'><a class='row' href='/beweb/mywork/?q=" + oData.work_order_id + "'>View</a><a class='row' href='/beweb/editwork/?q=" + oData.work_order_id + "'>Edit</a><a class='row' href='/beweb/addjob/?q=" + oData.work_order_id + "'>Add Job</a></div>");
+                        }
+                    },
+                    { "data": "description", "searchable": true },
+                    { "data": "created_on", "searchable": true },
+                    { "data": "no_of_jobs", "searchable": false },
+                    { "data": "workorderstatus", "searchable": false }
+                    ]
+                
+                });
+            }
+           
+           
+        });
+    </script>
+</body>
+{% endif %} {% endblock %}

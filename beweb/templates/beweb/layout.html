@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <meta name="description" content="" />
+  <meta name="author" content="#" />
+  <title>BE OPERATIONS</title>
+  {% load staticfiles %}
+  <link rel="stylesheet" type="text/css" href="{% static 'beweb/content/style.css'%}" />
+  <link rel="stylesheet" type="text/css" href= "{% static 'beweb/css/bootstrap.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'beweb/css/font-awesome.min.css' %}" />
+  <script src="{% static 'beweb/js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'beweb/js/jquery.min.js' %}"></script>
+  <script src="{% static 'beweb/js/jquery-ui.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'beweb/css/bootstrap.min.css' %}"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+  <style>
+    body {
+      height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .dropdown-item>a {
+      color: black;
+    }
+
+    /* Set a style for the submit button */
+    .btn {
+      background-color: #2B59A2;
+      color: white;
+      padding: 10px;
+      border: none;
+      cursor: pointer;
+      width: 70%;
+      opacity: 0.8;
+      position: absolute;
+      margin-left: 15px;
+      margin-right: 15px;
+
+    }
+
+    .btn:hover {
+      opacity: 1;
+      color: #ffffff;
+    }
+
+    .custom-select {
+      width: 50px !important;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Navigation(Nav Bar) -->
+  <nav class="navbar navbar-expand-md sticky-top" style="padding:35px 0px; display:flex;">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">
+        <img src="{%static 'beweb/img/belogo.png'%}" width="80" height="75" />
+      </a>
+      <a class="navbar-brand" href="#">
+        <img src="{% static 'beweb/img/logo.png'%}" width="65" height="65" style="border-radius: 30px;" />
+      </a>
+    </div>
+  </nav>
+  <!-- Navigation(Nav Bar End)  -->
+  <div class="bg">
+    <!--Navbar -->
+    <nav nav class="navbar navbar-expand-lg navbar-light" style="padding:25px;background-color:#FDF2E5;opacity:0.8;">
+      <div class="container-fluid">
+        <div class="dropdown">
+          <a href="" id="imageDropdown" data-toggle="dropdown">
+            <img src="{%static 'beweb/img/apps.png'%}" width="40" height="40" />
+          </a>
+          <div class="dropdown-menu">
+            <button class="dropdown-item" type="button">
+              <a tabindex="-1" href="#">Strategic Objectives</a>
+            </button>
+            <button class="dropdown-item" type="button">
+              <a tabindex="-1" href="#">Processes and Procedures</a>
+            </button>
+            <button class="dropdown-item" type="button">
+              <a tabindex="-1" href="{% url 'beweb:dashboard' %}">Business Applications</a>
+            </button>
+            <button class="dropdown-item" type="button">
+              <a tabindex="-1" href="#">Competence Building</a>
+            </button>
+            <button class="dropdown-item" type="button">
+              <a tabindex="-1" href="#">Engagement Forums</a>
+            </button>
+            <button class="dropdown-item" type="button">
+              <a tabindex="-1" href="#">Knowledge Centre</a>
+            </button>
+            <button class="dropdown-item" type="button">
+              <a tabindex="-1" href="{% url 'beweb:landing' %}">Dashboard</a>
+            </button>
+          </div>
+        </div>
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle active font-weight-bold" href="{% url 'beweb:dashboard' %}"
+              id="workorders" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">WORK ORDERS</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="{% url 'beweb:dashboard' %}">View</a>
+            </div>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link nav-brand font-weight-bold" href="{% url 'beweb:listjobs' %}">JOBS</a>
+          </li>
+
+          <li class="nav-item active">
+            <a class="nav-link nav-brand font-weight-bold" href="{% url 'beweb:view_teams' %}">TEAMS</a>
+
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link nav-brand font-weight-bold" href="{% url 'beweb:reports' %}">REPORTS</a>
+          </li>
+
+          <!-- <li class="nav-item active">
+            <a class="nav-link nav-brand font-weight-bold " href="/beweb/myjobs/">MY JOBS</a>
+          </li> -->
+
+
+
+        </ul>
+        <div class="collapse navbar-collapse w-100 order-3 dual-collapse2 " id="navbarTogglerDemo01">
+          <a class="nav-link disabled">{% include 'beweb/loginpartial.html' %}</a>
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item dropdown">
+              <img src="{% static 'beweb/img/user.png'%}" style="margin-right:  10px" />
+              <a class=" mr-sm-2 dropdown-toggle" data-toggle="dropdown">{{ user.first_name }} {{ user.last_name }} <b
+                  class="caret"></b></a>
+              <!-- <i class="fa fa-ellipsis-v" aria-hidden="true"></i> -->
+              <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                <a class="dropdown-item" href="#">View Profile</a>
+                <a class="dropdown-item" href="{% url 'password_reset' %}">Change Password</a>
+                <a class="dropdown-item" href="javascript:document.getElementById('logoutForm').submit()">Logout</a>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    {% block content %}{% endblock %}
+  </div>
+  <!-- <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+    crossorigin="anonymous"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <!--/.Navbar -->
+  <script>
+    $("#leader").on("click change", function (e) {
+      /// $("#output").html("Event type: " + e.target.nodeName);
+
+      var e = document.getElementById("leader");
+      var strUser = e.options[e.selectedIndex].value;
+      $("#data").html("Selected :" + strUser);
+    });
+    $("#select_all").click(function () {
+      $("#ms option").prop("selected", true);
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+
+</html>

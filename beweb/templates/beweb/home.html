@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - Be Operations</title>
+
+    {% load staticfiles %}
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/content/bootstrap.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/content/gsdk-bootstrap-wizard.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/content/bootstrap-datetimepicker.min.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'beweb/content/site.css' %}" />
+    <script src="{% static 'beweb/scripts/modernizr-2.6.2.js' %}"></script>
+</head>
+<div class="container col-md-10">
+
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark  fixed-top">
+            <a class="navbar-brand" href="#">Be-Operations</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                <div class="navbar-nav">
+                    <a class="nav-item nav-link active" href="{% url 'home' %}">Home <span
+                            class="sr-only">(current)</span></a>
+                    <a class="nav-item nav-link" href="http://172.20.0.32:82">GitBlit</a>
+                    <a class="nav-item nav-link" href="{% url 'beapi:workorderpost' %}">Current Workorder Endpoint</a>
+                    <a class="nav-item nav-link" href="http://172.20.3.216/phpmyadmin/">Mysql Database</a> {% include 'beweb/loginpartial.html' %}
+                </div>
+            </div>
+        </nav>
+
+
+
+        <div>
+            <hr />
+
+            <footer class="fixed-bottom">
+                <div class="container">
+                    <p>&copy; {{ year }} - #TeamWeb</p>
+                </div>
+            </footer>
+
+
+        </div>
+
+        <script src="{% static 'beweb/scripts/jquery-1.10.2.js' %}"></script>
+        <script src="{% static 'beweb/scripts/bootstrap.js' %}"></script>
+        <script src="{% static 'beweb/scripts/respond.js' %}"></script>
+        <script src="{% static 'beweb/scripts/jquery-2.2.4.min.js' %}"></script>
+        <script src="{% static 'beweb/scripts/bootstrap-datetimepicker.min.js' %}"></script>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script>
+            $("#leader").on("click change", function(e) {
+                /// $("#output").html("Event type: " + e.target.nodeName);
+
+                var e = document.getElementById("leader");
+                var strUser = e.options[e.selectedIndex].value;
+                $("#data").html("Selected :" + strUser);
+            });
+            $('#select_all').click(function() {
+                $('#ms option').prop('selected', true);
+            });
+        </script>
+        {% block scripts %}{% endblock %}
+
+    </body>
+</div>
+
+</html>

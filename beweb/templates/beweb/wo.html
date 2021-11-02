@@ -1,0 +1,70 @@
+{% extends "beweb/layout.html" %} {% block content %}
+
+
+<canvas></canvas>
+<h6 hidden>Artisan</h6>
+<ul hidden>
+    <li>{{data.descr}}</li>
+    <!-- <li>{{data.specialisation}}</li> -->
+    <li>{{data.username}}</li>
+    <!-- <li>{{data.center}}</li> -->
+    <li>{{data.section}} </li>
+</ul>
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col-md-6">
+                    <form action="{% url 'beweb:getteam' %}" method="GET">
+                        {% csrf_token %}
+                        <label for="sel1">
+                            <h6>Select Team Leader:</h6>
+                        </label>
+                        <select class="form-control col-md-12" id="leader" name="leader">
+                            <option selected="selected">
+                                {{tl}}
+                            </option>
+                            {% for tl in team_leaders %}
+                            <option>{{tl}}</option>
+                            {% endfor %}
+                        </select>
+
+                        <input type="submit" class="btn btn-sm btn-primary" value="Get Team" />
+                    </form>
+                    <hr />
+                   
+                </div>
+                <div class="col-md-6">
+
+                </div>
+
+            </div>
+
+        </div>
+        <div class="col-md-6">
+         <form action="{% url 'beweb:getteam' %}" method="POST">
+                      {% csrf_token %}
+
+            <h6>Team Members</h6>
+            <input type="button" class="form-control btn-sm" id="select_all" name="select_all" value="Select All">
+           
+            <select multiple="multiple"  name="members" id="members" size="5">
+    {% for tm in my_teams %}
+        <option value="{{tm}}">{{tm}}</option>
+    {% endfor %}
+</select>
+  
+                        <input type="submit" class="btn btn-sm btn-success" value="Save Data" />
+                    </form>
+        </div>
+        <div class="col-md-4">
+
+
+            <hr />
+
+            <div id="data"></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

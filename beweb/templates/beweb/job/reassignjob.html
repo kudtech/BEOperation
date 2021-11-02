@@ -1,0 +1,201 @@
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %} {% if user.is_authenticated %}
+{% load staticfiles %}
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/content/style.css'%}" />
+<link rel="stylesheet" type="text/css" href="{% static 'beweb/DataTables/datatables.min.css' %}" />
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="{% static 'beweb/DataTables/datatables.min.js' %}"></script>
+
+
+<!--/.Navbar -->
+<div class="container">
+    <h2 class="text-center font-weight-bold">JOB</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold">WORK ORDER
+                    NUMBER</label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control " required placeholder="" id="wo" name="wo"
+                    value="{{job.work_order}}" readonly />
+                <input type="text" class="form-control " hidden id="centre" name="centre"
+                value="{{code_centre}}"/>
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold">JOB NUMBER</label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" required id="job_number" name="job_number"
+                    value="{{job_id}}" readonly />
+                <input type="text" class="form-control" id="old_job" name="old_job"
+                    value="{{job.job_id}}" hidden />
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold">DESCRIPTION</label>
+            </div>
+            <div class="col-sm-3">
+
+                <textarea id="tnames" name="tnames" hidden class="form-control" value=""> </textarea>
+                <textarea name="description" class="form-control" required
+                    placeholder="">{{job.description}} </textarea>
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold">START DATE AND TIME</label>
+            </div>
+            <div class="col-sm-3">
+                <input name="start_date" type="datetime-local" class="form-control" value="" />
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold">TYPE</label>
+            </div>
+            <div class="col-sm-3">
+                <input name="type" type="text" class="form-control" value="{{job.type}}" />
+
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold">EXPECTED END DATE</label>
+            </div>
+            <div class="col-sm-3">
+                <input name="expected_end_dt" type="datetime-local" class="form-control"
+                    value="}" />
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold">TRIGGER</label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" required placeholder="" id="trigger" name="trigger"
+                    value="{{job.trigger}}" />
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold">FLEET</label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" required placeholder="" id="fleet" name="fleet"
+                    value="{{fleet}}" />
+            </div>
+        </div>
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold">PLANT/EQUIPMENT TYPE</label>
+            </div>
+            <div class="col-sm-3">
+                <input type="text" class="form-control" required placeholder="" id="plantequip" name="plant_equipment"
+                    value="{{job.asset_type}}" />
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold">TEAM LEADER</label>
+            </div>
+            <div class="col-sm-3">
+                <select id="assignee" class="form-control select2">
+                    <option value="">Select Leader/Artisan</option>
+                    {% for leader in Artisans%}
+                    <option value="{{leader.username}}" name="team_leader">
+                        {{leader.firstname}} {{leader.surname}}
+                    </option>
+                    {% endfor%}
+                </select>
+                <input type="text" id="job_leader" hidden name="the_leader">
+                <button class="save_leader" type="button"> Add </button>
+            </div>
+        </div>
+
+        <div class="row form-group">
+            <div class="col-sm-3">
+                <label class="font-weight-bold">TEAM MEMBERS</label>
+            </div>
+            <div class="col-sm-3">
+                
+                <select id="members" multiple="true" class="form-control team_mr" style="width:100%;
+                height:100px;">
+                    {% for members in Artisan_Assistants%}
+                    <option value="{{members.username}}">
+                        {{members.firstname}} {{members.surname}}
+                    </option>
+                    {% endfor%}
+                </select>
+            </div>
+            <div class="mid" style="width:50px;text-align:center;">
+                <br>
+                <button class="add" type="button"> > </button>
+                <button class="remove" type="button"> < </button>
+                <button class="remove-all" type="button"> <<< </button>
+            </div>
+            <div class="col-sm-3">
+                <label class="font-weight-bold" style="padding-left: 5px;">SELECTED</label>
+            </div>
+            <div class="end">
+                <select id="second" multiple="true" name="second" style="width: 200px;
+                height:100px;">
+                </select>
+                <textarea id="teammember" class="form-control" readonly hidden name="teammember"></textarea>
+            </div>
+        </div>
+
+        <div class="form-group row  col-sm-12 d-flex justify-content-center align-content-center ">
+            <div class="col-md-3">
+            </div>
+            <div class=" col-md-3">
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:listjobs' %}">
+                    <input type="button" class="btn btn-sm  btn-block " value="BACK" />
+                </a>
+            </div>
+            <div class=" col-md-3">
+                <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                    <input type="submit" class="btn btn-sm  btn-block" id="save" value="SAVE" formaction="/beweb/job/reassign/" />
+                </a>
+            </div>
+            <div class=" col-md-3">
+            </div>
+        </div>
+    </form>
+</div>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script>
+
+    
+    $(document).ready(function () {
+        var table = $('#job').DataTable({});
+
+        $('.add').click(function(){
+            $('#members option:selected').appendTo('#second');
+        });
+        $('.remove').click(function(){
+            $('#second option:selected').appendTo('#members');
+        });
+        $('.add-all').click(function(){
+            $('#members option').appendTo('#second'); 
+        });
+        $('.remove-all').click(function(){
+            $('#second option').appendTo('#members'); 
+        });
+        $('.save_leader').click(function(){
+            $('#assignee option:selected').appendTo('#second');
+        });
+
+        
+       $('#assignee').change(function(){
+           selectedLeader= ($('option:selected',this).val());
+           selectedMember=$('#members option[value='+ selectedLeader +']');
+           selectedMember.hide();
+           $('#job_leader').val(selectedLeader)
+           //alert($('#job_leader').val())
+
+       })
+    
+       
+    });
+    $('.select2').select2();
+    
+</script>
+{% endif %} {% endblock %}

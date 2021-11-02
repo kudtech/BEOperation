@@ -1,0 +1,81 @@
+{% extends "beweb/job/creation_forms/team.html" %}{% block form %}
+<div class="row form-group" id="descrip">
+    <div class="col-sm-3">
+        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">DESCRIPTION</label>
+    </div>
+    <div class="col-sm-9">
+        <textarea id="tnames" name="tnames" hidden class="form-control" value=""> </textarea>
+        <textarea name="description" class="form-control" value="" placeholder=""
+            id="e84_description"> {{description}}</textarea>
+
+    </div>
+</div>
+<div class="row form-group">
+    <div class="col-sm-3">
+        <label class="font-weight-bold col-xs-3 col-form-label" style="padding-left: 50px;">START DATE AND
+            TIME</label>
+    </div>
+    <div class="col-sm-3">
+        <input name="e84_start_date" type="datetime-local" class="form-control" value="" id="e84_start_date" />
+    </div>
+    <div class="col-sm-3">
+        <label class="font-weight-bold" style="padding-left: 50px;">EXPECTED END DATE</label>
+    </div>
+    <div class="col-sm-3">
+        <input name="e84_expected_end_dt" type="datetime-local" class="form-control" value="{{year}}" id="e84_expected_end_dt" />
+    </div>
+</div>
+<div class="row form-group" id="trigge">
+    <div class="col-sm-3">
+        <label class="font-weight-bold" style="padding-left: 50px;">TRIGGER</label>
+    </div>
+    <div class="col-sm-3">
+        <select class="form-control" id="e84_trigger" name="trigger">
+            <option value="" disabled selected>Select Trigger</option>
+            <option value="Inspection">Inspection</option>
+            <option value="Fault">Fault</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="Recovery">Recovery</option>
+        </select>
+    </div>
+    <div class="col-sm-3">
+        <label class="font-weight-bold" style="padding-left: 50px;">PLANT/EQUIPMENT TYPE</label>
+    </div>
+    <div class="col-sm-3">
+        <select class="form-control" name="asset_type" id="e84_asset_type">
+            <option value="" disabled selected>Select Equipment </option>
+            <option value="transformer">Transformer</option>
+            <option value="station">Station</option>
+            <option value="feeder">Feeder</option>
+            <option value="meter">Meter</option>
+            <option value="switchgear">Switchgear</option>
+            <option value="pole">Pole</option>
+        </select>
+    </div>
+</div>
+
+
+    {% endblock%}
+  {% block buttons %}
+  
+    <div class="col-md-3">
+        <a class="navbar-brand  col-sm-8 pt-sm-0" href="{% url 'beweb:home' %}">
+            <input type="button" class="btn  btn-sm btn-block " value="Cancel"
+                onclick="return confirm('Are you sure you want to cancel the job?');" />
+        </a>
+    </div>
+    <div class="col-md-3" id="attach">
+        <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+            <input type="submit" class="btn  btn-sm  btn-block " value="Attach Asset" name="Add Asset"
+                formaction="/beweb/save/asset/"
+                onclick="return confirm('Are you sure you want to add asset?');" />
+        </a>
+    </div>
+    <div class=" col-md-3">
+        <a class="navbar-brand  col-sm-8 pt-sm-0" href="}">
+            <input type="submit" class="btn btn-sm  btn-block " value="Submit" id="e84_submit"
+                name="savejob_submit" formaction="/beweb/save/job/"
+                onclick="return confirm('Are you sure you want to create job?');" />
+        </a>
+    </div>
+  {% endblock%}

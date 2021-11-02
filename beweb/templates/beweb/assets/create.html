@@ -1,0 +1,137 @@
+{% extends "beweb/layout.html" %} {% load i18n%} {% block content %}
+{% if user.is_authenticated %}{% load render_table from django_tables2 %}
+<br />
+<div class="container col-md-10">
+    <style>
+        .select-box {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box
+        }
+    </style>
+    <div class="container">
+        <h2 class="text-center font-weight-bold">Select Asset</h2>
+        <form action="{% url 'beweb:wofilterasset' %}" method="GET">
+            {% csrf_token %}
+            <br />
+            <div class="row">
+                <div class="col-md-2">
+                    <h6 class="text-info">Filter By :</h6>
+                </div>
+                <div class="col-md-4">
+                    <label>
+                        Centre
+                    </label>
+                    <input hidden name="mycenter" vaule="{{centre}}">
+                    <select class="col-md-12 select-box" name="acenter">
+                        <option selected="selected" value="{{centre_code}}">
+                            {{centre}}
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="">
+                        Asset type
+                    </label>
+                    <select class="col-md-12 select-box" name="selecta">
+                        <option selected="selected">
+                            {{asset}}
+                        </option>
+                        <option value="transformer">
+                            Transformer
+                        </option>
+                        <option value="switch">
+                            Switch Gear
+                        </option>
+                        <option value="meter">
+                            Substation Meter
+                        </option>
+                        <option value="feeder">
+                            Feeder
+                        </option>
+                        <option value="pole">
+                            Pole
+                        </option>
+                    </select>
+                </div>
+                <input hidden name="wo" type="text" class="form-control" value="{{wo}}" />
+                <input hidden name="joid" type="text" class="form-control" value="{{joid}}" />
+            </div>
+            <div class="row">
+                <div class="col-md-4"></div>
+                <div class="col-md-2 float-center">
+                    <input type="submit" class="btn btn-sm btn-info btn-block btn-round " value="Search Assets"
+                        id="search_button" />
+                </div>
+                <!-- <div class="col-md-4"></div> -->
+            </div>
+            <br />
+            {% comment %}
+        </form>
+        <form action="{% url 'beweb:saveasset' %}" method="Get" id="asset_form">
+            {% csrf_token %} {% endcomment %}
+            <input hidden value="{{joid}}" name="joid" id="joid" />
+            <input hidden value="{{wo}}" name="wo" id="wo" />
+            <input hidden value="{{selected}}" name="selected" id="selected" />
+            <br /><br />
+            <div class="col-md-12 bg-light">
+                <div class="row">
+                    {% if selected == "transformer"%}
+                    <div class="col-md-12">
+                        <h3 class="text-light text-center bg-dark">
+                            Transformers: {{centre}}
+                        </h3>
+                        {% render_table transformer_table %}
+                    </div>
+                    {%endif%} {% if selected == "switch"%}
+                    <div class="col-md-12">
+                        <h3 class="text-light text-center bg-dark">
+                            Switch Gears : {{centre}}
+                        </h3>
+                        {% render_table switch_table %}
+                    </div>
+
+                    {%endif%} {% if selected == "meter"%}
+                    <div class="col-md-12">
+                        <h3 class="text-light text-center bg-dark">
+                            Substation Meters : {{centre}}
+                        </h3>
+                        {% render_table substation_table %}
+                    </div>
+                    {%endif%} {% if selected == "feeder"%}
+                    <div class="col-md-12">
+                        <h3 class="text-light text-center bg-dark">
+                            Feeders: {{centre}}
+                        </h3>
+                        {% render_table feeeder_table %}
+                    </div>
+                    {% endif%} {% if selected == "pole"%}
+                    <div class="col-md-12">
+                        <h3 class="text-light text-center bg-dark">
+                            Pole : {{centre}}
+                        </h3>
+                        {% render_table pole_table %}
+                    </div>
+                    {%endif%}
+                </div>
+            </div>
+            <!-- <div class="row">
+                <div class="col-md-4"></div>
+                <div class="col-md-2 float-right">
+                    <input type="submit" class="btn btn-sm btn-info btn-block btn-round " formaction="/beweb/saveasset/"
+                        value="next" />
+                </div>
+                <div class="col-md-4"></div>
+            </div> -->
+        </form>
+    </div>
+</div>
+{% endif %} {% endblock %} {% block scripts %}
+<script>
+
+</script>
+{% endblock %}

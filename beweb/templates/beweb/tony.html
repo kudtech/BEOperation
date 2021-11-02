@@ -1,0 +1,47 @@
+<!-- Modal -->
+<div class="modal fade" id="reject_modal" tabindex="-1" role="dialog" aria-labelledby="modal_centre_title"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <label class="font-weight-bold col-xs-3 col-form-label text-center" style="padding-left: 50px;">REASON
+                    FOR REJECTING
+                </label>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {% for e60 in e60_general %}
+                    <input type="hidden" value="{{e60.job}}" name="job_id" />
+                    {% endfor %}
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <textarea class="form-control" name="reject_reason" id="reject_reason"></textarea>
+                        </div>
+                    </div>
+                    <div class="row form-group" style="border-radius:15px;padding-bottom:40px;">
+                        <div class="col-sm-4"></div>
+                        <div class="col-sm-2">
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                                <input type="button" class="btn  btn-sm  btn-block " value="Cancel" data-dismiss="modal"
+                                    id="cancel_btn" />
+                            </a>
+                        </div>
+                        <div class="col-sm-2">
+                            <a class="navbar-brand  col-sm-8 pt-sm-0" href="#">
+                                <input type="submit" class="btn  btn-sm  btn-block" value="Send" name="send"
+                                    formaction="/beweb/approve" />
+                            </a>
+                        </div>
+                        <div class="col-sm-4"></div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
