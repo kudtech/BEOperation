@@ -213,9 +213,13 @@ class WoSaveAsset(View):
         assignee = request.session['assignee']
         team_members =request.session['teammembers']
         fleet = request.session['fleet']
-        if not request.session['workorder_number']:
+        if request.session['workorder_exist'] == False:
             username = request.session['username']
             description = request.session['description']
+            print("________________________")
+            print(description)
+            print("________________________")
+
             supervisor = request.session['username']
             data = execsys(request.user.username)
             centre = data['section']
@@ -1223,6 +1227,8 @@ class Mywo(View):
         data = execsys(username)
         username = data['username']
         description = request.POST['description']
+        
+
         supervisor = request.POST['supervisor']
         date = datetime.now().strftime("%Y%m%d%H%M")
         centre_code = request.POST['centre_code']
@@ -1230,53 +1236,21 @@ class Mywo(View):
         work_order_id = request.POST['work_order_id']
         job_id = "JO"+datetime.now().strftime("%Y%m%d%H%M") + \
             str(random.randrange(000000, 100000))
-        team_leaders = []
         jobtp = JobType.objects.filter(Q(job_type_id='E117') | Q(job_type_id='E50') | Q(
             job_type_id='E60') | Q(job_type_id='E84')).values("job_type_id", "type")
-        Teams = Team.objects.values('team_leader_id').distinct()
-        team_leaders = [team_leader['team_leader_id'] for team_leader in Teams]
-
-        teams = {}
-        for team_leader in team_leaders:
-            team_members = [team_member['team_member'] for team_member in Teams.values(
-            ) if team_member['team_leader_id'] == team_leader]
-            data = execsys(team_leader)
-            teamleader = {
-                "ec_number": team_leader,
-                "firstname": data['firstname'],
-                "lastname": data['surname']
-            }
-            members = []
-            for member in team_members:
-                data1 = execsys(member)
-                first_name = data1['firstname']
-                last_name = data1['surname']
-                our_team = {
-                    "ec_number": member,
-                    "firstname": first_name,
-                    "lastname": last_name
-                }
-                members.append(our_team)
-            team_sheet = []
-            team_sheet.append(teamleader)
-            team_sheet.append(members)
-            teams[team_leader] = team_sheet
-            team_leader = ''
-
         # variable declared to allow for creation of Job starting from a workorder (already created). Logic implemented in the SaveJob view`s if statement
         request.session['workorder_number'] = ''
         request.session['description'] = description
-        request.session['teams'] = teams
+        
+        request.session['centre_code'] = centre_code
         request.session['job_type_id'] = jobtp[0]['job_type_id']
         request.session['type'] = jobtp[0]['type']
-        # request.session['_fleet'] = request.POST['_fleet']
-        # request.session['teammembers'] = request.POST['teammembers']
-        # request.session['job_assignee'] = request.POST['job_assignee']
-       
+        request.session['workorder_exist'] = False
+        
         contractors = get_contractors(username)
         return render(request, 'beweb/job/createjob_workorder.html', {
             'wo': work_order_id, 'job_id': job_id, 'centre': centre, 'centre_code': centre_code, 'username': username, 'description': description,
-            'year': datetime.now(), 'teams': teams, 'jobtp': jobtp, "contractors": contractors
+            'year': datetime.now(),  'jobtp': jobtp
         })
 
 
@@ -1315,11 +1289,7 @@ class SaveJobandAddAsset(View):
         username = data['username']
         fleet = request.POST['_fleet']
         assignee = request.POST['job_assignee']
-
         team_members = request.POST.getlist('teammembers')
-        
-
-        
         section = data['section']
         centre, centre_code = get_center(centre_code)
         user_centre = data['centre']
@@ -1519,8 +1489,13 @@ class SaveJob(View):
         reference_number = None
         job_type = request.POST['jobtype']
         asset_id = None
+        team_members = request.POST.getlist('teammembers')
+        fleet = request.POST['_fleet']
+        assignee = request.POST['job_assignee']
+        
         # IF WORKORDER DOES NOT EXIST, create workorder first
-        if not request.session['workorder_number']:
+        if request.session['workorder_exist'] == False:
+            
             if job_type == 'E84':
                 username = request.session['username']
                 description = request.session['description']
@@ -1533,7 +1508,6 @@ class SaveJob(View):
                 wo = request.session['work_order']
                 data = execsys(username)
                 section = data['section']
-                assignee = request.POST['assignee']
                 job_number = request.POST['job_number']
 
                 job_description = request.POST['description']
@@ -1543,7 +1517,6 @@ class SaveJob(View):
                 trigger = request.POST['trigger']
                 jobtp = JobType.objects.filter(
                     type='Line Inspection').values("job_type_id")
-                fleet = request.POST['fleet']
                 asset_type = request.POST['asset_type']
                 expected_end_dt = request.POST['e84_expected_end_dt']
 
@@ -1559,18 +1532,15 @@ class SaveJob(View):
                 wo = request.session['work_order']
                 data = execsys(username)
                 section = data['section']
-                assignee = request.POST['job_assignee']
                 team_members = request.POST['teammembers']
                 job_number = request.POST['job_number']
 
                 job_description = request.POST['e50_description']
-               #team_mmbr = request.POST['e50_tnames']
                 
                 start_date = request.POST['e50_start_date']
                 trigger = None
                 jobtp = JobType.objects.filter(
                     job_type_id='E50').values("job_type_id")
-                fleet = request.POST['_fleet']
                 asset_type = None
                 expected_end_dt = request.POST['e50_expected_end_dt']
                 station_id = None
@@ -1591,16 +1561,13 @@ class SaveJob(View):
                 data = execsys(username)
                 section = data['section']
                 district = request.POST['section']
-                assignee = request.POST['e60_assignee']
                 job_number = request.POST['job_number']
                 job_description = request.POST['e60_description']
-               #team_mmbr = request.POST['e60_tnames']
                 
                 start_date = request.POST['e60_start_date']
                 trigger = None
                 jobtp = JobType.objects.filter(
                     job_type_id='E60').values("job_type_id")
-                fleet = request.POST['_fleet']
                 asset_type = None
                 expected_end_dt = request.POST['e60_expected_end_dt']
                 transformer_id = None
@@ -1625,11 +1592,11 @@ class SaveJob(View):
             del request.session['work_order']
             del request.session['workorder_number']
         else:
+            
             if job_type == 'E84':
                 wo = request.session['workorder_number']
                 createdby = request.user.username
                 username = request.user.username
-                assignee = request.POST['assignee']
                 job_description = request.POST['description']
                 expected_end_dt = request.POST['e84_expected_end_dt']
                 data = execsys(request.user.username)
@@ -1639,7 +1606,6 @@ class SaveJob(View):
                 trigger = request.POST['trigger']
                 start_date = request.POST['e84_start_date']
                 asset_type = request.POST['asset_type']
-                fleet = request.POST['fleet']
                 
                 
             elif job_type == 'E50':
@@ -1657,7 +1623,6 @@ class SaveJob(View):
                 start_date = request.POST['e50_start_date']
                 asset_type = None
                 fleet = request.POST['_fleet']
-               #team_mmbr = request.POST['e50_tnames']
                 
                 e50_id = "E50"+datetime.now().strftime("%Y%m%d%H%M") + \
                     str(random.randrange(000000, 100000))
@@ -1680,7 +1645,6 @@ class SaveJob(View):
                 start_date = request.POST['e60_start_date']
                 asset_type = None
                 fleet = request.POST['_fleet']
-               #team_mmbr = request.POST['e60_tnames']
                 
                 e60_id = "E60"+datetime.now().strftime("%Y%m%d%H%M") + \
                     str(random.randrange(000000, 100000))
@@ -1688,6 +1652,7 @@ class SaveJob(View):
 
             joid = Save_Job(createdby, assignee, job_type, wo, job_description, expected_end_dt, centre,
                             section, job_number, trigger, start_date, asset_type, reference_number, asset_id)
+            
             if job_type == 'E50':
                 save_e50(e50_id, job_number, createdby, station_id)
             elif job_type == 'E60':
@@ -1696,12 +1661,12 @@ class SaveJob(View):
             else:
                 pass
             jp = job_progress(job_number, createdby, fleet)
+            
             a = save_team(username, assignee, jp, team_members)
             del request.session['workorder_number']
         return render(request, 'beweb/job/notification.html')
 
-    def post(self, request, *args, **kwargs):
-        return HttpResponse('Are you sure you want to save data')
+    
 
 
 class Myjob(View):
@@ -2006,22 +1971,41 @@ def get_depot_name(code):
    
 class AddJob(View):
      def get(self, request, *args, **kwargs):
-        workorder_Id = request.GET.get('q')
+        try:
+            workorder_Id = request.GET['q']
+        except:
+            workorder_Id = request.GET['workorder']
+
+        request.session['workorder_number']=workorder_Id
+
+        
         type=request.GET.get('jobtype')
         
-        request.session['workorder_number'] = workorder_Id
+        
         """get workers to associate with the job"""
         workers= schema.execute('{teamleders{teamLeader specialisation centre members{teamMember }}}').data['teamleders']
-       
-        workorder = Workorder.objects.filter(work_order_id=workorder_Id)
-        print("__________________")
-        print(workorder)
-        print("__________________")
+        try:
+            workorder = Workorder.objects.get(
+            work_order_id=workorder_Id)
+            job_id = "JO"+datetime.now().strftime("%Y%m%d%H%M") + \
+                str(random.randrange(000000, 100000))
+            code_centre = workorder.centre
+            request.session['workorder_exist'] = True
+            description=workorder.description
+            
+            
+        except:
+            description=request.session['description']
+            print("___________________ chisale")
+            print(description)
+            print("___________________ chisale")
 
-
-        job_id = "JO"+datetime.now().strftime("%Y%m%d%H%M") + \
+            code_centre = request.session['centre_code']
+            job_id = "JO"+datetime.now().strftime("%Y%m%d%H%M") + \
             str(random.randrange(000000, 100000))
-        code_centre = workorder[0]['centre']
+
+        request.session['description'] = description
+
         users = requests.get(url="http://" + beserver + ":8082/users/").json()
         artisans = [user for user in users if (('Assistant' not in user['designation']) and('Artisan' in user['designation']) and user['status'] == 'active')]
         artisan_assistants = [assistant for assistant in users if ((assistant['section'] == code_centre)and
@@ -2046,7 +2030,7 @@ class AddJob(View):
             'teams': workers,
             'job_id':job_id,
             'type':type,
-            "description": workorder[0]['description'],
+            "description":description,
             "contractors": get_contractors(request.user.username)
             })
        
@@ -3477,9 +3461,7 @@ class SaveE117Job(APIView):
             assignee = request.POST['job_assignee']
             fleet = request.POST.get('new_installation_fleet')
             job_description = request.POST.get('description')
-            print("___________________")
-            print(job_description)
-            print("___________________")
+            
             expected_end_dt = request.POST.get(
                 'new_installation_expected_end_dt')
             trigger = None
