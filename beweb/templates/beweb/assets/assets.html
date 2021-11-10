@@ -472,6 +472,7 @@
                 {},
                 {
                     "data": "stationid", "searchable": true,
+                    "visible":false,
                     "fnCreatedCell": function (nTd, sData, oData, iRow, iCol) {
                         $(nTd).html("<a data-toggle='collapse' href='#" + oData.stationid + "' aria-expanded='false' aria-controls='" + oData.stationid + "'>" + oData.stationid + "</a><div class='card card-body collapse' id='" + oData.stationid + "'><a class='row' href='/beweb/job/?q=" + oData.stationid + "'>View Equipment</a></div>");
                     }
@@ -541,7 +542,7 @@
             "columns": [
                 {},
                 {
-                    "data": data_one, "searchable": true
+                    "data": data_one, "searchable": true,"visible":false
                 },
                 {
                     "data": data_two, "searchable": true

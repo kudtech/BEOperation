@@ -216,10 +216,6 @@ class WoSaveAsset(View):
         if request.session['workorder_exist'] == False:
             username = request.session['username']
             description = request.session['description']
-            print("________________________")
-            print(description)
-            print("________________________")
-
             supervisor = request.session['username']
             data = execsys(request.user.username)
             centre = data['section']
@@ -1227,8 +1223,6 @@ class Mywo(View):
         data = execsys(username)
         username = data['username']
         description = request.POST['description']
-        
-
         supervisor = request.POST['supervisor']
         date = datetime.now().strftime("%Y%m%d%H%M")
         centre_code = request.POST['centre_code']
@@ -1792,7 +1786,11 @@ def save_team(username, assignee, jp_id, team_members):
     
     for membr in team_members:
         member = membr.partition('%')[2]
-        membername = membr.partition('%')[0]
+        
+        member_ecnum = membr.partition('%')[0]
+        employee_data = execsys(member_ecnum)
+        fullname = employee_data['firstname'] + " " + employee_data['surname']
+        
         # if member:
         id = generate_job_team_id()
         
@@ -1806,7 +1804,7 @@ def save_team(username, assignee, jp_id, team_members):
             "ec_num": member,
             "start_dt": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "end_dt": "",
-            "description": membername,
+            "description": fullname,
             "teamleader": team_leaders,
             "job_progress": jp_id
         }
@@ -1996,9 +1994,7 @@ class AddJob(View):
             
         except:
             description=request.session['description']
-            print("___________________ chisale")
-            print(description)
-            print("___________________ chisale")
+            
 
             code_centre = request.session['centre_code']
             job_id = "JO"+datetime.now().strftime("%Y%m%d%H%M") + \
@@ -3422,6 +3418,7 @@ class SaveE117Job(APIView):
         username = request.user.username
         data = execsys(request.user.username)
         section = data['section']
+        fleet = request.POST['_fleet']
         workorder_number = request.POST.get('workorder_number')
         job_type = request.POST.get('jobtype')
         wo = request.POST.get('workorder_number')
@@ -3437,7 +3434,7 @@ class SaveE117Job(APIView):
         team_members = request.POST.getlist('teammembers')
         asset_id = None
         # IF WORKORDER DOES NOT EXIST, create workorder first
-        if not request.session['workorder_number']:
+        if request.session['workorder_exist'] == False:
             username = request.session['username']
             description = request.session['description']
             supervisor = request.session['username']
@@ -3459,9 +3456,7 @@ class SaveE117Job(APIView):
             owner_address = str(request.POST.get(
                 'new_installation_property_owner_address'))
             assignee = request.POST['job_assignee']
-            fleet = request.POST.get('new_installation_fleet')
             job_description = request.POST.get('description')
-            
             expected_end_dt = request.POST.get(
                 'new_installation_expected_end_dt')
             trigger = None
@@ -3515,8 +3510,6 @@ class SaveE117Job(APIView):
                 assignee = request.POST['job_assignee']
                 customer_type = request.POST.get('statutory_customer_type')
                #team_mmbr = request.POST['e117_tnames']
-                
-                fleet = request.POST.get('statutory_single_fleet')
                 e117contractor_id = None
                 # Method Calls to save job, job progress, job team, client and e117 record
                 Save_Job(createdby, assignee, job_type, wo, job_description, expected_end_dt, centre,
@@ -3540,9 +3533,6 @@ class SaveE117Job(APIView):
                 assignee = request.POST['job_assignee']
                 statutory_multiple_assistants = request.POST.get(
                     'statutory_multiple_assistants')
-                fleet = request.POST.get('statutory_multiple_fleet')
-               #team_mmbr = request.POST['e117_tnames']
-                
                 trigger = None
                 asset_type = None
                 client_id = None
@@ -3583,9 +3573,6 @@ class SaveE117Job(APIView):
             start_date = request.POST.get('re_inspection_start_date')
             expected_end_dt = request.POST.get('re_inspection_expected_end_dt')
             assignee = request.POST['job_assignee']
-           #team_mmbr = request.POST['e117_tnames']
-            
-            fleet = request.POST.get('re_inspection_fleet')
             trigger = None
             asset_type = None
             number_of_clients = None
